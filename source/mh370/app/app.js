@@ -62,23 +62,12 @@
       .config(['configServiceProvider', 'persistServiceProvider', 'projectsServiceProvider', 'versionServiceProvider',
          function (configServiceProvider, persistServiceProvider, projectsServiceProvider, versionServiceProvider) {
             configServiceProvider.location("mh370/resources/config/config.json");
+            configServiceProvider.dynamicLocation("mh370/resources/config/configclient.json?");
 	         versionServiceProvider.url("mh370/assets/package.json");
             persistServiceProvider.handler("local");
             projectsServiceProvider.setProject("mh370");
          }])
-
-      .config(['$routeProvider', function ($routeProvider) {
-         $routeProvider.
-            when('/select', {
-               //templateUrl : "mh370/search/search.html",
-               templateUrl: "mh370/select/select.html",
-               controller: "SelectCtrl",
-               controllerAs: "select"
-            }).
-            otherwise({
-               redirectTo: "/select"
-            });
-      }])
+/*
 
       .factory("userService", [function () {
          return {
@@ -91,7 +80,7 @@
          };
          function noop() { return true; }
       }])
-
+*/
       .controller("RootCtrl", RootCtrl);
 
    RootCtrl.$invoke = ['$http', 'configService', 'mapService'];
