@@ -60,14 +60,12 @@
   left: 0;
   box-shadow: 3px 0px 8px #323232;
   width:0px;
-  overflow-y: auto;
 }
 
 .cbp-spmenu-right.cbp-spmenu-open {
   right: 0;
   box-shadow: -3px 0 8px #323232;
   width: 0px;
-  overflow-y: auto;
 }
 
 /* Transitions */
@@ -80,4 +78,8 @@
    top: 15px;
    bottom: 120px;
    width: 100%;
+}
+
+.cbp-spmenu-open .left-side-menu-container, .cbp-spmenu-open .right-side-menu-container  {
+  overflow-y: auto;
 }
