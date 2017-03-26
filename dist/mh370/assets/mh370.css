@@ -1,3 +1,67 @@
+.wizardPopup {
+  position: fixed;
+  top: 20px;
+  right: 15px;
+  width: 40%;
+  z-index: 5;
+}
+
+.wizardHide {
+  display: none;
+}
+
+.downloadInner {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.abstractContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+@media only screen and (max-height:1024px) {
+  .downloadInner {
+    max-height: 700px;
+  }
+
+  .abstractContainer {
+    max-height: 320px;
+  }
+}
+
+@media only screen and (max-height:786px) {
+  .downloadInner {
+    max-height: 500px;
+  }
+
+  .abstractContainer {
+    max-height: 120px;
+  }
+}
+
+@media only screen and (max-height:600px) {
+  .downloadInner {
+    max-height: 350px;
+  }
+}
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 body {
   overflow-y: hidden;
 }
@@ -373,21 +437,6 @@ input.ng-valid.ng-touched {
     display: none !important;
   }
 }
-.selectContainer {
-  width: 100%;
-}
-
-.selectAbstractTooltip {
-  /* width:450px; */
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
-}
 /* Side Panel */
 
 /* General styles for all menus */
@@ -475,6 +524,21 @@ i.fa.active {
   bottom: 120px;
   width: 100%;
 }
+.selectContainer {
+  width: 100%;
+}
+
+.selectAbstractTooltip {
+  /* width:450px; */
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 .mh370-toolbar {
   position: fixed;
   top: 82px;
@@ -532,68 +596,4 @@ i.fa.active {
   border: none;
   height: 30px;
   font-size: 13px;
-}
-.wizardPopup {
-  position: fixed;
-  top: 20px;
-  right: 15px;
-  width: 40%;
-  z-index: 5;
-}
-
-.wizardHide {
-  display: none;
-}
-
-.downloadInner {
-  max-height: 800px;
-  overflow-y: auto;
-}
-
-.abstractContainer {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-@media only screen and (max-height:1024px) {
-  .downloadInner {
-    max-height: 700px;
-  }
-
-  .abstractContainer {
-    max-height: 320px;
-  }
-}
-
-@media only screen and (max-height:786px) {
-  .downloadInner {
-    max-height: 500px;
-  }
-
-  .abstractContainer {
-    max-height: 120px;
-  }
-}
-
-@media only screen and (max-height:600px) {
-  .downloadInner {
-    max-height: 350px;
-  }
-}
-.searchContainer {
-  width: 100%;
-}
-
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
 }
