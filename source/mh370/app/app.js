@@ -27,16 +27,15 @@
       'ngSanitize',
       'page.footer',
 
+      'geo.baselayer.control',
       'geo.draw',
       'geo.elevation',
-      //'mh370.elevation',
       'geo.geosearch',
       'geo.map',
       'geo.maphelper',
       'geo.measure',
 
       'mh370.autoscroll',
-      'mh370.baselayer.control',
       'mh370.daterange',
       'mh370.extent',
       'mh370.glossary',
