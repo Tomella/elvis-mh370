@@ -1,0 +1,15 @@
+.selectContainer {
+	width: 100%;
+}
+
+.selectAbstractTooltip {
+	/* width:450px; */
+}
+
+.orange {
+	color : orange;
+}
+
+i.fa.active {
+	color:red;
+}

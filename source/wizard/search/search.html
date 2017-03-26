@@ -1,0 +1,75 @@
+<div>
+<div style="position:relative;padding:5px;padding-left:10px;" ng-controller="SearchCtrl as search" class="scrollPanel">
+	<p style="text-align: left; margin: 10px; font-size: 16px;">
+		<strong>Search</strong>
+	</p>
+	<form class="form-horizontal">
+		<div class="well">
+			<div class="form-group">
+				<label for="searchFilter" class="col-sm-1 control-label">Filter</label>
+				<div class="col-sm-11">
+					<input placeholder='Leave blank to match all, type to filter results' type="text" class="form-control" ng-keyup="search.search()" ng-model="search.filter" ></input>
+				</div>
+			</div>
+			<div>
+				<span ng-show="search.data.response.docs">
+					<strong>Showing</strong> {{search.data.response.docs.length}} of {{search.data.response.numFound}} <strong>matches. </strong>
+					({{search.data.responseHeader.QTime/ 1000}} seconds)
+					<span ng-show="search.data.responseHeader" class="pull-right">
+
+						<div class="btn-group" dropdown style="padding-right:1em">
+							<button type="button" class="undecorated" mh370-bbox-show-all style="padding-left:5em">
+								Show all data extents
+							</button>
+						    <button type="button" class="undecorated dropdown-toggle" dropdown-toggle title="Restrict datasets based on area of coverage">
+        						<span class="caret"></span>
+        						<span class="sr-only">More options for showing and hiding datasets' extents based on size and if only some are viewable.</span>
+      						</button>
+      						<ul class="dropdown-menu" role="menu">
+        						<li><a role="button" href="javascript:;" mh370-bbox-show-visible  tooltip="Show only those datasets that have all of their data within the current viewable map">Show fully visible</a></li>
+        						<li><a role="button" href="javascript:;" mh370-bbox-hide-all  tooltip="Hide all datasets' bounding area. ">Hide all</a></li>
+      						</ul>
+    					</div>
+					</span>
+				</span>
+			</div>
+			<div>
+				<div class="container-fluid">
+					<mh370-extent></mh370-extent>
+					<mh370-facetenable></mh370-facetenable>
+					<mh370-daterange></mh370-daterange>
+				</div>
+			</div>
+		</div>
+	</form>
+
+	<div class="container" style="width:100%">
+		<div class="row" ng-repeat="doc in search.data.response.docs">
+			<div class="col-md-12"  ng-class-odd="'odd'" ng-class-even="'even'" ng-mouseleave="search.lolight(doc)" ng-mouseenter="search.hilight(doc)">
+				<span ng-class="{ellipsis:!expanded}" style="width:100%;display:inline-block;">
+					<button type="button" class="undecorated" ng-click="expanded = !expanded" title="Click to see more about this dataset" tooltip-placement="right" tooltip="Show more details.">
+						<i class="fa pad-right fa-2x" ng-class="{'fa-caret-down':expanded,'fa-caret-right':(!expanded)}"></i>
+					</button>
+					<download-add item="doc"></download-add>
+					<mh370-wms data="doc"></mh370-wms>
+					<mh370-bbox data="doc" ng-if="doc.showExtent"></mh370-bbox>
+					<a href="http://www.ga.gov.au/metadata-gateway/metadata/record/{{doc.sysId}}" target="_blank" ><strong>{{doc.title}}</strong></a>
+				</span>
+				<span ng-class="{ellipsis:!expanded}" style="width:100%;display:inline-block;padding-right:15px;"
+						tooltip-enable="!expanded" tooltip-class="searchAbstractTooltip" tooltip="{{doc.abstract | truncate : 250}}" >
+					<download-actions doc="doc" ng-show="expanded"></download-actions>
+					{{doc.abstract}}
+				</span>
+				<div ng-show="expanded">
+					<h6>Authors</h6>
+					{{doc.author | authors}}
+					<h6>Keywords</h6>
+					<div>
+						<span class="badge" ng-repeat="keyword in doc.keywords track by $index">{{keyword}}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>

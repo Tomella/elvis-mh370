@@ -1,0 +1,80 @@
+/* Application specific styling */
+.noPrint {
+	display:none !important;
+}
+
+.printOnly {
+	display : inline;
+}
+
+.marsPageMode {
+	display:none !important;
+}
+
+.wrap {
+	background-color:#ffeeee;	
+	width: 940px !important;
+	height:100%;
+	position: relative !important;
+	overflow: visible !important;
+	margin: 0 auto !important;
+}
+
+/* Alternate high contrast print header */
+div.printHeader {
+	position:fixed;
+	top:0;
+    display: inline !important;
+    height:70px;
+}
+
+div.printHeader img {
+    padding:10px;
+}
+
+div.printHeader span {
+	font-size:160%;
+	font-weight:bold;
+	padding-left:160px;
+}
+
+#container {
+	min-height:930px !important;
+	top: auto;
+	position:relative;
+	bottom:auto;
+	left : auto;
+	right:auto;
+	width:100%;	
+	background-color: #ffffff;
+}
+
+.mainHorizontal {
+	position:relative;
+	left:auto;
+	overflow:hidden;
+}
+
+#center-pane {
+	position:relative !important;
+	top:10px;
+	width:100% !important;
+	min-height: 830px !important;
+	overflow: hidden !important;
+	left:0px !important;
+	z-index:10 !important;	
+}
+
+.k-splitbar.hidebar {
+	display:none;
+	width:0;
+}
+
+/* Here we turn off the things we don't want to see */
+.PanZoomBar, body > div.k-popup, .olControlMousePosition {
+	display:none !important;
+}
+
+img {
+   max-width: none !important;
+}

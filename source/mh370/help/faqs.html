@@ -1,0 +1,15 @@
+<div class="container" >
+	<p style="text-align: left; margin: 10px; font-size: 14px;">
+		<strong>FAQS</strong>
+	</p>
+
+	<h6 ng-repeat="faq in faqs"><button type="button" class="undecorated" ng-click="focus(faq.key)">{{faq.question}}</button></h6>
+	<hr/>
+	<div class="row" ng-repeat="faq in faqs">
+		<div class="col-md-12">
+			<h6 tabindex="0" id="faqs_{{faq.key}}">{{faq.question}}</h6>
+			<span ng-bind-html="faq.answer"></span>
+			<hr/>
+		</div>
+	</div>
+</div>

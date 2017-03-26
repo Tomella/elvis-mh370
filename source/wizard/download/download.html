@@ -1,0 +1,11 @@
+<exp-modal ng-controller="DownloadCtrl as dl" icon-class="fa-download" is-open="dl.data.item.download" title="Download data" on-close="dl.remove()" is-modal="true">
+	<div style="padding:5px;">
+		<div class="row">
+  			<div class="col-md-12">
+				<h4><mh370-wms data="dl.data.item"></mh370-wms>{{dl.data.item.title}}</h4>
+				{{dl.data.item.abstract}}
+   			</div>
+		</div>
+		<mh370-geoprocess data="dl.data.item"></mh370-geoprocess>
+	</div>
+</exp-modal>

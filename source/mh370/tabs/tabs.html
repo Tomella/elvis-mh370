@@ -1,0 +1,27 @@
+<div ng-controller="tabsController">
+
+	<!-- resize handle -->
+	<div ng-mousedown="catchResize()" ng-hide="view === ''" class='x-resize'></div>
+
+	<!-- tabs go here -->
+	<div id="tabs-container" class="rotate-tabs" ng-style="{'right' : contentLeft +'px'}">
+		<div class="tab-item" ng-click="setView('select')" ng-class="{'bold': view == 'select'}" ng-keydown="$event.which === 13 && setView('select')" tabindex="0">Datasets</div>
+		<!--
+		<div class="tab-item" ng-click="setView('search')" ng-class="{'bold': view == 'search'}" ng-keydown="$event.which === 13 && setView('search')" tabindex="0">Search</div>
+		<div class="tab-item" ng-click="setView('maps')" ng-class="{'bold': view == 'maps'}" ng-keydown="$event.which === 13 && setView('maps')" tabindex="0">Layers</div>
+		-->
+		<div class="tab-item" ng-click="setView('download')" ng-controller="DownloadCtrl as download" ng-class="{'bold': view == 'download'}" ng-keydown="$event.which === 13 && setView('download')" tabindex="0">Orders <strong ng-show="download.data.count">({{download.data.count}})</strong></div>
+		<div class="tab-item" ng-click="setView('glossary')" ng-class="{'bold': view == 'glossary'}" ng-keydown="$event.which === 13 && setView('glossary')" tabindex="0">Glossary</div>
+		<div class="tab-item" ng-click="setView('help')" ng-class="{'bold': view == 'help'}" ng-keydown="$event.which === 13 && setView('help')" tabindex="0">Help</div>
+	</div>
+
+	<!-- directives go here -->
+	<div id="tabs-content-container" ng-style="{'width' : contentWidth + 'px'}">
+		<div class="tab-content-item" ng-show="view == 'select'" mh370-select></div>
+		<div class="tab-content-item" ng-show="view == 'search'" mh370-search auto-scroll=".scrollPanel" trigger="more.search.results"></div>
+		<div class="tab-content-item" ng-show="view == 'maps'" mh370-maps></div>
+		<div class="tab-content-item" ng-show="view == 'glossary'" mh370-glossary></div>
+		<div class="tab-content-item" ng-show="view == 'help'" mh370-help></div>
+		<div class="tab-content-item" ng-show="view == 'download'" mh370-download></div>
+	</div>
+</div>

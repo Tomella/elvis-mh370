@@ -1,0 +1,12 @@
+<exp-modal icon-class="fa-download"  is-open="data.item.download" title="Download wizard" on-close="dl.remove()">
+	<div class="container-fluid downloadInner" >
+		<div class="row">
+  			<div class="col-md-12">
+				<h4><mh370-wms data="dl.data.item"></mh370-wms>
+					<a href="http://www.ga.gov.au/metadata-gateway/metadata/record/{{dl.data.item.sysId}}" target="_blank"><strong class="ng-binding">{{dl.data.item.title}}</strong></a>
+				</h4>
+   			</div>
+		</div>
+		<wizard-geoprocess data="dl.data.item"></wizard-geoprocess>
+	</div>
+</exp-modal>

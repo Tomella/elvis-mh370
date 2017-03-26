@@ -1,0 +1,59 @@
+
+(function (angular) {
+
+	'use strict';
+
+	angular.module('mh370.header', [])
+
+		.controller('headerController', ['$scope', '$q', '$timeout', function ($scope, $q, $timeout) {
+
+			var modifyConfigSource = function (headerConfig) {
+				return headerConfig;
+			};
+
+			$scope.$on('headerUpdated', function (event, args) {
+				$scope.headerConfig = modifyConfigSource(args);
+			});
+		}])
+
+		.directive('mh370Header', [function () {
+			var defaults = {
+				heading: "ICSM",
+				headingtitle: "ICSM",
+				helpurl: "help.html",
+				helptitle: "Get help about ICSM",
+				helpalttext: "Get help about ICSM",
+				skiptocontenttitle: "Skip to content",
+				skiptocontent: "Skip to content",
+				quicklinksurl: "/search/api/quickLinks/json?lang=en-US"
+			};
+			return {
+				transclude: true,
+				restrict: 'EA',
+				templateUrl: "mh370/header/header.html",
+				scope: {
+					breadcrumbs: "=",
+					heading: "=",
+					headingtitle: "=",
+					helpurl: "=",
+					helptitle: "=",
+					helpalttext: "=",
+					skiptocontenttitle: "=",
+					skiptocontent: "=",
+					quicklinksurl: "="
+				},
+				link: function (scope, element, attrs) {
+					var data = angular.copy(defaults);
+					angular.forEach(defaults, function (value, key) {
+						if (!(key in scope)) {
+							scope[key] = value;
+						}
+					});
+				}
+			};
+		}])
+
+		.factory('headerService', ['$http', function () {
+		}]);
+
+})(angular);

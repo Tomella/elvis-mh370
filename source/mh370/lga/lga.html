@@ -1,0 +1,29 @@
+<div class="input-group lgaContainer">
+	<div class="row">
+		<div class="col-md-12 wrapper">
+			<div class="input-group">
+				<input type="text" size="32" class="form-control" ng-keyup="keyup($event)" ng-focus="changing()" ng-model="nameFilter" placeholder="Find a state or local government area">
+				<div class="input-group-btn">
+    				<button ng-click="root.whichSearch = 'location'" exp-ga="['send', 'event', 'mh370', 'click', 'zoom to location']"
+						class="btn btn-default" tooltip-append-to-body="true"
+						tooltip-placement="bottom" tooltip="Switch to search with Google. The Google search takes you to a point on the map. This search shows a complete region."
+						title="Switch to search with Google."><i class="fa fa-toggle-on"></i></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="lgaLists">
+		<div class="row stateList includeMe" ng-repeat="state in lgaData.states | mh370FilterList : nameFilter"
+			style="background-color:white; margin-left:5px; margin-right:42px">
+			<div class="col-md-12 ">
+				<button class="undecorated zoomButton" ng-click="zoomToLocation(state);">{{state.name}}</button>
+			</div>
+		</div>
+	</div>
+	<div class="row" ng-repeat="region in lgaData.lgas | mh370FilterList : nameFilter : 10"
+			style="background-color:white; margin-left:5px; margin-right:42px">
+		<div class="col-md-12 rw-sub-list-trigger">
+			<button class="undecorated zoomButton" ng-click="zoomToLocation(region);">{{region.name}}</button>
+		</div>
+	</div>
+</div>

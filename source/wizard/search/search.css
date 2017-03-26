@@ -1,0 +1,15 @@
+.searchContainer {
+	width: 100%;
+}
+
+.searchAbstractTooltip {
+	width:250px;
+}
+
+.orange {
+	color : orange;
+}
+
+i.fa.active {
+	color:red;
+}

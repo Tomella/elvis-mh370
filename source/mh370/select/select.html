@@ -1,0 +1,15 @@
+<div>
+	<div style="position:relative;padding:5px;padding-left:10px;" ng-controller="SelectCtrl as select" class="scrollPanel">
+		<div class="panel panel-default" style="margin-bottom:-5px">
+  			<div class="panel-heading">
+  				<h3 class="panel-title">Available datasets</h3>
+  			</div>
+  			<div class="panel-body">
+				<div ng-repeat="doc in select.data.response.docs" style="padding-bottom:7px">
+					<select-doc ng-if="doc.type == 'dataset'" doc="doc"></select-doc>
+					<select-group ng-if="doc.type == 'group'" group="doc"></select-group>
+				</div>
+  			</div>
+		</div>
+	</div>
+</div>
