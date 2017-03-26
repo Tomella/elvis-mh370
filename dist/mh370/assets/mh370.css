@@ -1,67 +1,3 @@
-.wizardPopup {
-  position: fixed;
-  top: 20px;
-  right: 15px;
-  width: 40%;
-  z-index: 5;
-}
-
-.wizardHide {
-  display: none;
-}
-
-.downloadInner {
-  max-height: 800px;
-  overflow-y: auto;
-}
-
-.abstractContainer {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-@media only screen and (max-height:1024px) {
-  .downloadInner {
-    max-height: 700px;
-  }
-
-  .abstractContainer {
-    max-height: 320px;
-  }
-}
-
-@media only screen and (max-height:786px) {
-  .downloadInner {
-    max-height: 500px;
-  }
-
-  .abstractContainer {
-    max-height: 120px;
-  }
-}
-
-@media only screen and (max-height:600px) {
-  .downloadInner {
-    max-height: 350px;
-  }
-}
-.searchContainer {
-  width: 100%;
-}
-
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
-}
 body {
   overflow-y: hidden;
 }
@@ -437,16 +373,31 @@ input.ng-valid.ng-touched {
     display: none !important;
   }
 }
+.selectContainer {
+  width: 100%;
+}
+
+.selectAbstractTooltip {
+  /* width:450px; */
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 /* Side Panel */
 
 /* General styles for all menus */
 
 .cbp-spmenu {
   position: absolute;
-  overflow-y: auto;
   top: 113px;
   bottom: 8px;
   background-color: white;
+  overflow-y: hidden;
 }
 
 /* Orientation-dependent styles for the content of the menu */
@@ -502,12 +453,14 @@ input.ng-valid.ng-touched {
   left: 0;
   box-shadow: 3px 0px 8px #323232;
   width: 0px;
+  overflow-y: auto;
 }
 
 .cbp-spmenu-right.cbp-spmenu-open {
   right: 0;
   box-shadow: -3px 0 8px #323232;
   width: 0px;
+  overflow-y: auto;
 }
 
 /* Transitions */
@@ -523,21 +476,6 @@ input.ng-valid.ng-touched {
   top: 15px;
   bottom: 120px;
   width: 100%;
-}
-.selectContainer {
-  width: 100%;
-}
-
-.selectAbstractTooltip {
-  /* width:450px; */
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
 }
 .mh370-toolbar {
   position: fixed;
@@ -596,4 +534,68 @@ i.fa.active {
   border: none;
   height: 30px;
   font-size: 13px;
+}
+.wizardPopup {
+  position: fixed;
+  top: 20px;
+  right: 15px;
+  width: 40%;
+  z-index: 5;
+}
+
+.wizardHide {
+  display: none;
+}
+
+.downloadInner {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.abstractContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+@media only screen and (max-height:1024px) {
+  .downloadInner {
+    max-height: 700px;
+  }
+
+  .abstractContainer {
+    max-height: 320px;
+  }
+}
+
+@media only screen and (max-height:786px) {
+  .downloadInner {
+    max-height: 500px;
+  }
+
+  .abstractContainer {
+    max-height: 120px;
+  }
+}
+
+@media only screen and (max-height:600px) {
+  .downloadInner {
+    max-height: 350px;
+  }
+}
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
 }

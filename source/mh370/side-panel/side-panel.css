@@ -3,10 +3,10 @@
 /* General styles for all menus */
 .cbp-spmenu {
   position: absolute;
-  overflow-y: auto;
   top: 113px;
   bottom: 8px;
   background-color: white;
+  overflow-y: hidden;
 }
 
 /* Orientation-dependent styles for the content of the menu */
@@ -60,12 +60,14 @@
   left: 0;
   box-shadow: 3px 0px 8px #323232;
   width:0px;
+  overflow-y: auto;
 }
 
 .cbp-spmenu-right.cbp-spmenu-open {
   right: 0;
   box-shadow: -3px 0 8px #323232;
   width: 0px;
+  overflow-y: auto;
 }
 
 /* Transitions */
