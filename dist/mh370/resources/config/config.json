@@ -5,6 +5,7 @@
       	 "maxBounds" : [[-52, 80],[0, 156]],
          "center": [-24, 115],
          "minZoom": 2,
+         "noZoomControl": true,
          "zoom": 4
       },
       "position": {
