@@ -6,43 +6,43 @@
 
 'use strict';
 
-angular.module("mh370.bbox", ['geo.draw'])
+angular.module("bathy.bbox", ['geo.draw'])
 
-.directive("mh370BboxShowAll", ['$rootScope', '$timeout', function($rootScope, $timeout) {
+.directive("bathyBboxShowAll", ['$rootScope', '$timeout', function($rootScope, $timeout) {
 	return {
 		link : function(scope, element) {
 			element.on("click", function() {
 				$timeout(function() {
-					$rootScope.$broadcast("mh370bboxshowall");
+					$rootScope.$broadcast("bathybboxshowall");
 				});
 			});
 		}
 	};
 }])
 
-.directive("mh370BboxHideAll", ['$rootScope', function($rootScope) {
+.directive("bathyBboxHideAll", ['$rootScope', function($rootScope) {
 	return {
 		link : function(scope, element) {
 			element.on("click", function() {
-				$rootScope.$broadcast("mh370bboxhideall");
+				$rootScope.$broadcast("bathybboxhideall");
 			});
 		}
 	};
 }])
 
-.directive("mh370BboxShowVisible", ['$rootScope', 'mapService', function($rootScope, mapService) {
+.directive("bathyBboxShowVisible", ['$rootScope', 'mapService', function($rootScope, mapService) {
 	return {
 		link : function(scope, element) {
 			element.on("click", function() {
 				mapService.getMap().then(function(map) {
-					$rootScope.$broadcast("mh370bboxshowvisible", map.getBounds());
+					$rootScope.$broadcast("bathybboxshowvisible", map.getBounds());
 				});
 			});
 		}
 	};
 }])
 
-.directive("mh370Bbox", ['$rootScope', 'bboxService', function($rootScope, bboxService) {
+.directive("bathyBbox", ['$rootScope', 'bboxService', function($rootScope, bboxService) {
 	return {
 		templateUrl : "wizard/bbox/bbox.html",
 		scope : {
@@ -50,15 +50,15 @@ angular.module("mh370.bbox", ['geo.draw'])
 		},
 		link : function(scope, element) {
 
-			$rootScope.$on("mh370bboxshowall", function() {
+			$rootScope.$on("bathybboxshowall", function() {
 				scope.data.hasBbox = true;
 			});
 
-			$rootScope.$on("mh370bboxhideall", function() {
+			$rootScope.$on("bathybboxhideall", function() {
 				scope.data.hasBbox = false;
 			});
 
-			$rootScope.$on("mh370bboxshowvisible", function(event, bounds) {
+			$rootScope.$on("bathybboxshowvisible", function(event, bounds) {
 				var myBounds = scope.data.bounds,
 					draw = bounds.getWest() < myBounds.xMin &&
                         bounds.getEast() > myBounds.xMax &&
@@ -73,7 +73,7 @@ angular.module("mh370.bbox", ['geo.draw'])
 					bboxService.draw(scope.data).then(function(bbox) {
 						scope.bbox = bbox;
 					});
-				} else{
+				} else {
 					scope.bbox = bboxService.remove(scope.bbox);
 				}
 			});

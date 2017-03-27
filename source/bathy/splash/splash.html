@@ -1,0 +1,37 @@
+<div class="modal-header">
+   <h3 class="modal-title splash">ELVIS - Bathy</h3>
+</div>
+<div class="modal-body" id="accept" ng-form exp-enter="accept()" bathy-splash-modal style="width: 100%; margin-left: auto; margin-right: auto;">
+	<div style="border-bottom:1px solid gray">
+		<p>
+			Users can download the bathymetry data over the Indian Ocean which is licensed under Creative Commons.
+		</p>
+		<p>
+			Data can be downloaded from the portal at <strong>no charge</strong> and there is no limit to how many requests you can place (please check the file size before you download your results).
+		</p>
+		<p>
+			If you need datasets in full, please contact <a href="clientservices@ga.gov.au">clientservices@ga.gov.au</a>.
+		</p>
+		<p>
+			<a href="http://opentopo.sdsc.edu/gridsphere/gridsphere?cid=contributeframeportlet&gs_action=listTools" target="_blank">Click here for Free GIS Tools.</a>
+		</p>
+
+		<div style="padding:30px; padding-top:0; padding-bottom:40px; width:100%">
+			<div class="pull-right">
+			  	<button type="button" class="btn btn-primary" ng-model="seenSplash" ng-focus ng-click="accept()">Continue</button>
+			</div>
+		</div>
+	</div>
+	<div ng-show="messages.length > 0" class="container" style="width:100%; max-height:250px; overflow-y:auto">
+		<div class="row" ng-class-even="'grayline'" style="font-weight:bold">
+			<div class="col-sm-12" ><h3>News</h3></div>
+		</div>
+
+		<div class="row"ng-class-even="'grayline'" style="max-height:400px;overflow:auto" ng-repeat="message in messages | sortNotes">
+			<div class="col-sm-12">
+				<h4>{{message.title}} <span class="pull-right" style="font-size:70%">Created: {{message.creationDate | date : "dd/MM/yyyy"}}</span></h4>
+				<div ng-bind-html="message.description"></div>
+			</div>
+		</div>
+	</div>
+</div>

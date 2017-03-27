@@ -3,9 +3,9 @@
 
 'use strict';
 
-angular.module("mh370.start", [])
+angular.module("bathy.start", [])
 
-.directive("mh370Download", [function() {
+.directive("bathyDownload", [function() {
 	return {
 		templateUrl : "download/start/start.html",
 		link: function(scope, element, attrs) {

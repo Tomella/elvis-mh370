@@ -5,7 +5,7 @@
 (function(angular, $) {
 'use strict';
 
-angular.module("mh370.download", ['mh370.geoprocess'])
+angular.module("bathy.download", ['bathy.geoprocess'])
 
 .directive("wizardPopup", ["downloadService", function(downloadService) {
 	return {
@@ -40,9 +40,9 @@ angular.module("mh370.download", ['mh370.geoprocess'])
 	};
 }])
 
-.directive("mh370Download", ['downloadService', function(downloadService) {
+.directive("bathyDownload", ['downloadService', function(downloadService) {
 	return {
-		templateUrl : "mh370/download/download.html",
+		templateUrl : "bathy/download/download.html",
 		controller : "DownloadCtrl",
 		link : function(scope, element) {
 			downloadService.data().then(function(data) {
@@ -87,8 +87,8 @@ angular.module("mh370.download", ['mh370.geoprocess'])
 .directive("downloadEmail", ['downloadService', function(downloadService) {
 	return {
 		template : '<div class="input-group">' +
-  			'<span class="input-group-addon" id="mh370-email">Email</span>' +
-			'<input required="required" type="email" ng-change="download.changeEmail(email)" ng-model="email" class="form-control" placeholder="Email address to send download link" aria-describedby="mh370-email">' +
+  			'<span class="input-group-addon" id="bathy-email">Email</span>' +
+			'<input required="required" type="email" ng-change="download.changeEmail(email)" ng-model="email" class="form-control" placeholder="Email address to send download link" aria-describedby="bathy-email">' +
 			'</div>',
 		restrict: "AE",
 		link : function(scope, element) {
@@ -103,10 +103,10 @@ angular.module("mh370.download", ['mh370.geoprocess'])
 .directive("downloadFilename", ['flashService', 'downloadService', function(flashService, downloadService) {
 	return {
 		template : '<div class="input-group">' +
-  			'<span class="input-group-addon" id="mh370-filename">Filename</span>' +
+  			'<span class="input-group-addon" id="bathy-filename">Filename</span>' +
 			'<input type="text"' +
 			' ng-maxlength="30" ng-trim="true" ng-keypress="restrict($event)"' +
-  			' ng-model="data.filename" class="form-control" placeholder="Optional filename" aria-describedby="mh370-filename">' +
+  			' ng-model="data.filename" class="form-control" placeholder="Optional filename" aria-describedby="bathy-filename">' +
   			'<span class="input-group-addon" id="basic-addon2">.zip</span>' +
 			'</div>' +
 			'<div>Only up to 9 characters made up of alphanumeric or "_" allowed for file name</div>',

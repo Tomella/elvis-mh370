@@ -5,7 +5,7 @@
 (function(angular, L) {
 'use strict';
 
-angular.module("mh370.geoprocess", [])
+angular.module("bathy.geoprocess", [])
 
 .directive("wizardGeoprocess", ['$http', '$q', '$timeout', 'geoprocessService', 'flashService', 'messageService',
                                 function($http, $q, $timeout, geoprocessService, flashService, messageService) {
@@ -466,7 +466,7 @@ function GeoprocessService($http, $q, $timeout, configService, downloadService, 
 			downloadService.setEmail(email);
 			$http.post(GEOPROCESS_LOGGING_URL, log);
 
-			ga('send', 'event', 'mh370', 'click', 'FME data export: ' + JSON.stringify(log));
+			ga('send', 'event', 'bathy', 'click', 'FME data export: ' + JSON.stringify(log));
 		},
 
 		getConfig : function() {

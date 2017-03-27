@@ -17,12 +17,12 @@ var zip           = require('gulp-zip');
 var addStream     = require('add-stream');
 
 var directories = {
-	assets:      'dist/mh370/assets',
+	assets:      'dist/bathy/assets',
 	source:      'source',
 	resources:  'resources',
-	outresources:'dist/mh370/resources',
+	outresources:'dist/bathy/resources',
    views:      'views',
-   outbower:   'dist/mh370/bower_components'
+   outbower:   'dist/bathy/bower_components'
 };
 
 // Lint Task
@@ -53,7 +53,7 @@ function prepareScripts() {
             presets: ['es2015', 'es2016']
       }))
 	   .pipe(addStream.obj(prepareNamedTemplates()))
-      .pipe(concat('mh370.js'))
+      .pipe(concat('bathy.js'))
       .pipe(header(fs.readFileSync(directories.source + '/licence.txt', 'utf8')))
       .pipe(gulp.dest(directories.assets));
 }
@@ -61,7 +61,7 @@ function prepareScripts() {
 
 //Concatenate & Minify JS
 gulp.task('squash', function() {
-	return squashJs('mh370');
+	return squashJs('bathy');
 });
 
 function squashJs(name) {
@@ -77,7 +77,7 @@ gulp.task('watch', function() {
     gulp.watch(directories.source + '/**/*(*.js|*.html)', ['lint']);
     gulp.watch(directories.source + '/**/*(*.js|*.html)', ['scripts']);
     gulp.watch(directories.source + '/**/*.css', ['concatCss']);
-    gulp.watch(directories.assets + '/mh370.js', ['squash']);
+    gulp.watch(directories.assets + '/bathy.js', ['squash']);
     gulp.watch(directories.views +  '/*', ['views']);
     gulp.watch(directories.resources + '/**/*', ['resources']);
     //gulp.watch('scss/*.scss', ['sass']);
@@ -85,7 +85,7 @@ gulp.task('watch', function() {
 
 gulp.task('concatCss', function () {
   return gulp.src(directories.source + '/**/*.css')
-    .pipe(concatCss("mh370.css"))
+    .pipe(concatCss("bathy.css"))
     .pipe(gulp.dest(directories.assets));
 });
 
@@ -102,5 +102,5 @@ gulp.task('default', ['lint', 'scripts', 'concatCss', 'watch', 'package', 'resou
 
 function prepareNamedTemplates() {
    return gulp.src(directories.source + '/**/*.html')
-      .pipe(templateCache({module: "mh370.templates", standalone : true}));
+      .pipe(templateCache({module: "bathy.templates", standalone : true}));
 }

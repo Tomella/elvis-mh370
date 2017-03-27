@@ -1,6 +1,6 @@
-# Elvis MH370 #
+# Elvis Bathy #
 
-Exposing bathymetry data gathered from the MH370 search.
+Exposing bathymetry data gathered from the Bathy search.
 
 ### What is this repository for? ###
 
@@ -11,13 +11,13 @@ Exposing bathymetry data gathered from the MH370 search.
 ### How do I get set up? ###
 
 * git clone <this_repository>
-* cd elvis-mh370
+* cd elvis-bathy
 * npm install
 * bower install
 * node server
 * http://localhost:3000/
 * Dependencies: AngularJS, Leaflet
-* Deployment is simply copy the dist directory to a web server and navigate to wherever you put it. 
+* Deployment is simply copy the dist directory to a web server and navigate to wherever you put it.
 
 ### Contribution guidelines ###
 

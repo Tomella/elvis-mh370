@@ -6,12 +6,12 @@
 
 'use strict';
 
-angular.module("mh370.search", ['mh370.search.service'])
+angular.module("bathy.search", ['bathy.search.service'])
 
 .controller("SearchCtrl", SearchCtrl)
 .controller("SearchCriteriaCtrl", SearchCriteriaCtrl)
 
-.directive("mh370Search", [function() {
+.directive("bathySearch", [function() {
 	return {
 		templateUrl : "wizard/search/search.html"
 	};

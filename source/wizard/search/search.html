@@ -18,7 +18,7 @@
 					<span ng-show="search.data.responseHeader" class="pull-right">
 
 						<div class="btn-group" dropdown style="padding-right:1em">
-							<button type="button" class="undecorated" mh370-bbox-show-all style="padding-left:5em">
+							<button type="button" class="undecorated" bathy-bbox-show-all style="padding-left:5em">
 								Show all data extents
 							</button>
 						    <button type="button" class="undecorated dropdown-toggle" dropdown-toggle title="Restrict datasets based on area of coverage">
@@ -26,8 +26,8 @@
         						<span class="sr-only">More options for showing and hiding datasets' extents based on size and if only some are viewable.</span>
       						</button>
       						<ul class="dropdown-menu" role="menu">
-        						<li><a role="button" href="javascript:;" mh370-bbox-show-visible  tooltip="Show only those datasets that have all of their data within the current viewable map">Show fully visible</a></li>
-        						<li><a role="button" href="javascript:;" mh370-bbox-hide-all  tooltip="Hide all datasets' bounding area. ">Hide all</a></li>
+        						<li><a role="button" href="javascript:;" bathy-bbox-show-visible  tooltip="Show only those datasets that have all of their data within the current viewable map">Show fully visible</a></li>
+        						<li><a role="button" href="javascript:;" bathy-bbox-hide-all  tooltip="Hide all datasets' bounding area. ">Hide all</a></li>
       						</ul>
     					</div>
 					</span>
@@ -35,9 +35,9 @@
 			</div>
 			<div>
 				<div class="container-fluid">
-					<mh370-extent></mh370-extent>
-					<mh370-facetenable></mh370-facetenable>
-					<mh370-daterange></mh370-daterange>
+					<bathy-extent></bathy-extent>
+					<bathy-facetenable></bathy-facetenable>
+					<bathy-daterange></bathy-daterange>
 				</div>
 			</div>
 		</div>
@@ -51,8 +51,8 @@
 						<i class="fa pad-right fa-2x" ng-class="{'fa-caret-down':expanded,'fa-caret-right':(!expanded)}"></i>
 					</button>
 					<download-add item="doc"></download-add>
-					<mh370-wms data="doc"></mh370-wms>
-					<mh370-bbox data="doc" ng-if="doc.showExtent"></mh370-bbox>
+					<bathy-wms data="doc"></bathy-wms>
+					<bathy-bbox data="doc" ng-if="doc.showExtent"></bathy-bbox>
 					<a href="http://www.ga.gov.au/metadata-gateway/metadata/record/{{doc.sysId}}" target="_blank" ><strong>{{doc.title}}</strong></a>
 				</span>
 				<span ng-class="{ellipsis:!expanded}" style="width:100%;display:inline-block;padding-right:15px;"

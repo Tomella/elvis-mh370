@@ -1,0 +1,21 @@
+<div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right noPrint" style="width:{{right.width}}" ng-class="{'cbp-spmenu-open': right.active}">
+    <a href="" title="Close panel" ng-click="closePanel()" style="z-index: 1200">
+        <span class="glyphicon glyphicon-chevron-right pull-left"></span>
+    </a>
+    <div ng-show="right.active === 'datasets'" class="right-side-menu-container">
+        <div class="panesTabContentItem" bathy-download ></div>
+    </div>
+    <div ng-if="right.active === 'glossary'" class="right-side-menu-container">
+        <div class="panesTabContentItem" bathy-glossary></div>
+    </div>
+    <div ng-show="right.active === 'help'" class="right-side-menu-container">
+        <div class="panesTabContentItem" bathy-help></div>
+    </div>
+</div>
+
+
+
+
+
+
+

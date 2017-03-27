@@ -1,13 +1,13 @@
 {
-  "name": "elvis-mh370",
+  "name": "elvis-bathy",
   "version": "0.0.1",
-  "description": "Elvis MH370",
+  "description": "Elvis Bathy",
   "keywords": [
     "elvis",
     "bathymetry",
     "data"
   ],
-  "directory": "dist/mh370/bower_components",
+  "directory": "dist/bathy/bower_components",
   "ignore": [
     "**/.*",
     "node_modules",

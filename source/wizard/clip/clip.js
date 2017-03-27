@@ -6,7 +6,7 @@
 
 'use strict';
 
-angular.module("mh370.clip", ['geo.draw'])
+angular.module("bathy.clip", ['geo.draw'])
 
 .directive("wizardClip", ['$timeout', 'clipService', 'flashService', function($timeout, clipService, flashService) {
 	return {
