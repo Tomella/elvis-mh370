@@ -19,24 +19,6 @@
             <li class="hidden-xs"><a href="/"><h1 class="applicationTitle">{{heading}}</h1></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right nav-icons">
-        	<li>
-           	<div class="btn-group searchBar" ng-show="root.whichSearch != 'region'">
-			      <div class="input-group" geo-search>
-				      <input type="text" ng-autocomplete ng-model="values.from.description" options='{country:"au"}'
-							size="32" title="Select a locality to pan the map to." class="form-control" aria-label="...">
-				      <div class="input-group-btn">
-    				      <button ng-click="zoom(false)" exp-ga="['send', 'event', 'bathy', 'click', 'zoom to location']"
-						         class="btn btn-default"
-						         title="Pan and potentially zoom to location."><i class="fa fa-search"></i></button>
-    				      <button ng-click="root.whichSearch = 'region'" exp-ga="['send', 'event', 'bathy', 'click', 'zoom to location']"
-						         class="btn btn-default" tooltip-append-to-body="true"
-						         tooltip="Switch to search on state or local government area. While this search zooms to the centre point the other search shows the complete region."
-						         tooltip-placement="bottom" 	><i class="fa fa-toggle-off"></i></button>
-				      </div>
-			      </div>
-		      </div>
-		      <div class="btn-group searchBar" bathy-lga ng-show="root.whichSearch == 'region'"></div>
-           </li>
 			<li mars-version-display role="menuitem" style="padding-top: 19px;"></li>
 			<li style="width:10px"></li>
         </ul>
