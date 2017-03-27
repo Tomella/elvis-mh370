@@ -373,6 +373,21 @@ input.ng-valid.ng-touched {
     display: none !important;
   }
 }
+.selectContainer {
+  width: 100%;
+}
+
+.selectAbstractTooltip {
+  /* width:450px; */
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 /* Side Panel */
 
 /* General styles for all menus */
@@ -464,21 +479,6 @@ input.ng-valid.ng-touched {
 .cbp-spmenu-open .left-side-menu-container,
 .cbp-spmenu-open .right-side-menu-container {
   overflow-y: auto;
-}
-.selectContainer {
-  width: 100%;
-}
-
-.selectAbstractTooltip {
-  /* width:450px; */
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
 }
 .bathy-toolbar {
   position: fixed;
