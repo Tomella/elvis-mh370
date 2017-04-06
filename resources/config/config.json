@@ -5,7 +5,6 @@
       	 "maxBounds" : [[-52, 80],[0, 156]],
          "center": [-24, 115],
          "minZoom": 2,
-         "noZoomControl": true,
          "zoom": 4
       },
       "position": {
@@ -43,19 +42,7 @@
          },
          {
          	"description" : "placeholder for layers above the topography",
-         	"name" : "ELVIS Map Layers",
-         	"type" : "LayerGroup",
-         	"layers": []
-         },
-         {
-         	"description" : "placeholder for layers above the map layers",
-         	"name" : "Search Layers",
-         	"type" : "LayerGroup",
-         	"layers": []
-         },
-         {
-         	"description" : "placeholder for layers above the search layers",
-         	"name" : "Download Layers",
+         	"name" : "ELVIS - Foundation Spatial Data Map Layers",
          	"type" : "LayerGroup",
          	"layers": []
          }
@@ -81,93 +68,12 @@
    		},
    		"default": "https://elvis20161a-ga.fmecloud.com/fmejobsubmitter/elvis_prod/DEMClipZipShip_Master_S3Source.fmw?geocat_number=${id}&out_grid_name=${filename}&input_coord_sys=LL-WGS84&ymin=${yMin}&ymax=${yMax}&xmin=${xMin}&xmax=${xMax}&output_format=${outFormat}&out_coord_sys=${outCoordSys}&email_address=${email}&opt_showresult=false&opt_servicemode=async"
    },
-   "layersTab" : {
-   		"group" : "ELVIS Map Layers",
-   		"title" : "Layers",
-   		"layers" : [
-   			{
-                "name":"Flow grid direction image",
-                "help" : "Best viewed at state to local area zoom levels.",
-                "metadata" : "http://www.ga.gov.au/thredds/wms/national_grids/d8-9s.nc?request=GetCapabilities&service=WMS",
-                "pseudoBaseLayer" : true,
-                "type":["TileLayer", "WMS"],
-                "key":"gravity",
-                "parameters":[
-                    "http://www.ga.gov.au/thredds/wms/national_grids/d8-9s.nc",
-                    {
-                       "layers" : "Flow_Direction_Grid_to_accompany_9_Second_Digital_Elevation_Model_of_Australia_Version_3",
-                       "format" : "image/png",
-                       "transparent" : true,
-                       "opacity" : 0.5
-                    }
-                ],
-                "addLayerControl":false,
-                "visible":true
-            },
-   			{
-                "name":"Elevation contours",
-                "help" : "Detail improves as you zoom into an area but disappears when zoomed to tightly",
-                "metadata" : "http://www.ga.gov.au/gis/rest/services/topography/Dynamic_National_Map_Elevation_Relief_and_Physiography/MapServer",
-                "pseudoBaseLayer" : true,
-                "type":["TileLayer", "WMS"],
-                "key":"gravity",
-                "parameters":[
-                    "http://www.ga.gov.au/gis/services/topography/Dynamic_National_Map_Elevation_Relief_and_Physiography/MapServer/WMSServer",
-                    {
-                       "layers" : "Contours_Labels,Contours_250K_Scale,Contours_2_5Million_Scale,No_Data",
-                       "format" : "image/png",
-                       "transparent" : true
-                    }
-                ],
-                "addLayerControl":false,
-                "visible":true
-            },
-   			{
-                "name":"Spot elevations",
-                "help" : "Detail improves as you zoom into an area but disappears when zoomed to tightly",
-                "metadata" : "http://www.ga.gov.au/gis/rest/services/topography/Dynamic_National_Map_Elevation_Relief_and_Physiography/MapServer",
-                "pseudoBaseLayer" : true,
-                "type":["TileLayer", "WMS"],
-                "key":"gravity",
-                "parameters":[
-                    "http://www.ga.gov.au/gis/services/topography/Dynamic_National_Map_Elevation_Relief_and_Physiography/MapServer/WMSServer",
-                    {
-                       "layers" : "Spot_Elevations_Labels,Spot_Elevations_250K_Scale,Spot_Elevations_2_5Million_Scale",
-                       "format" : "image/png",
-                       "transparent" : true
-                    }
-                ],
-                "addLayerControl":false,
-                "visible":true
-            }
-   		]
+
+	"datasets": {
+		"datasetsUrl": "bathy/resources/config/datasets.json"
    },
-   	"facets" :{
-		"defaultKeywords" : [
-			{
-				"keyword" : "ECOLOGY Landscape",
-				"name" : "ECOLOGY Landscape",
-				"description" : "ECOLOGY Landscape",
-                "default" : true,
-                "hide" : true
-			},
-			{
-				"keyword" : "LAND Topography Models",
-				"name" : "LAND Topography Models",
-				"description" : "LAND Topography Models",
-				"info":"",
-                "default" : true,
-                "hide" : true
-			}
-		],
-		"keywordMappedDescription" :"The entries look the same as the default keywords but there but doesn't need the default attribute or at least it should be false",
-		"keywordMapped": []
-	},
 
 	"processing": {
-		"extentCheckTemplates": {
-			"gcat_22be4b55-2465-4320-e053-10a3070a5236": "https://elvis20161a-ga.fmecloud.com/fmedatastreaming/elvis_test/test5mIndexIntersect.fmw?MINX={minx}&MINY={miny}&MAXX={maxx}&MAXY={maxy}&DestDataset_JSON=F%3A%5Ctest5mIndexIntersect.json"
-		},
 		"outFormat" : [
 			{
 				"code":"ESRIASCIIGRID",

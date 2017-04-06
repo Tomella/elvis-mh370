@@ -1,56 +1,56 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
+{
+   class MapsCtrl {
+      constructor(mapsService) {
+         this.mapService = mapService;
+      }
 
-(function(angular) {
+      toggleLayer(data) {
+         this.mapsService.toggleShow(data);
+      }
+   }
+   MapsCtrl.$inject = ['mapsService'];
 
-'use strict';
+   class MapsService {
+      constructor(configService, mapService) {
+         this.CONFIG_KEY = "layersTab";
+         this.configService = configService;
+         this.mapService = mapService;
+         this.configService = configService;
 
-angular.module("bathy.maps", ["explorer.layer.slider"])
+      }
 
-.directive("bathyMaps", ["mapsService", function(mapsService) {
-	return {
-		templateUrl : "bathy/maps/maps.html",
-		link : function(scope) {
-			mapsService.getConfig().then(function(data) {
-				scope.layersTab = data;
-			});
-		}
-	};
-}])
+      getConfig() {
+         return this.configService.getConfig(this.CONFIG_KEY);
+      }
 
-.controller("MapsCtrl", MapsCtrl)
-.factory("mapsService", MapsService);
+      toggleShow(item, groupName) {
+         this.configService.getConfig(this.CONFIG_KEY).then(config => {
+            if (item.layer) {
+               item.displayed = false;
+               this.mapService.removeFromGroup(item, config.group);
+            } else {
+               this.mapService.addToGroup(item, config.group);
+               item.displayed = true;
+            }
+         });
+      }
+   }
+   MapsService.$inject = ['configService', 'mapService'];
 
-MapsCtrl.$inject = ['mapsService'];
-function MapsCtrl(mapsService) {
 
-	this.toggleLayer = function(data) {
-		mapsService.toggleShow(data);
-	};
+   angular.module("bathy.maps", ["explorer.layer.slider"])
+
+      .directive("bathyMaps", ["mapsService", function (mapsService) {
+         return {
+            templateUrl: "bathy/maps/maps.html",
+            link: function (scope) {
+               mapsService.getConfig().then(function (data) {
+                  scope.layersTab = data;
+               });
+            }
+         };
+      }])
+
+      .controller("MapsCtrl", MapsCtrl)
+      .service("mapsService", MapsService);
 }
-
-MapsService.$inject = ['configService', 'mapService', 'downloadService'];
-function MapsService(configService, mapService, downloadService) {
-	var CONFIG_KEY = "layersTab";
-
-	return {
-		getConfig : function() {
-			return configService.getConfig(CONFIG_KEY);
-		},
-
-		toggleShow : function(item, groupName) {
-			configService.getConfig(CONFIG_KEY).then(function(config) {
-				if(item.layer) {
-					item.displayed = false;
-					mapService.removeFromGroup(item, config.group);
-				} else {
-					mapService.addToGroup(item, config.group);
-					item.displayed = true;
-				}
-			});
-		}
-	};
-}
-
-})(angular);

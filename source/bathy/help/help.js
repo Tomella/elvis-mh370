@@ -1,59 +1,53 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
+{
 
-(function(angular) {
+   class HelpService {
+      constructor ($http) {
+         this.$http = $http;
+         this.FAQS_SERVICE = "bathy/resources/config/faqs.json";
+      }
 
-'use strict';
+      getFaqs() {
+         return this.$http.get(this.FAQS_SERVICE, { cache: true }).then(function (response) {
+            return response.data;
+         });
+      }
+   }
+   HelpService.$inject = ['$http'];
 
-angular.module("bathy.help", [])
+   class  HelpCtrl {
+      constructor ($log, helpService) {
+         $log.info("HelpCtrl");
+         helpService.getFaqs().then(faqs => {
+            this.faqs = faqs;
+         });
+      }
+   }
+   HelpCtrl.$inject = ['$log', 'helpService'];
 
-.directive("bathyHelp", [function() {
-	return {
-		templateUrl : "bathy/help/help.html"
-	};
-}])
+   angular.module("bathy.help", [])
 
-.directive("bathyFaqs", [function() {
-	return {
-		restrict:"AE",
-		templateUrl : "bathy/help/faqs.html",
-		scope : {
-			faqs : "="
-		},
-		link : function(scope) {
-			scope.focus = function(key) {
-				$("#faqs_" + key).focus();
-			};
-		}
-	};
-}])
+      .directive("bathyHelp", [function () {
+         return {
+            templateUrl: "bathy/help/help.html"
+         };
+      }])
 
-.controller("HelpCtrl", HelpCtrl)
-.factory("helpService", HelpService);
+      .directive("bathyFaqs", [function () {
+         return {
+            restrict: "AE",
+            templateUrl: "bathy/help/faqs.html",
+            scope: {
+               faqs: "="
+            },
+            link: function (scope) {
+               scope.focus = function (key) {
+                  $("#faqs_" + key).focus();
+               };
+            }
+         };
+      }])
 
-HelpCtrl.$inject = ['$log', 'helpService'];
-function HelpCtrl($log, helpService) {
-	var self = this;
-	$log.info("HelpCtrl");
-	helpService.getFaqs().then(function(faqs) {
-		self.faqs = faqs;
-	});
+      .controller("HelpCtrl", HelpCtrl)
+      .service("helpService", HelpService);
+
 }
-
-
-HelpService.$inject = ['$http'];
-function HelpService($http) {
-	var FAQS_SERVICE = "bathy/resources/config/faqs.json";
-
-	return {
-		getFaqs : function() {
-			return $http.get(FAQS_SERVICE, {cache : true}).then(function(response) {
-				return response.data;
-			});
-		}
-	};
-}
-
-
-})(angular);

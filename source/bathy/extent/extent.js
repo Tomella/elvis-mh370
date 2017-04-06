@@ -1,66 +1,63 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
-(function(angular) {
-'use strict';
+{
+   class ExtentService {
+      constructor(mapService, searchService) {
+         let bbox = searchService.getSearchCriteria().bbox;
 
-angular.module("bathy.extent", ["explorer.switch"])
+         if (bbox.fromMap) {
+            enableMapListeners();
+         }
 
-.directive("bathyExtent", ['extentService', function(extentService) {
-	return {
-		restrict : "AE",
-		templateUrl : "bathy/extent/extent.html",
-		controller : ['$scope', function($scope) {
-			$scope.parameters = extentService.getParameters();
-		}],
-		link : function(scope, element, attrs) {
+         return {
+            getParameters: function () {
+               return bbox;
+            }
+         };
 
-		}
-	};
-}])
+         function enableMapListeners() {
+            mapService.getMap().then(function (map) {
+               map.on("moveend", execute);
+               map.on("zoomend", execute);
+               execute();
+            });
+         }
 
-.factory("extentService", ExtentService);
+         function disableMapListeners() {
+            return mapService.getMap().then(function (map) {
+               map.off("moveend", execute);
+               map.off("zoomend", execute);
+               return map;
+            });
+         }
 
-ExtentService.$inject = ['mapService', 'searchService'];
-function ExtentService(mapService, searchService) {
-	var bbox = searchService.getSearchCriteria().bbox;
+         function execute() {
+            mapService.getMap().then(function (map) {
+               var bounds = map.getBounds();
+               bbox.yMin = bounds.getSouth();
+               bbox.xMin = bounds.getWest();
+               bbox.yMax = bounds.getNorth();
+               bbox.xMax = bounds.getEast();
+               searchService.refresh();
+            });
+         }
+      }
+   }
+   ExtentService.$inject = ['mapService', 'searchService'];
 
-	if(bbox.fromMap) {
-		enableMapListeners();
-	}
+   angular.module("bathy.extent", ["explorer.switch"])
 
-	return {
-		getParameters : function() {
-			return bbox;
-		}
-	};
+      .directive("bathyExtent", ['extentService', function (extentService) {
+         return {
+            restrict: "AE",
+            templateUrl: "bathy/extent/extent.html",
+            controller: ['$scope', function ($scope) {
+               $scope.parameters = extentService.getParameters();
+            }],
+            link: function (scope, element, attrs) {
 
-	function enableMapListeners() {
-		mapService.getMap().then(function(map) {
-			map.on("moveend", execute);
-			map.on("zoomend", execute);
-			execute();
-		});
-	}
+            }
+         };
+      }])
 
-	function disableMapListeners() {
-		return mapService.getMap().then(function(map) {
-			map.off("moveend", execute);
-			map.off("zoomend", execute);
-			return map;
-		});
-	}
+      .factory("extentService", ExtentService);
 
-	function execute() {
-		mapService.getMap().then(function(map) {
-			var bounds = map.getBounds();
-			bbox.yMin = bounds.getSouth();
-			bbox.xMin = bounds.getWest();
-			bbox.yMax = bounds.getNorth();
-			bbox.xMax = bounds.getEast();
-			searchService.refresh();
-		});
-	}
 }
-
-})(angular);

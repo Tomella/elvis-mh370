@@ -1,10 +1,4 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
-
-(function(angular) {
-
-'use strict';
+{
 
 angular.module("bathy.bbox", ['geo.draw'])
 
@@ -91,7 +85,6 @@ angular.module("bathy.bbox", ['geo.draw'])
 	};
 }])
 
-
 .factory("bboxService", ['mapService', function(mapService) {
 	var normalLayerColor = "#ff7800",
 		hilightLayerColor = 'darkblue';
@@ -120,5 +113,4 @@ angular.module("bathy.bbox", ['geo.draw'])
 
 }]);
 
-
-})(angular);
+}

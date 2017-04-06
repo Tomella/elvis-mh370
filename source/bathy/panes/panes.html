@@ -1,6 +1,7 @@
 <div class="contentContainer" class="col-md-12" style="padding-right:0">
 	<div class="panesMapContainer" geo-map configuration="data.map"></div>
    <div class="base-layer-controller">
+    	<div geo-draw data="data.map.drawOptions" line-event="elevation.plot.data" rectangle-event="bounds.drawn"></div>
       <geo-baselayer-control class="noPrint"></geo-baselayer-control>
    </div>
 </div>

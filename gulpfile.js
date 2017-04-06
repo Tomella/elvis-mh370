@@ -50,7 +50,9 @@ gulp.task('scripts', function() {
 function prepareScripts() {
    return gulp.src(directories.source + '/**/*.js')
       .pipe(babel({
-            presets: ['es2015', 'es2016']
+            compact: false,
+            comments: true,
+            presets: ['es2015', 'es2016', 'es2017']
       }))
 	   .pipe(addStream.obj(prepareNamedTemplates()))
       .pipe(concat('bathy.js'))
@@ -69,7 +71,6 @@ function squashJs(name) {
 		.pipe(uglify())
 		.pipe(gulp.dest(directories.assets + "/min"));
 }
-
 
 // Watch Files For Changes
 gulp.task('watch', function() {

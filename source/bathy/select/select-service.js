@@ -1,352 +1,344 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
+{
+   let  servicesFactory = function(uris) {
+      var protocols = {
+         WFS: "OGC:WFS",
+         WMS: "OGC:WMS"
+      };
 
-(function(angular) {
+      return new Services(uris);
 
-'use strict';
+      function Services(uris) {
+         this.uris = uris;
+         this.container = {
+            wms: null
+         };
 
-angular.module("bathy.select.service", [])
-.factory("selectService", SelectService);
+         if (uris) {
+            this.services = uris.map(function (uri) {
+               var service = new Service(uri);
 
-SelectService.$inject = ['$http', '$q', '$rootScope', '$timeout', 'mapService', 'configService'];
-function SelectService($http, $q, $rootScope, $timeout, mapService, configService) {
-	var LAYER_GROUP_KEY = "Search Layers",
-		baseUrl = "bathy/resources/config/select.json",
-		parameters = {
-			text : "",
-			daterange : {
-				enabled : false,
-				upper : null,
-				lower : null
-			},
-			bbox : {
-				fromMap : true,
-				intersects : true,
-				yMax : null,
-				yMin : null,
-				xMax : null,
-				xMin : null
-			},
-			defaultKeywords : [],
-			keywords : []
-		},
-		timeout,
-		cache,
-		allDocs = {},
-		busy = false,
-		layers = {},
-		selectLayerGroup,
-		normalLayerColor = "#ff7800",
-		hilightLayerColor = 'darkblue',
+               this.container.wms = service.isWms() ? service : this.container.wms;
+               return service;
+            }.bind(this));
+         } else {
+            this.services = [];
+         }
 
-		service = {
+         this.hasWms = function () {
+            return this.container.wms !== null;
+         };
 
-		getSelectCriteria : function() {
-			return parameters;
-		},
+         this.getWms = function () {
+            return this.container.wms;
+         };
 
-		getLayerGroup : function() {
-			// Prime the layer group
-			if(!selectLayerGroup) {
-				selectLayerGroup = mapService.getGroup(LAYER_GROUP_KEY);
-			}
-			return selectLayerGroup;
-		},
+         this.remove = function () {
+            this.services.forEach(function (service) {
+               service.remove();
+            });
+         };
+      }
 
-		setKeywords : function(keywords) {
-		},
+      function Service(doc) {
+         var xmlDoc = $(doc);
 
-		setFilter : function(filter) {
-		},
+         this.protocol = xmlDoc.attr("protocol");
+         this.url = xmlDoc.text();
+         this.layerNames = xmlDoc.attr("layerNames");
+         this.name = xmlDoc.attr("name");
+         this.description = xmlDoc.attr("description");
+         this.handlers = [];
 
-		refresh : function() {
-		},
+         this.isWfs = function () {
+            return this.protocol == protocols.WFS;
+         };
 
-		getDaterange : function() {
-			return parameters.daterange;
-		},
+         this.isWms = function () {
+            return this.protocol == protocols.WMS;
+         };
 
-		more : function() {
-		},
+         this.isSupported = function () {
+            return typeof protocols[this.protocol] == "undefined";
+         };
 
-		_executeQuery : function() {
-			// Give them the lot as they will want the criteria as well
-			$http.get(baseUrl, {cache: true}).then(function(response) {
-				service.getLayerGroup();
+         this.addHandler = function (callback) {
+            this.handlers.push(callback);
+         };
 
-				var data = response.data;
+         this.removeHandler = function (callback) {
+            this.handlers.push(callback);
+         };
 
-				data.response.docs.forEach(function(dataset) {
-					service._decorateDataset(dataset);
-					if(dataset.type == "group") {
-						dataset.docs.forEach(function(data) {
-							service._decorateDataset(data);
-						});
-					}
-				});
+         this.remove = function () {
+            this.handlers.forEach(function (callback) {
+               // They should all have a remove but you never know.
+               if (this.callback.remove) {
+                  callback.remove(this);
+               }
+            }.bind(this));
+            this.handlers = [];
+         };
+      }
 
-				$rootScope.$broadcast("select.facet.counts", data);
-				$rootScope.$broadcast("select.results.received", data);
-			});
-		},
+      Service.prototype = {
+         getUrl: function () {
+            if (url) {
+               if (url.indexOf("?") < 0) {
+                  return;
+               } else {
+                  return url.substr(0, url.indexOf("?"));
+               }
+            }
+            return null;
+         }
+      };
+   };
 
-		createLayer : function(dataset, color) {
-			var bbox = dataset.bbox,
-				key = dataset.primaryId,
-				parts, bounds, layer;
+   let SelectService = function($http, $q, $rootScope, $timeout, mapService, configService) {
+      var LAYER_GROUP_KEY = "Search Layers",
+         baseUrl = "bathy/resources/config/select.json",
+         parameters = {
+            text: "",
+            daterange: {
+               enabled: false,
+               upper: null,
+               lower: null
+            },
+            bbox: {
+               fromMap: true,
+               intersects: true,
+               yMax: null,
+               yMin: null,
+               xMax: null,
+               xMin: null
+            },
+            defaultKeywords: [],
+            keywords: []
+         },
+         timeout,
+         cache,
+         allDocs = {},
+         busy = false,
+         layers = {},
+         selectLayerGroup,
+         normalLayerColor = "#ff7800",
+         hilightLayerColor = 'darkblue',
 
-			layer = layers[key];
-			if(!layer) {
+         service = {
 
-				if(!bbox) {
-					return null;
-				}
+            getSelectCriteria: function () {
+               return parameters;
+            },
 
-				parts = bbox.split(" ");
-				if(parts.length != 4) {
-					return null;
-				}
+            getLayerGroup: function () {
+               // Prime the layer group
+               if (!selectLayerGroup) {
+                  selectLayerGroup = mapService.getGroup(LAYER_GROUP_KEY);
+               }
+               return selectLayerGroup;
+            },
 
-				if(!color) {
-					color = normalLayerColor;
-				}
-				bounds = [[+parts[1], +parts[0]], [+parts[3], +parts[2]]];
+            setKeywords: function (keywords) {
+            },
 
-				// create a black rectangle
-				layer = L.rectangle(bounds, {
-					fill:false,
-					color: "#000000",
-					width:3,
-					clickable: false
-				});
+            setFilter: function (filter) {
+            },
 
-				layers[key] = layer;
-			}
-			this._decorateDataset(dataset);
-			selectLayerGroup.addLayer(layer);
-			return layer;
-		},
+            refresh: function () {
+            },
 
-		_decorateDataset : function(dataset) {
-			var layer = layers[dataset.primaryId];
-			if(layer) {
-				dataset.layer = layer;
-				dataset.showLayer = true;
-			} else {
-				dataset.layer = null;
-				dataset.showLayer = false;
-				// Do we add the services to it?
-				dataset.services = servicesFactory(dataset.dcUris);
-				dataset.bounds = getBounds(dataset.bbox);
-			}
+            getDaterange: function () {
+               return parameters.daterange;
+            },
 
-			function getBounds(bbox) {
-				var parts;
-				if(!bbox) {
-					return null;
-				} else {
-					parts = bbox.split(/\s/g);
-					return {
-						xMin : +parts[0],
-						xMax : +parts[2],
-						yMax : +parts[3],
-						yMin : +parts[1]
-					};
-				}
-			}
-		},
+            more: function () {
+            },
 
-		showWithin : function(datasets) {
-			datasets.forEach(function(dataset) {
-				var box = dataset.bbox,
-					coords, xmin, ymin, xmax, ymax;
+            _executeQuery: function () {
+               // Give them the lot as they will want the criteria as well
+               $http.get(baseUrl, { cache: true }).then(function (response) {
+                  service.getLayerGroup();
 
-				if(!box) {
-					service.removeLayer(dataset);
-				} else {
-					coords = box.split(" ");
-					if(coords.length == 4 && within(+coords[0], +coords[1], +coords[2], +coords[3])) {
-						// show
-						service.createLayer(dataset);
-					} else {
-						// hide
-						service.removeLayer(dataset);
-					}
-				}
+                  var data = response.data;
 
-			});
+                  data.response.docs.forEach(function (dataset) {
+                     service._decorateDataset(dataset);
+                     if (dataset.type == "group") {
+                        dataset.docs.forEach(function (data) {
+                           service._decorateDataset(data);
+                        });
+                     }
+                  });
 
-			function within(xmin, ymin, xmax, ymax) {
-				var bbox = parameters.bbox;
+                  $rootScope.$broadcast("select.facet.counts", data);
+                  $rootScope.$broadcast("select.results.received", data);
+               });
+            },
 
-				return xmin > bbox.xMin &&
-					   xmax < bbox.xMax &&
-					   ymin > bbox.yMin &&
-					   ymax < bbox.yMax;
-			}
-		},
+            createLayer: function (dataset, color) {
+               var bbox = dataset.bbox,
+                  key = dataset.primaryId,
+                  parts, bounds, layer;
 
-		toggle : function(dataset) {
-			if(dataset.showLayer) {
-				this.removeLayer(dataset);
-			} else {
-				this.createLayer(dataset);
-			}
-		},
+               layer = layers[key];
+               if (!layer) {
 
-		toggleAll : function(datasets) {
-			var self = this,
-				someNotShowing = datasets.some(function(dataset) {
-					return !dataset.showLayer;
-				});
+                  if (!bbox) {
+                     return null;
+                  }
 
-			datasets.forEach(function(dataset) {
-				if(someNotShowing) {
-					if(!dataset.showLayer) {
-						self.createLayer(dataset);
-					}
-				} else {
-					if(dataset.showLayer) {
-						self.removeLayer(dataset);
-					}
-				}
-			});
-			return !someNotShowing;
-		},
+                  parts = bbox.split(" ");
+                  if (parts.length != 4) {
+                     return null;
+                  }
 
-		hideAll : function(datasets) {
-			datasets.forEach(function(dataset) {
-				if(dataset.showLayer) {
-					service.removeLayer(dataset);
-				}
-			});
-		},
+                  if (!color) {
+                     color = normalLayerColor;
+                  }
+                  bounds = [[+parts[1], +parts[0]], [+parts[3], +parts[2]]];
 
-		hilight : function(layer) {
-			layer.setStyle({color:hilightLayerColor});
-		},
+                  // create a black rectangle
+                  layer = L.rectangle(bounds, {
+                     fill: false,
+                     color: "#000000",
+                     width: 3,
+                     clickable: false
+                  });
 
-		lolight : function(layer) {
-			layer.setStyle({color:normalLayerColor});
-		},
+                  layers[key] = layer;
+               }
+               this._decorateDataset(dataset);
+               selectLayerGroup.addLayer(layer);
+               return layer;
+            },
 
-		removeLayer : function(dataset) {
-			var key = dataset.primaryId,
-				layer = layers[key];
+            _decorateDataset: function (dataset) {
+               var layer = layers[dataset.primaryId];
+               if (layer) {
+                  dataset.layer = layer;
+                  dataset.showLayer = true;
+               } else {
+                  dataset.layer = null;
+                  dataset.showLayer = false;
+                  // Do we add the services to it?
+                  dataset.services = servicesFactory(dataset.dcUris);
+                  dataset.bounds = getBounds(dataset.bbox);
+               }
 
-			if(layer) {
-				selectLayerGroup.removeLayer(layer);
-				delete layers[key];
-			}
-			this._decorateDataset(dataset);
-		}
-	};
+               function getBounds(bbox) {
+                  var parts;
+                  if (!bbox) {
+                     return null;
+                  } else {
+                     parts = bbox.split(/\s/g);
+                     return {
+                        xMin: +parts[0],
+                        xMax: +parts[2],
+                        yMax: +parts[3],
+                        yMin: +parts[1]
+                     };
+                  }
+               }
+            },
 
-	execute();
-	return service;
+            showWithin: function (datasets) {
+               datasets.forEach(function (dataset) {
+                  var box = dataset.bbox,
+                     coords, xmin, ymin, xmax, ymax;
 
-	function execute() {
-		$timeout(function() {
-			service._executeQuery();
-		}, 100);
-	}
+                  if (!box) {
+                     service.removeLayer(dataset);
+                  } else {
+                     coords = box.split(" ");
+                     if (coords.length == 4 && within(+coords[0], +coords[1], +coords[2], +coords[3])) {
+                        // show
+                        service.createLayer(dataset);
+                     } else {
+                        // hide
+                        service.removeLayer(dataset);
+                     }
+                  }
 
+               });
+
+               function within(xmin, ymin, xmax, ymax) {
+                  var bbox = parameters.bbox;
+
+                  return xmin > bbox.xMin &&
+                     xmax < bbox.xMax &&
+                     ymin > bbox.yMin &&
+                     ymax < bbox.yMax;
+               }
+            },
+
+            toggle: function (dataset) {
+               if (dataset.showLayer) {
+                  this.removeLayer(dataset);
+               } else {
+                  this.createLayer(dataset);
+               }
+            },
+
+            toggleAll: function (datasets) {
+               var self = this,
+                  someNotShowing = datasets.some(function (dataset) {
+                     return !dataset.showLayer;
+                  });
+
+               datasets.forEach(function (dataset) {
+                  if (someNotShowing) {
+                     if (!dataset.showLayer) {
+                        self.createLayer(dataset);
+                     }
+                  } else {
+                     if (dataset.showLayer) {
+                        self.removeLayer(dataset);
+                     }
+                  }
+               });
+               return !someNotShowing;
+            },
+
+            hideAll: function (datasets) {
+               datasets.forEach(function (dataset) {
+                  if (dataset.showLayer) {
+                     service.removeLayer(dataset);
+                  }
+               });
+            },
+
+            hilight: function (layer) {
+               layer.setStyle({ color: hilightLayerColor });
+            },
+
+            lolight: function (layer) {
+               layer.setStyle({ color: normalLayerColor });
+            },
+
+            removeLayer: function (dataset) {
+               var key = dataset.primaryId,
+                  layer = layers[key];
+
+               if (layer) {
+                  selectLayerGroup.removeLayer(layer);
+                  delete layers[key];
+               }
+               this._decorateDataset(dataset);
+            }
+         };
+
+      execute();
+      return service;
+
+      function execute() {
+         $timeout(function () {
+            service._executeQuery();
+         }, 100);
+      }
+   };
+   SelectService.$inject = ['$http', '$q', '$rootScope', '$timeout', 'mapService', 'configService'];
+
+
+   angular.module("bathy.select.service", [])
+      .factory("selectService", SelectService);
 }
-
-function servicesFactory(uris) {
-	var protocols = {
-			WFS :"OGC:WFS",
-			WMS :"OGC:WMS"
-	};
-
-	return new Services(uris);
-
-	function Services(uris) {
-		this.uris = uris;
-		this.container = {
-			wms: null
-		};
-
-		if(uris) {
-			this.services = uris.map(function(uri) {
-				var service = new Service(uri);
-
-				this.container.wms = service.isWms()?service:this.container.wms;
-				return service;
-			}.bind(this));
-		} else {
-			this.services = [];
-		}
-
-		this.hasWms = function() {
-			return this.container.wms !== null;
-		};
-
-		this.getWms = function() {
-			return this.container.wms;
-		};
-
-		this.remove = function() {
-			this.services.forEach(function(service) {
-				service.remove();
-			});
-		};
-	}
-
-	function Service(doc) {
-		var xmlDoc = $(doc);
-
-		this.protocol = xmlDoc.attr("protocol");
-		this.url = xmlDoc.text();
-		this.layerNames = xmlDoc.attr("layerNames");
-		this.name = xmlDoc.attr("name");
-		this.description = xmlDoc.attr("description");
-		this.handlers = [];
-
-		this.isWfs = function() {
-			return this.protocol == protocols.WFS;
-		};
-
-		this.isWms = function() {
-			return this.protocol == protocols.WMS;
-		};
-
-		this.isSupported = function() {
-			return typeof protocols[this.protocol] == "undefined";
-		};
-
-		this.addHandler = function(callback) {
-			this.handlers.push(callback);
-		};
-
-		this.removeHandler = function(callback) {
-			this.handlers.push(callback);
-		};
-
-		this.remove = function() {
-			this.handlers.forEach(function(callback) {
-				// They should all have a remove but you never know.
-				if(this.callback.remove) {
-					callback.remove(this);
-				}
-			}.bind(this));
-			this.handlers = [];
-		};
-	}
-
-	Service.prototype = {
-		getUrl : function() {
-			if(url) {
-				if(url.indexOf("?") < 0) {
-					return;
-				} else {
-					return url.substr(0, url.indexOf("?"));
-				}
-			}
-			return null;
-		}
-	};
-}
-
-})(angular);

@@ -1,43 +1,37 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
+{
+   class GlossaryService {
+      constructor($http) {
+         this.$http = $http;
+         this.TERMS_SERVICE = "bathy/resources/config/glossary.json";
+      }
 
-(function(angular) {
+      getTerms() {
+         return this.$http.get(this.TERMS_SERVICE, { cache: true }).then(response => {
+            return response.data;
+         });
+      }
+   }
+   GlossaryService.$inject = ['$http'];
 
-'use strict';
+   class GlossaryCtrl {
+      constructor($log, glossaryService) {
+         $log.info("GlossaryCtrl");
+         glossaryService.getTerms().then(terms => {
+            this.terms = terms;
+         });
+      }
+   }
+   GlossaryCtrl.$inject = ['$log', 'glossaryService'];
 
-angular.module("bathy.glossary", [])
+   angular.module("bathy.glossary", [])
 
-.directive("bathyGlossary", [function() {
-	return {
-		templateUrl : "bathy/glossary/glossary.html"
-	};
-}])
+      .directive("bathyGlossary", [function () {
+         return {
+            templateUrl: "bathy/glossary/glossary.html"
+         };
+      }])
 
-.controller("GlossaryCtrl", GlossaryCtrl)
-.factory("glossaryService", GlossaryService);
+      .controller("GlossaryCtrl", GlossaryCtrl)
+      .service("glossaryService", GlossaryService);
 
-GlossaryCtrl.$inject = ['$log', 'glossaryService'];
-function GlossaryCtrl($log, glossaryService) {
-	var self = this;
-	$log.info("GlossaryCtrl");
-	glossaryService.getTerms().then(function(terms) {
-		self.terms = terms;
-	});
 }
-
-
-GlossaryService.$inject = ['$http'];
-function GlossaryService($http) {
-	var TERMS_SERVICE = "bathy/resources/config/glossary.json";
-
-	return {
-		getTerms : function() {
-			return $http.get(TERMS_SERVICE, {cache : true}).then(function(response) {
-				return response.data;
-			});
-		}
-	};
-}
-
-})(angular);

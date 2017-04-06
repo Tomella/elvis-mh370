@@ -1,6 +1,4 @@
-(function (angular) {
-   'use strict';
-
+{
    angular.module("bathy.side-panel", [])
 
       .factory('panelSideFactory', () => {
@@ -66,6 +64,7 @@
             transclude: true,
             templateUrl: 'bathy/side-panel/trigger.html',
             scope: {
+               default: "@?",
                panelWidth: "@",
                name: "@",
                iconClass: "@",
@@ -78,6 +77,12 @@
                      name: scope.panelId
                   });
                };
+               if (scope.default) {
+                  panelSideFactory.setRight({
+                     width: scope.panelWidth,
+                     name: scope.panelId
+                  });
+               }
             }
          };
       }])
@@ -97,4 +102,4 @@
          };
       }]);
 
-})(angular);
+}

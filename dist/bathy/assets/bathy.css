@@ -260,9 +260,6 @@ input.ng-valid.ng-touched {
     width: 23em;
   }
 }
-.lgaLists .stateList:last-child {
-  border-bottom: 5px solid white;
-}
 .bathyTabs {
   position: absolute;
   top: 60px;
@@ -537,6 +534,17 @@ i.fa.active {
   border: none;
   height: 30px;
   font-size: 13px;
+}
+.dataset-group {
+  padding-left: 5px;
+}
+
+.dataset-subgroup {
+  padding-left: 5px;
+}
+
+.dataset-item {
+  padding-left: 5px;
 }
 .wizardPopup {
   position: fixed;

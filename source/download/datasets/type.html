@@ -1,0 +1,12 @@
+<div class="dataset-group">
+   <h4>{{name}}</h4>
+   <div class="dataset-subgroup" ng-repeat="tile in type.tiles | withinBounds"
+               ng-mouseenter="show(tile)" ng-mouseleave="hide()">
+      <h5 ng-click="zoom(tile)">Tile ID: {{tile.tile_id}}</h5>
+      <div>
+         <div class="dataset-item" ng-repeat="format in tile.downloadables | sortFormat">
+            <input type="checkbox" ng-model="format.selected"> <span style="width:8em; display: inline-block">{{format.format}}</span> ({{format.file_size | bytes}})
+         </div>
+      </div>
+   </div>
+</div>

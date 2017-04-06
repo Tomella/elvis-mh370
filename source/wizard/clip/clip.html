@@ -1,32 +1,66 @@
-<div class="well well-sm">
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-md-12">
-			<button style="margin-top:0px;" ng-click="initiateDraw()" ng-disable="client.drawing" class="btn btn-primary btn-xs">Draw</button>
+<div class="well well-sm" style="margin-bottom:5px">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12" style="padding:0">
+				<div class="" role="group" aria-label="...">
+					<button ng-click="initiateDraw()" ng-disable="client.drawing"
+                      tooltip-append-to-body="true" tooltip-placement="bottom" uib-tooltip="Enable drawing of a bounding box. On enabling, click on the map and drag diagonally"
+						class="btn btn-primary btn-default">Select an area...</button>
+					<button ng-click="showInfo = !showInfo" tooltip-placement="bottom" uib-tooltip="Information." style="float:right" class="btn btn-primary btn-default"><i class="fa fa-info"></i></button>
+				</div>
+				<exp-info title="Selecting an area" show-close="true" style="width:450px;position:fixed;top:200px;right:40px" is-open="showInfo">
+					<clip-info-bbox></clip-info-bbox>
+				</exp-info>
+			</div>
+		</div>
+
+		<div ng-show="oversize" style="margin-top:6px">
+			<div class="alert alert-danger"
+            style="padding:2px; margin-bottom:0px" role="alert">Please restrict the size of your selected area to no more than 12 square degrees.</div>
+		</div>
+
+		<div class="row" ng-hide="(!clip.xMin && clip.xMin != 0) || oversize" style="padding-top:7px;">
+			<div class="col-md-12">
+				Selected bounds: {{clip.xMin|number : 4}}&deg; west, {{clip.yMax|number : 4}}&deg; north, {{clip.xMax|number : 4}}&deg; east, {{clip.yMin|number
+				: 4}}&deg; south
+			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-3"> </div>
-		<div class="col-md-8">
-			<strong>Y Max:</strong> 
-			<span><input type="text" style="width:6em" ng-model="clip.yMax"></input><span ng-show="showBounds && bounds">({{bounds.yMax|number : 4}} max)</span></span> 
+	<div class="container-fluid" style="padding-top:7px" ng-show="typing">
+		<div class="row">
+			<div class="col-md-3"> </div>
+			<div class="col-md-8">
+				<div style="font-weight:bold;width:3.5em;display:inline-block">Y Max:</div>
+				<span>
+               <input type="text" style="width:6em" ng-model="clip.yMax" ng-change="check()"></input>
+               <span ng-show="showBounds && bounds">({{bounds.yMax|number : 4}} max)</span>
+				</span>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<div style="font-weight:bold;width:3.5em;display:inline-block">X Min:</div>
+				<span>
+               <input type="text" style="width:6em" ng-model="clip.xMin" ng-change="check()"></input>
+               <span ng-show="showBounds && bounds">({{bounds.xMin|number : 4}} min)</span>
+				</span>
+			</div>
+			<div class="col-md-6">
+				<div style="font-weight:bold;width:3.5em;display:inline-block">X Max:</div>
+				<span>
+               <input type="text" style="width:6em" ng-model="clip.xMax" ng-change="check()"></input>
+               <span ng-show="showBounds && bounds">({{bounds.xMax|number : 4}} max)</span>
+				</span>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-offset-3 col-md-8">
+				<div style="font-weight:bold;width:3.5em;display:inline-block">Y Min:</div>
+				<span>
+               <input type="text" style="width:6em" ng-model="clip.yMin" ng-change="check()"></input>
+               <span ng-show="showBounds && bounds">({{bounds.yMin|number : 4}} min)</span>
+				</span>
+			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-6">
-			<strong>X Min:</strong>
-			<span><input type="text" style="width:6em" ng-model="clip.xMin"></input><span ng-show="showBounds && bounds">({{bounds.xMin|number : 4}} min)</span></span> 
-		</div>
-		<div class="col-md-6">
-			<strong>X Max:</strong>
-			<span><input type="text" style="width:6em" ng-model="clip.xMax"></input><span ng-show="showBounds && bounds">({{bounds.xMax|number : 4}} max)</span></span> 
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-offset-3 col-md-8">
-			<strong>Y Min:</strong>
-			<span><input type="text" style="width:6em" ng-model="clip.yMin"></input><span ng-show="showBounds && bounds">({{bounds.yMin|number : 4}} min)</span></span> 
-		</div>
-	</div>
-</div>
 </div>

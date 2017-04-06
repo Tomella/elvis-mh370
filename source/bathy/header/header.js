@@ -1,8 +1,4 @@
-
-(function (angular) {
-
-	'use strict';
-
+{
 	angular.module('bathy.header', [])
 
 		.controller('headerController', ['$scope', '$q', '$timeout', function ($scope, $q, $timeout) {
@@ -56,4 +52,4 @@
 		.factory('headerService', ['$http', function () {
 		}]);
 
-})(angular);
+}

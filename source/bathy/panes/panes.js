@@ -1,52 +1,46 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
+{
+   angular.module("bathy.panes", [])
 
-(function(angular) {
-'use strict';
+      .directive("bathyPanes", ['$rootScope', '$timeout', 'mapService', function ($rootScope, $timeout, mapService) {
+         return {
+            templateUrl: "bathy/panes/panes.html",
+            scope: {
+               defaultItem: "@",
+               data: "="
+            },
+            controller: ['$scope', function ($scope) {
+               var changeSize = false;
 
-angular.module("bathy.panes", [])
+               $scope.view = $scope.defaultItem;
 
-.directive("bathyPanes", ['$rootScope', '$timeout', 'mapService', function($rootScope, $timeout, mapService) {
-	return {
-		templateUrl : "bathy/panes/panes.html",
-		scope : {
-			defaultItem : "@",
-			data : "="
-		},
-		controller : ['$scope', function($scope) {
-			var changeSize = false;
+               $scope.setView = function (what) {
+                  var oldView = $scope.view;
 
-			$scope.view = $scope.defaultItem;
+                  if ($scope.view === what) {
+                     if (what) {
+                        changeSize = true;
+                     }
+                     $scope.view = "";
+                  } else {
+                     if (!what) {
+                        changeSize = true;
+                     }
+                     $scope.view = what;
+                  }
 
-			$scope.setView = function(what) {
-				var oldView = $scope.view;
+                  $rootScope.$broadcast("view.changed", $scope.view, oldView);
 
-				if($scope.view === what) {
-					if(what) {
-						changeSize = true;
-					}
-					$scope.view = "";
-				} else {
-					if(!what) {
-						changeSize = true;
-					}
-					$scope.view = what;
-				}
+                  if (changeSize) {
+                     mapService.getMap().then(function (map) {
+                        map._onResize();
+                     });
+                  }
+               };
+               $timeout(function () {
+                  $rootScope.$broadcast("view.changed", $scope.view, null);
+               }, 50);
+            }]
+         };
+      }]);
 
-				$rootScope.$broadcast("view.changed", $scope.view, oldView);
-
-				if(changeSize) {
-					mapService.getMap().then(function(map) {
-						map._onResize();
-					});
-				}
-			};
-			$timeout(function() {
-				$rootScope.$broadcast("view.changed", $scope.view, null);
-			},50);
-		}]
-	};
-}]);
-
-})(angular);
+}

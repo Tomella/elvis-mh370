@@ -1,76 +1,70 @@
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
+{
 
-(function(angular) {
+   angular.module('bathy.tabs', [])
 
-'use strict';
+      .directive('tabsMain', ['$rootScope', function ($rootScope) {
+         return {
+            templateUrl: 'bathy/tabs/tabs.html'
+         };
+      }])
 
-angular.module('bathy.tabs', [])
+      .directive('bathyMapsOld', ['$rootScope', function ($rootScope) {
+         return {
+            templateUrl: 'bathy/tabs/maps.html',
+            controller: 'customMapsController'
+         };
+      }])
 
-.directive('tabsMain', ['$rootScope', function($rootScope) {
-	return {
-		templateUrl: 'bathy/tabs/tabs.html'
-	};
-}])
+      .controller("customMapsController", ['$scope', 'rocksAssetService', function ($scope, rocksAssetService) {
 
-.directive('bathyMapsOld', ['$rootScope', function($rootScope) {
-	return {
-		templateUrl:'bathy/tabs/maps.html',
-		controller: 'customMapsController'
-	};
-}])
+         // get the custom maps
+         rocksAssetService.getRfcs().then(function (mapsRfcs) {
+            $scope.rfcs = mapsRfcs;
+         });
 
-.controller("customMapsController", ['$scope', 'rocksAssetService', function($scope, rocksAssetService) {
+         $scope.toggleRfcShow = function () {
+            var element = this.rfc;
+            element.displayed = element.handleShow();
+         };
 
-	// get the custom maps
-	rocksAssetService.getRfcs().then(function(mapsRfcs) {
-		$scope.rfcs = mapsRfcs;
-	});
+         $scope.makeRfcActive = function () {
+            $scope.active = this.rfc;
+         };
+      }])
 
-	$scope.toggleRfcShow = function() {
-		var element = this.rfc;
-		element.displayed = element.handleShow();
-	};
+      .factory('bathyAssetService', ['$rootScope', '$q', '$timeout', '$http', 'layerService', 'mapService', function ($rootScope, $q, $timeout, $http, layerService, mapService) {
+         return {
+            getRfcs: function () {
+               return $q.all([mapService.getMap(), $http.get('resources/config/rocks/custom-assets.json', { cache: true })]).then(function (mapFeatures) {
 
-	$scope.makeRfcActive = function() {
-		$scope.active = this.rfc;
-	};
-}])
+                  // extracts the features defined in config
+                  var map = mapFeatures[0],
+                     refFeatureTypes = mapFeatures[1].data,
+                     features = [];
 
-.factory('bathyAssetService', ['$rootScope', '$q', '$timeout', '$http', 'layerService', 'mapService', function($rootScope, $q, $timeout, $http, layerService, mapService){
-	return {
-		getRfcs:function() {
-			return $q.all([mapService.getMap(), $http.get('resources/config/rocks/custom-assets.json', {cache:true})]).then(function(mapFeatures) {
+                  angular.forEach(refFeatureTypes, function (feature) {
+                     var decorated = layerService.decorate(feature);
+                     decorated.map = map;
+                     decorated.addToMap();
+                     features.push(decorated);
+                  });
 
-				// extracts the features defined in config
-				var map = mapFeatures[0],
-				refFeatureTypes = mapFeatures[1].data,
-				features = [];
+                  return features;
+               });
+            }
+         };
+      }])
 
-				angular.forEach(refFeatureTypes, function(feature) {
-					var decorated = layerService.decorate(feature);
-					decorated.map = map;
-					decorated.addToMap();
-					features.push(decorated);
-				});
+      .filter("countGreaterThanZero", [function () {
+         return function (rfcs) {
+            if (rfcs) {
+               return rfcs.filter(function (rfc) {
+                  return rfc.count && rfc.count > 0;
+               });
+            } else {
+               return [];
+            }
+         };
+      }]);
 
-				return features;
-			});
-		}
-	};
-}])
-
-.filter("countGreaterThanZero", [function() {
-	return function(rfcs) {
-		if(rfcs) {
-			return rfcs.filter(function(rfc) {
-				return rfc.count && rfc.count > 0;
-			});
-		} else {
-			return [];
-		}
-	};
-}]);
-
-})(angular);
+}
