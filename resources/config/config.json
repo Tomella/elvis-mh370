@@ -70,7 +70,7 @@
    },
 
 	"datasets": {
-		"datasetsUrl": "bathy/resources/config/datasets.json"
+		"datasetsUrl": "bathy/resources/config/datasets_20170411.json"
    },
 
 	"processing": {

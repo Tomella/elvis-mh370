@@ -1,17 +1,15 @@
 {
    class RootCtrl {
-      constructor($http, configService, mapService) {
-         let self = this;
-
-         mapService.getMap().then(function (map) {
-            self.map = map;
+      constructor(configService, mapService) {
+         mapService.getMap().then(map => {
+            this.map = map;
          });
-         configService.getConfig().then(function (data) {
-            self.data = data;
+         configService.getConfig().then(data => {
+            this.data = data;
          });
       }
    }
-   RootCtrl.$invoke = ['$http', 'configService', 'mapService'];
+   RootCtrl.$invoke = ['configService', 'mapService'];
 
    angular.module("BathyApp", [
       'explorer.config',
@@ -58,6 +56,7 @@
       'bathy.panes',
       'bathy.plot',
       'bathy.reset',
+      'bathy.restrict.pan',
       'bathy.select',
       "bathy.side-panel",
       'bathy.splash',
