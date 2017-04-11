@@ -17,6 +17,332 @@ specific language governing permissions and limitations
 under the License.
 */
 
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+{
+   var DatasetsService = function () {
+      function DatasetsService($http, $rootScope, configService, mapService) {
+         var _this = this;
+
+         _classCallCheck(this, DatasetsService);
+
+         this.$http = $http;
+         this.configService = configService;
+         this.mapService = mapService;
+         this._data = {
+            active: "groups"
+         };
+         this.getDatasets().then(function (response) {
+            _this._data.types = response.data.available_data;
+            _this.makeList();
+            _this.showTiles();
+         });
+      }
+
+      _createClass(DatasetsService, [{
+         key: "setBounds",
+         value: function setBounds(clip) {
+            var _this2 = this;
+
+            this._data.bounds = clip;
+
+            var maxX = clip[2];
+            var maxY = clip[3];
+            var minX = clip[0];
+            var minY = clip[1];
+            var x = 1; // Set the indices once
+            var y = 0; // Set the indices once
+
+            this._data.list.forEach(function (tile) {
+               var min = tile.bbox[0];
+               var max = tile.bbox[1];
+               tile.intersects = min[x] < maxX && max[x] > minX && min[y] < maxY && max[y] > minY;
+               tile.downloadables.forEach(function (downloadable) {
+                  downloadable.selected &= tile.intersects; // Deselect any that are selected but aren't within the bounds.
+               });
+            });
+
+            var bounds = [[minY, minX], [maxY, maxX]];
+            if (this.rectangle) {
+               this.rectangle.setBounds(bounds);
+            } else {
+               this.mapService.getMap().then(function (map) {
+                  _this2.rectangle = L.rectangle(bounds, { color: "#f80", weight: 2 });
+                  _this2.rectangle.addTo(map);
+               });
+            }
+         }
+      }, {
+         key: "zoom",
+         value: function zoom(dataset) {
+            this.mapService.getMap().then(function (map) {
+               // We need to buffer on the right.
+               var bounds = dataset.bbox;
+               var xmax = bounds[1][1];
+               var xmin = bounds[0][1];
+               var width = xmax - xmin;
+               var wideX = bounds[1][1] + width;
+
+               var bbox = [bounds[0], [bounds[1][0], wideX < 180 ? wideX : 180]];
+
+               map.fitBounds(bbox, { animate: true, padding: [80, 80] });
+            });
+         }
+      }, {
+         key: "show",
+         value: function show(dataset) {
+            var _this3 = this;
+
+            this.mapService.getMap().then(function (map) {
+               if (_this3._showDataset) {
+                  map.removeLayer(_this3._showDataset);
+                  _this3._showDataset = null;
+               }
+
+               if (dataset) {
+                  _this3._showDataset = L.polygon(dataset.polygon, { color: "#f00" });
+                  _this3._showDataset.addTo(map);
+               }
+            });
+         }
+      }, {
+         key: "makeList",
+         value: function makeList() {
+            var list = this._data.list = [];
+            var keys = {};
+
+            this._data.types.forEach(function (type) {
+               var dataType = type.data_type;
+
+               type.tiles.forEach(function (tile) {
+                  var bbox = tile.bbox.split(",").map(function (str) {
+                     return +str;
+                  });
+                  tile.bbox = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
+                  tile.polygon = [[bbox[1], bbox[0]], [bbox[1], bbox[2]], [bbox[3], bbox[2]], [bbox[3], bbox[0]], [bbox[1], bbox[0]]];
+
+                  // Used to filter those datasets within view
+                  tile.intersects = true;
+                  tile.center = tile.centre_pt.split(",").map(function (str) {
+                     return +str;
+                  }).reverse();
+                  tile.dataType = dataType;
+
+                  if (!keys[tile.tile_id]) {
+                     list.push(tile);
+                     keys[tile.tile_id] = true;
+                  }
+               });
+            });
+            console.log(this._data);
+         }
+      }, {
+         key: "showTiles",
+         value: function showTiles() {
+            var _this4 = this;
+
+            var latlngs = [];
+            this._data.list.forEach(function (item) {
+               latlngs.push(item.polygon);
+            });
+            this.polys = L.multiPolygon(latlngs, { color: '#dddddd', fill: false, weight: 1 });
+            this.mapService.getMap().then(function (map) {
+               _this4.polys.addTo(map);
+            });
+         }
+      }, {
+         key: "getDatasets",
+         value: function getDatasets() {
+            var _this5 = this;
+
+            return this.configService.getConfig("datasets").then(function (config) {
+               return _this5.$http.get(config.datasetsUrl);
+            });
+         }
+      }, {
+         key: "data",
+         get: function get() {
+            return this._data;
+         }
+      }]);
+
+      return DatasetsService;
+   }();
+
+   DatasetsService.$inject = ["$http", "$rootScope", "configService", "mapService"];
+
+   angular.module("bathy.datasets", ["bathy.datasets.type"]).directive("datasetsContainer", ["$rootScope", "datasetsService", function ($rootScope, datasetsService) {
+      return {
+         templateUrl: "download/datasets/datasets.html",
+         restrict: "AE",
+         link: function link(scope) {
+            scope.datasets = datasetsService.data;
+
+            $rootScope.$on('bathy.bounds.draw', function (event, clip) {
+               datasetsService.setBounds(clip);
+            });
+         }
+      };
+   }]).service("datasetsService", DatasetsService).filter("spatialSort", [function () {
+      return function (items) {
+         return items;
+      };
+   }]);
+}
+"use strict";
+
+{
+   angular.module("bathy.datasets.type", []).directive("datasetsType", ["datasetsService", function (datasetsService) {
+      return {
+         templateUrl: "download/datasets/type.html",
+         restrict: "AE",
+         scope: {
+            name: "=",
+            type: "="
+         },
+         link: function link(scope) {
+            scope.show = function (dataset) {
+               datasetsService.show(dataset);
+            };
+            scope.hide = function () {
+               datasetsService.show(null);
+            };
+            scope.zoom = function (dataset) {
+               datasetsService.zoom(dataset);
+            };
+         }
+      };
+   }]).filter("withinBounds", [function () {
+      return function (tiles) {
+         return (tiles ? tiles : []).filter(function (tile) {
+            return tile.intersects;
+         });
+      };
+   }]).filter("sortFormat", function () {
+      return function (formats) {
+         return (formats ? formats : []).sort(function (a, b) {
+            return a.format > b.format;
+         });
+      };
+   });
+}
+"use strict";
+
+{
+   angular.module("bathy.start", ["bathy.datasets"]).directive("bathyDownload", [function () {
+      return {
+         templateUrl: "download/start/start.html",
+         link: function link(scope, element, attrs) {
+            console.log("Hello select!");
+         }
+      };
+   }]);
+}
+'use strict';
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+{
+   var RootCtrl = function RootCtrl(configService, mapService) {
+      var _this = this;
+
+      _classCallCheck(this, RootCtrl);
+
+      mapService.getMap().then(function (map) {
+         _this.map = map;
+      });
+      configService.getConfig().then(function (data) {
+         _this.data = data;
+      });
+   };
+
+   RootCtrl.$invoke = ['configService', 'mapService'];
+
+   angular.module("BathyApp", ['explorer.config', 'explorer.confirm', 'explorer.enter', 'explorer.flasher', 'explorer.googleanalytics', 'explorer.httpdata', 'explorer.info', 'explorer.legend', 'explorer.message', 'explorer.modal', 'explorer.persist', 'explorer.projects', 'explorer.tabs', 'explorer.version', 'exp.ui.templates', 'explorer.map.templates', 'ui.bootstrap', 'ngAutocomplete', 'ngRoute', 'ngSanitize', 'page.footer', 'geo.baselayer.control', 'geo.draw', 'geo.map', 'geo.maphelper', 'geo.measure', 'bathy.autoscroll', 'bathy.bounds', 'bathy.clip', 'bathy.datasets', 'bathy.daterange', 'bathy.extent', 'bathy.glossary', 'bathy.header', 'bathy.help', 'bathy.legend', 'bathy.maps', 'bathy.panes', 'bathy.plot', 'bathy.reset', 'bathy.restrict.pan', 'bathy.select', "bathy.side-panel", 'bathy.splash', 'bathy.start', 'bathy.tabs', 'bathy.templates', 'bathy.toolbar', 'bathy.wms'])
+
+   // Set up all the service providers here.
+   .config(['configServiceProvider', 'persistServiceProvider', 'projectsServiceProvider', 'versionServiceProvider', function (configServiceProvider, persistServiceProvider, projectsServiceProvider, versionServiceProvider) {
+      configServiceProvider.location("bathy/resources/config/config.json");
+      configServiceProvider.dynamicLocation("bathy/resources/config/configclient.json?");
+      versionServiceProvider.url("bathy/assets/package.json");
+      persistServiceProvider.handler("local");
+      projectsServiceProvider.setProject("bathy");
+   }])
+   /*
+           .factory("userService", [function () {
+            return {
+               login: noop,
+               hasAcceptedTerms: noop,
+               setAcceptedTerms: noop,
+               getUsername: function () {
+                  return "anon";
+               }
+            };
+            function noop() { return true; }
+         }])
+   */
+   .controller("RootCtrl", RootCtrl).filter('bytes', function () {
+      return function (bytes, precision) {
+         if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
+         if (typeof precision === 'undefined') precision = 0;
+         var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
+             number = Math.floor(Math.log(bytes) / Math.log(1024));
+         return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
+      };
+   });
+}
+'use strict';
+
+{
+   angular.module('bathy.autoscroll', []).directive('autoScroll', ['$timeout', '$rootScope', function ($timeout, $rootScope) {
+      return {
+         scope: {
+            trigger: "@",
+            y: "@",
+            height: "@"
+         },
+         link: function link(scope, element, attrs) {
+            var timeout, oldBottom, startHeight;
+
+            if (scope.height) {
+               startHeight = +scope.height;
+            } else {
+               startHeight = 100;
+            }
+            oldBottom = startHeight;
+
+            element.on("scroll", function (event) {
+               var scrollHeight = element.scrollTop(),
+                   target = element.find(attrs.autoScroll),
+                   totalHeight = target.height(),
+                   scrollWindow = element.height(),
+                   scrollBottom,
+                   up;
+
+               if (scrollWindow >= totalHeight) {
+                  return;
+               }
+               scrollBottom = totalHeight - scrollHeight - scrollWindow;
+               up = oldBottom < scrollBottom;
+               oldBottom = scrollBottom;
+               if (scrollBottom < startHeight && !up) {
+                  // Add some debounce
+                  if (timeout) {
+                     $timeout.cancel(timeout);
+                  }
+                  timeout = $timeout(function () {
+                     $rootScope.$broadcast(scope.trigger);
+                  }, 30);
+               }
+            });
+         }
+      };
+   }]);
+}
 'use strict';
 
 /*!
@@ -184,54 +510,6 @@ under the License.
 		}
 	}]);
 }
-'use strict';
-
-{
-   angular.module('bathy.autoscroll', []).directive('autoScroll', ['$timeout', '$rootScope', function ($timeout, $rootScope) {
-      return {
-         scope: {
-            trigger: "@",
-            y: "@",
-            height: "@"
-         },
-         link: function link(scope, element, attrs) {
-            var timeout, oldBottom, startHeight;
-
-            if (scope.height) {
-               startHeight = +scope.height;
-            } else {
-               startHeight = 100;
-            }
-            oldBottom = startHeight;
-
-            element.on("scroll", function (event) {
-               var scrollHeight = element.scrollTop(),
-                   target = element.find(attrs.autoScroll),
-                   totalHeight = target.height(),
-                   scrollWindow = element.height(),
-                   scrollBottom,
-                   up;
-
-               if (scrollWindow >= totalHeight) {
-                  return;
-               }
-               scrollBottom = totalHeight - scrollHeight - scrollWindow;
-               up = oldBottom < scrollBottom;
-               oldBottom = scrollBottom;
-               if (scrollBottom < startHeight && !up) {
-                  // Add some debounce
-                  if (timeout) {
-                     $timeout.cancel(timeout);
-                  }
-                  timeout = $timeout(function () {
-                     $rootScope.$broadcast(scope.trigger);
-                  }, 30);
-               }
-            });
-         }
-      };
-   }]);
-}
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -356,120 +634,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          }
       };
    }]).controller("DaterangeCtrl", DaterangeCtrl).factory("daterangeService", DaterangeService);
-}
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-{
-   var ExtentService = function ExtentService(mapService, searchService) {
-      _classCallCheck(this, ExtentService);
-
-      var bbox = searchService.getSearchCriteria().bbox;
-
-      if (bbox.fromMap) {
-         enableMapListeners();
-      }
-
-      return {
-         getParameters: function getParameters() {
-            return bbox;
-         }
-      };
-
-      function enableMapListeners() {
-         mapService.getMap().then(function (map) {
-            map.on("moveend", execute);
-            map.on("zoomend", execute);
-            execute();
-         });
-      }
-
-      function disableMapListeners() {
-         return mapService.getMap().then(function (map) {
-            map.off("moveend", execute);
-            map.off("zoomend", execute);
-            return map;
-         });
-      }
-
-      function execute() {
-         mapService.getMap().then(function (map) {
-            var bounds = map.getBounds();
-            bbox.yMin = bounds.getSouth();
-            bbox.xMin = bounds.getWest();
-            bbox.yMax = bounds.getNorth();
-            bbox.xMax = bounds.getEast();
-            searchService.refresh();
-         });
-      }
-   };
-
-   ExtentService.$inject = ['mapService', 'searchService'];
-
-   angular.module("bathy.extent", ["explorer.switch"]).directive("bathyExtent", ['extentService', function (extentService) {
-      return {
-         restrict: "AE",
-         templateUrl: "bathy/extent/extent.html",
-         controller: ['$scope', function ($scope) {
-            $scope.parameters = extentService.getParameters();
-         }],
-         link: function link(scope, element, attrs) {}
-      };
-   }]).factory("extentService", ExtentService);
-}
-'use strict';
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-{
-   var RootCtrl = function RootCtrl(configService, mapService) {
-      var _this = this;
-
-      _classCallCheck(this, RootCtrl);
-
-      mapService.getMap().then(function (map) {
-         _this.map = map;
-      });
-      configService.getConfig().then(function (data) {
-         _this.data = data;
-      });
-   };
-
-   RootCtrl.$invoke = ['configService', 'mapService'];
-
-   angular.module("BathyApp", ['explorer.config', 'explorer.confirm', 'explorer.enter', 'explorer.flasher', 'explorer.googleanalytics', 'explorer.httpdata', 'explorer.info', 'explorer.legend', 'explorer.message', 'explorer.modal', 'explorer.persist', 'explorer.projects', 'explorer.tabs', 'explorer.version', 'exp.ui.templates', 'explorer.map.templates', 'ui.bootstrap', 'ngAutocomplete', 'ngRoute', 'ngSanitize', 'page.footer', 'geo.baselayer.control', 'geo.draw', 'geo.map', 'geo.maphelper', 'geo.measure', 'bathy.autoscroll', 'bathy.bounds', 'bathy.clip', 'bathy.datasets', 'bathy.daterange', 'bathy.extent', 'bathy.glossary', 'bathy.header', 'bathy.help', 'bathy.legend', 'bathy.maps', 'bathy.panes', 'bathy.plot', 'bathy.reset', 'bathy.restrict.pan', 'bathy.select', "bathy.side-panel", 'bathy.splash', 'bathy.start', 'bathy.tabs', 'bathy.templates', 'bathy.toolbar', 'bathy.wms'])
-
-   // Set up all the service providers here.
-   .config(['configServiceProvider', 'persistServiceProvider', 'projectsServiceProvider', 'versionServiceProvider', function (configServiceProvider, persistServiceProvider, projectsServiceProvider, versionServiceProvider) {
-      configServiceProvider.location("bathy/resources/config/config.json");
-      configServiceProvider.dynamicLocation("bathy/resources/config/configclient.json?");
-      versionServiceProvider.url("bathy/assets/package.json");
-      persistServiceProvider.handler("local");
-      projectsServiceProvider.setProject("bathy");
-   }])
-   /*
-           .factory("userService", [function () {
-            return {
-               login: noop,
-               hasAcceptedTerms: noop,
-               setAcceptedTerms: noop,
-               getUsername: function () {
-                  return "anon";
-               }
-            };
-            function noop() { return true; }
-         }])
-   */
-   .controller("RootCtrl", RootCtrl).filter('bytes', function () {
-      return function (bytes, precision) {
-         if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
-         if (typeof precision === 'undefined') precision = 0;
-         var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
-             number = Math.floor(Math.log(bytes) / Math.log(1024));
-         return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
-      };
-   });
 }
 'use strict';
 
@@ -981,6 +1145,67 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          templateUrl: "bathy/glossary/glossary.html"
       };
    }]).controller("GlossaryCtrl", GlossaryCtrl).service("glossaryService", GlossaryService);
+}
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+{
+   var ExtentService = function ExtentService(mapService, searchService) {
+      _classCallCheck(this, ExtentService);
+
+      var bbox = searchService.getSearchCriteria().bbox;
+
+      if (bbox.fromMap) {
+         enableMapListeners();
+      }
+
+      return {
+         getParameters: function getParameters() {
+            return bbox;
+         }
+      };
+
+      function enableMapListeners() {
+         mapService.getMap().then(function (map) {
+            map.on("moveend", execute);
+            map.on("zoomend", execute);
+            execute();
+         });
+      }
+
+      function disableMapListeners() {
+         return mapService.getMap().then(function (map) {
+            map.off("moveend", execute);
+            map.off("zoomend", execute);
+            return map;
+         });
+      }
+
+      function execute() {
+         mapService.getMap().then(function (map) {
+            var bounds = map.getBounds();
+            bbox.yMin = bounds.getSouth();
+            bbox.xMin = bounds.getWest();
+            bbox.yMax = bounds.getNorth();
+            bbox.xMax = bounds.getEast();
+            searchService.refresh();
+         });
+      }
+   };
+
+   ExtentService.$inject = ['mapService', 'searchService'];
+
+   angular.module("bathy.extent", ["explorer.switch"]).directive("bathyExtent", ['extentService', function (extentService) {
+      return {
+         restrict: "AE",
+         templateUrl: "bathy/extent/extent.html",
+         controller: ['$scope', function ($scope) {
+            $scope.parameters = extentService.getParameters();
+         }],
+         link: function link(scope, element, attrs) {}
+      };
+   }]).factory("extentService", ExtentService);
 }
 'use strict';
 
@@ -2088,6 +2313,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 {
 
+   angular.module("bathy.toolbar", []).directive("bathyToolbar", [function () {
+      return {
+         templateUrl: "bathy/toolbar/toolbar.html",
+         controller: 'toolbarLinksCtrl',
+         transclude: true
+      };
+   }]).controller("toolbarLinksCtrl", ["$scope", "configService", function ($scope, configService) {
+
+      var self = this;
+      configService.getConfig().then(function (config) {
+         self.links = config.toolbarLinks;
+      });
+
+      $scope.item = "";
+      $scope.toggleItem = function (item) {
+         $scope.item = $scope.item === item ? "" : item;
+      };
+   }]);
+}
+"use strict";
+
+{
+
    angular.module("bathy.restrict.pan", []).directive("restrictPan", ['mapService', function (mapService) {
       return {
          restrict: "AE",
@@ -2118,24 +2366,104 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 {
 
-   angular.module("bathy.toolbar", []).directive("bathyToolbar", [function () {
-      return {
-         templateUrl: "bathy/toolbar/toolbar.html",
-         controller: 'toolbarLinksCtrl',
-         transclude: true
-      };
-   }]).controller("toolbarLinksCtrl", ["$scope", "configService", function ($scope, configService) {
+	angular.module("bathy.bbox", ['geo.draw']).directive("bathyBboxShowAll", ['$rootScope', '$timeout', function ($rootScope, $timeout) {
+		return {
+			link: function link(scope, element) {
+				element.on("click", function () {
+					$timeout(function () {
+						$rootScope.$broadcast("bathybboxshowall");
+					});
+				});
+			}
+		};
+	}]).directive("bathyBboxHideAll", ['$rootScope', function ($rootScope) {
+		return {
+			link: function link(scope, element) {
+				element.on("click", function () {
+					$rootScope.$broadcast("bathybboxhideall");
+				});
+			}
+		};
+	}]).directive("bathyBboxShowVisible", ['$rootScope', 'mapService', function ($rootScope, mapService) {
+		return {
+			link: function link(scope, element) {
+				element.on("click", function () {
+					mapService.getMap().then(function (map) {
+						$rootScope.$broadcast("bathybboxshowvisible", map.getBounds());
+					});
+				});
+			}
+		};
+	}]).directive("bathyBbox", ['$rootScope', 'bboxService', function ($rootScope, bboxService) {
+		return {
+			templateUrl: "wizard/bbox/bbox.html",
+			scope: {
+				data: "="
+			},
+			link: function link(scope, element) {
 
-      var self = this;
-      configService.getConfig().then(function (config) {
-         self.links = config.toolbarLinks;
-      });
+				$rootScope.$on("bathybboxshowall", function () {
+					scope.data.hasBbox = true;
+				});
 
-      $scope.item = "";
-      $scope.toggleItem = function (item) {
-         $scope.item = $scope.item === item ? "" : item;
-      };
-   }]);
+				$rootScope.$on("bathybboxhideall", function () {
+					scope.data.hasBbox = false;
+				});
+
+				$rootScope.$on("bathybboxshowvisible", function (event, bounds) {
+					var myBounds = scope.data.bounds,
+					    draw = bounds.getWest() < myBounds.xMin && bounds.getEast() > myBounds.xMax && bounds.getNorth() > myBounds.yMax && bounds.getSouth() < myBounds.yMin;
+
+					scope.data.hasBbox = draw;
+				});
+
+				scope.$watch("data.hasBbox", function (newValue) {
+					if (newValue) {
+						bboxService.draw(scope.data).then(function (bbox) {
+							scope.bbox = bbox;
+						});
+					} else {
+						scope.bbox = bboxService.remove(scope.bbox);
+					}
+				});
+
+				scope.toggle = function () {
+					var draw = scope.data.hasBbox = !scope.data.hasBbox;
+				};
+
+				scope.$on("$destroy", function () {
+					if (scope.data.hasBbox) {
+						scope.bbox = bboxService.remove(scope.bbox);
+					}
+				});
+			}
+		};
+	}]).factory("bboxService", ['mapService', function (mapService) {
+		var normalLayerColor = "#ff7800",
+		    hilightLayerColor = 'darkblue';
+
+		return {
+			draw: function draw(data) {
+				var parts = data.bbox.split(" "),
+				    bounds = [[+parts[1], +parts[0]], [+parts[3], +parts[2]]];
+
+				return mapService.getMap().then(function (map) {
+					// create an orange rectangle
+					var layer = L.rectangle(bounds, { fill: false, color: normalLayerColor, weight: 2, opacity: 0.8 });
+					layer.addTo(map);
+					map.fitBounds(bounds);
+					return layer;
+				});
+			},
+
+			remove: function remove(bbox) {
+				if (bbox) {
+					bbox._map.removeLayer(bbox);
+				}
+				return null;
+			}
+		};
+	}]);
 }
 "use strict";
 
@@ -2311,540 +2639,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          };
       }
    }]);
-}
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-{
-   var DatasetsService = function () {
-      function DatasetsService($http, $rootScope, configService, mapService) {
-         var _this = this;
-
-         _classCallCheck(this, DatasetsService);
-
-         this.$http = $http;
-         this.configService = configService;
-         this.mapService = mapService;
-         this._data = {
-            active: "groups"
-         };
-         this.getDatasets().then(function (response) {
-            _this._data.types = response.data.available_data;
-            _this.makeList();
-            _this.showTiles();
-         });
-      }
-
-      _createClass(DatasetsService, [{
-         key: "setBounds",
-         value: function setBounds(clip) {
-            var _this2 = this;
-
-            this._data.bounds = clip;
-
-            var maxX = clip[2];
-            var maxY = clip[3];
-            var minX = clip[0];
-            var minY = clip[1];
-            var x = 1; // Set the indices once
-            var y = 0; // Set the indices once
-
-            this._data.list.forEach(function (tile) {
-               var min = tile.bbox[0];
-               var max = tile.bbox[1];
-               tile.intersects = min[x] < maxX && max[x] > minX && min[y] < maxY && max[y] > minY;
-               tile.downloadables.forEach(function (downloadable) {
-                  downloadable.selected &= tile.intersects; // Deselect any that are selected but aren't within the bounds.
-               });
-            });
-
-            var bounds = [[minY, minX], [maxY, maxX]];
-            if (this.rectangle) {
-               this.rectangle.setBounds(bounds);
-            } else {
-               this.mapService.getMap().then(function (map) {
-                  _this2.rectangle = L.rectangle(bounds, { color: "#f80", weight: 2 });
-                  _this2.rectangle.addTo(map);
-               });
-            }
-         }
-      }, {
-         key: "zoom",
-         value: function zoom(dataset) {
-            this.mapService.getMap().then(function (map) {
-               // We need to buffer on the right.
-               var bounds = dataset.bbox;
-               var xmax = bounds[1][1];
-               var xmin = bounds[0][1];
-               var width = xmax - xmin;
-               var wideX = bounds[1][1] + width;
-
-               var bbox = [bounds[0], [bounds[1][0], wideX < 180 ? wideX : 180]];
-
-               map.fitBounds(bbox, { animate: true, padding: [80, 80] });
-            });
-         }
-      }, {
-         key: "show",
-         value: function show(dataset) {
-            var _this3 = this;
-
-            this.mapService.getMap().then(function (map) {
-               if (_this3._showDataset) {
-                  map.removeLayer(_this3._showDataset);
-                  _this3._showDataset = null;
-               }
-
-               if (dataset) {
-                  _this3._showDataset = L.polygon(dataset.polygon, { color: "#f00" });
-                  _this3._showDataset.addTo(map);
-               }
-            });
-         }
-      }, {
-         key: "makeList",
-         value: function makeList() {
-            var list = this._data.list = [];
-            var keys = {};
-
-            this._data.types.forEach(function (type) {
-               var dataType = type.data_type;
-
-               type.tiles.forEach(function (tile) {
-                  var bbox = tile.bbox.split(",").map(function (str) {
-                     return +str;
-                  });
-                  tile.bbox = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
-                  tile.polygon = [[bbox[1], bbox[0]], [bbox[1], bbox[2]], [bbox[3], bbox[2]], [bbox[3], bbox[0]], [bbox[1], bbox[0]]];
-
-                  // Used to filter those datasets within view
-                  tile.intersects = true;
-                  tile.center = tile.centre_pt.split(",").map(function (str) {
-                     return +str;
-                  }).reverse();
-                  tile.dataType = dataType;
-
-                  if (!keys[tile.tile_id]) {
-                     list.push(tile);
-                     keys[tile.tile_id] = true;
-                  }
-               });
-            });
-            console.log(this._data);
-         }
-      }, {
-         key: "showTiles",
-         value: function showTiles() {
-            var _this4 = this;
-
-            var latlngs = [];
-            this._data.list.forEach(function (item) {
-               latlngs.push(item.polygon);
-            });
-            this.polys = L.multiPolygon(latlngs, { color: '#dddddd', fill: false, weight: 1 });
-            this.mapService.getMap().then(function (map) {
-               _this4.polys.addTo(map);
-            });
-         }
-      }, {
-         key: "getDatasets",
-         value: function getDatasets() {
-            var _this5 = this;
-
-            return this.configService.getConfig("datasets").then(function (config) {
-               return _this5.$http.get(config.datasetsUrl);
-            });
-         }
-      }, {
-         key: "data",
-         get: function get() {
-            return this._data;
-         }
-      }]);
-
-      return DatasetsService;
-   }();
-
-   DatasetsService.$inject = ["$http", "$rootScope", "configService", "mapService"];
-
-   angular.module("bathy.datasets", ["bathy.datasets.type"]).directive("datasetsContainer", ["$rootScope", "datasetsService", function ($rootScope, datasetsService) {
-      return {
-         templateUrl: "download/datasets/datasets.html",
-         restrict: "AE",
-         link: function link(scope) {
-            scope.datasets = datasetsService.data;
-
-            $rootScope.$on('bathy.bounds.draw', function (event, clip) {
-               datasetsService.setBounds(clip);
-            });
-         }
-      };
-   }]).service("datasetsService", DatasetsService).filter("spatialSort", [function () {
-      return function (items) {
-         return items;
-      };
-   }]);
-}
-"use strict";
-
-{
-   angular.module("bathy.datasets.type", []).directive("datasetsType", ["datasetsService", function (datasetsService) {
-      return {
-         templateUrl: "download/datasets/type.html",
-         restrict: "AE",
-         scope: {
-            name: "=",
-            type: "="
-         },
-         link: function link(scope) {
-            scope.show = function (dataset) {
-               datasetsService.show(dataset);
-            };
-            scope.hide = function () {
-               datasetsService.show(null);
-            };
-            scope.zoom = function (dataset) {
-               datasetsService.zoom(dataset);
-            };
-         }
-      };
-   }]).filter("withinBounds", [function () {
-      return function (tiles) {
-         return (tiles ? tiles : []).filter(function (tile) {
-            return tile.intersects;
-         });
-      };
-   }]).filter("sortFormat", function () {
-      return function (formats) {
-         return (formats ? formats : []).sort(function (a, b) {
-            return a.format > b.format;
-         });
-      };
-   });
-}
-"use strict";
-
-{
-   angular.module("bathy.start", ["bathy.datasets"]).directive("bathyDownload", [function () {
-      return {
-         templateUrl: "download/start/start.html",
-         link: function link(scope, element, attrs) {
-            console.log("Hello select!");
-         }
-      };
-   }]);
-}
-"use strict";
-
-{
-
-	angular.module("bathy.bbox", ['geo.draw']).directive("bathyBboxShowAll", ['$rootScope', '$timeout', function ($rootScope, $timeout) {
-		return {
-			link: function link(scope, element) {
-				element.on("click", function () {
-					$timeout(function () {
-						$rootScope.$broadcast("bathybboxshowall");
-					});
-				});
-			}
-		};
-	}]).directive("bathyBboxHideAll", ['$rootScope', function ($rootScope) {
-		return {
-			link: function link(scope, element) {
-				element.on("click", function () {
-					$rootScope.$broadcast("bathybboxhideall");
-				});
-			}
-		};
-	}]).directive("bathyBboxShowVisible", ['$rootScope', 'mapService', function ($rootScope, mapService) {
-		return {
-			link: function link(scope, element) {
-				element.on("click", function () {
-					mapService.getMap().then(function (map) {
-						$rootScope.$broadcast("bathybboxshowvisible", map.getBounds());
-					});
-				});
-			}
-		};
-	}]).directive("bathyBbox", ['$rootScope', 'bboxService', function ($rootScope, bboxService) {
-		return {
-			templateUrl: "wizard/bbox/bbox.html",
-			scope: {
-				data: "="
-			},
-			link: function link(scope, element) {
-
-				$rootScope.$on("bathybboxshowall", function () {
-					scope.data.hasBbox = true;
-				});
-
-				$rootScope.$on("bathybboxhideall", function () {
-					scope.data.hasBbox = false;
-				});
-
-				$rootScope.$on("bathybboxshowvisible", function (event, bounds) {
-					var myBounds = scope.data.bounds,
-					    draw = bounds.getWest() < myBounds.xMin && bounds.getEast() > myBounds.xMax && bounds.getNorth() > myBounds.yMax && bounds.getSouth() < myBounds.yMin;
-
-					scope.data.hasBbox = draw;
-				});
-
-				scope.$watch("data.hasBbox", function (newValue) {
-					if (newValue) {
-						bboxService.draw(scope.data).then(function (bbox) {
-							scope.bbox = bbox;
-						});
-					} else {
-						scope.bbox = bboxService.remove(scope.bbox);
-					}
-				});
-
-				scope.toggle = function () {
-					var draw = scope.data.hasBbox = !scope.data.hasBbox;
-				};
-
-				scope.$on("$destroy", function () {
-					if (scope.data.hasBbox) {
-						scope.bbox = bboxService.remove(scope.bbox);
-					}
-				});
-			}
-		};
-	}]).factory("bboxService", ['mapService', function (mapService) {
-		var normalLayerColor = "#ff7800",
-		    hilightLayerColor = 'darkblue';
-
-		return {
-			draw: function draw(data) {
-				var parts = data.bbox.split(" "),
-				    bounds = [[+parts[1], +parts[0]], [+parts[3], +parts[2]]];
-
-				return mapService.getMap().then(function (map) {
-					// create an orange rectangle
-					var layer = L.rectangle(bounds, { fill: false, color: normalLayerColor, weight: 2, opacity: 0.8 });
-					layer.addTo(map);
-					map.fitBounds(bounds);
-					return layer;
-				});
-			},
-
-			remove: function remove(bbox) {
-				if (bbox) {
-					bbox._map.removeLayer(bbox);
-				}
-				return null;
-			}
-		};
-	}]);
-}
-"use strict";
-
-{
-   var DownloadCtrl = function DownloadCtrl(downloadService) {
-      downloadService.data().then(function (data) {
-         this.data = data;
-      }.bind(this));
-
-      this.remove = function () {
-         downloadService.clear();
-      };
-
-      this.changeEmail = function (email) {
-         downloadService.setEmail(email);
-      };
-   };
-   DownloadCtrl.$inject = ["downloadService"];
-
-   var DownloadService = function DownloadService($http, $q, $rootScope, mapService, persistService) {
-      var key = "download_email",
-          downloadLayerGroup = "Download Layers",
-          mapState = {
-         zoom: null,
-         center: null,
-         layer: null
-      },
-          _data = {
-         email: null,
-         item: null
-      },
-          service = {
-         getLayerGroup: function getLayerGroup() {
-            return mapService.getGroup(downloadLayerGroup);
-         },
-
-         setState: function setState(data) {
-            if (data) {
-               prepare();
-            } else {
-               restore(map);
-            }
-
-            function prepare() {
-               var bounds = [[data.bounds.yMin, data.bounds.xMin], [data.bounds.yMax, data.bounds.xMax]];
-
-               if (mapState.layer) {
-                  mapService.getGroup(downloadLayerGroup).removeLayer(mapState.layer);
-               }
-               if (!data.queryLayer) {
-                  mapState.layer = L.rectangle(bounds, { color: "black", fill: false });
-                  mapService.getGroup(downloadLayerGroup).addLayer(mapState.layer);
-               }
-            }
-
-            function restore(map) {
-               mapService.clearGroup(downloadLayerGroup);
-               mapState.layer = null;
-            }
-         },
-
-         add: function add(item) {
-            this.clear();
-            _data.item = item;
-            _data.item.download = true;
-            if (!item.processsing) {
-               item.processing = {
-                  clip: {
-                     xMax: null,
-                     xMin: null,
-                     yMax: null,
-                     yMin: null
-                  }
-               };
-            }
-         },
-
-         clear: function clear() {
-            if (_data.item) {
-               _data.item.download = false;
-               _data.item = null;
-            }
-         },
-
-         setEmail: function setEmail(email) {
-            persistService.setItem(key, email);
-         },
-
-         getEmail: function getEmail() {
-            return persistService.getItem(key).then(function (value) {
-               _data.email = value;
-               return value;
-            });
-         },
-
-         data: function data() {
-            return $q.when(_data);
-         }
-      };
-
-      return service;
-   };
-   DownloadService.$inject = ['$http', '$q', '$rootScope', 'mapService', 'persistService'];
-
-   angular.module("bathy.download", ['bathy.geoprocess']).directive("wizardPopup", ["downloadService", function (downloadService) {
-      return {
-         restrict: "AE",
-         templateUrl: "wizard/download/popup.html",
-         link: function link(scope) {
-            downloadService.data().then(function (data) {
-               scope.data = data;
-
-               scope.$watch("data.item", function (newValue, oldValue) {
-                  if (newValue) {
-                     scope.stage = "bbox";
-                  }
-
-                  if (newValue || oldValue) {
-                     downloadService.setState(newValue);
-                  }
-               });
-            });
-         }
-      };
-   }]).directive("wizardDownload", ["downloadService", function (downloadService) {
-      return {
-         restrict: "AE",
-         controller: "DownloadCtrl",
-         templateUrl: "wizard/download/popup.html",
-         link: function link() {
-            console.log("What the download...");
-         }
-      };
-   }]).directive("bathyDownload", ['downloadService', function (downloadService) {
-      return {
-         templateUrl: "bathy/download/download.html",
-         controller: "DownloadCtrl",
-         link: function link(scope, element) {
-            downloadService.data().then(function (data) {
-               scope.data = data;
-            });
-
-            scope.$watch("data.item", function (item, old) {
-               if (item || old) {
-                  downloadService.setState(item);
-               }
-            });
-         }
-      };
-   }]).directive("downloadAdd", ['$rootScope', 'downloadService', 'flashService', function ($rootScope, downloadService, flashService) {
-      return {
-         template: "<button type='button' class='undecorated' ng-click='toggle()'><span class='fa-stack'  tooltip-placement='right' tooltip='Extract data.'>" + "<i class='fa fa-lg fa-download' ng-class='{active:item.download}'></i>" + "</span></button>",
-         restrict: "AE",
-         scope: {
-            item: "=",
-            group: "="
-         },
-         link: function link(scope, element) {
-            scope.toggle = function () {
-               if (scope.item.download) {
-                  downloadService.clear(scope.item);
-               } else {
-                  flashService.add("Select an area of interest that intersects the highlighted areas.");
-                  downloadService.add(scope.item);
-                  if (scope.group && scope.group.sysId) {
-                     $rootScope.$broadcast('hide.wms', scope.group.sysId);
-                  }
-               }
-            };
-         }
-      };
-   }]).directive("downloadEmail", ['downloadService', function (downloadService) {
-      return {
-         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-email">Email</span>' + '<input required="required" type="email" ng-change="download.changeEmail(email)" ng-model="email" class="form-control" placeholder="Email address to send download link" aria-describedby="bathy-email">' + '</div>',
-         restrict: "AE",
-         link: function link(scope, element) {
-            downloadService.getEmail().then(function (email) {
-               scope.email = email;
-            });
-         }
-      };
-   }]).directive("downloadFilename", ['flashService', 'downloadService', function (flashService, downloadService) {
-      return {
-         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-filename">Filename</span>' + '<input type="text"' + ' ng-maxlength="30" ng-trim="true" ng-keypress="restrict($event)"' + ' ng-model="data.filename" class="form-control" placeholder="Optional filename" aria-describedby="bathy-filename">' + '<span class="input-group-addon" id="basic-addon2">.zip</span>' + '</div>' + '<div>Only up to 9 characters made up of alphanumeric or "_" allowed for file name</div>',
-         restrict: "AE",
-         scope: {
-            data: "="
-         },
-         link: function link(scope, element) {
-            var flasher;
-            scope.restrict = function (event) {
-               var key = event.keyCode;
-               var char = String.fromCharCode(key).toUpperCase();
-               if (key > 31 && !char.match(/[\_A-Z0-9]/ig)) {
-                  flashService.remove(flasher);
-                  flasher = flashService.add('Only alphanumeric characters or "_" allowed in filename.', 5000);
-                  event.preventDefault();
-               } else if (key > 31 && event.currentTarget.value && event.currentTarget.value.length >= 9) {
-                  flashService.remove(flasher);
-                  flasher = flashService.add('Filename is restricted to 9 characters.', 5000);
-                  event.preventDefault();
-               }
-            };
-         }
-      };
-   }]).controller("DownloadCtrl", DownloadCtrl).factory("downloadService", DownloadService);
 }
 'use strict';
 
@@ -3399,6 +3193,212 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 }
 "use strict";
 
+{
+   var DownloadCtrl = function DownloadCtrl(downloadService) {
+      downloadService.data().then(function (data) {
+         this.data = data;
+      }.bind(this));
+
+      this.remove = function () {
+         downloadService.clear();
+      };
+
+      this.changeEmail = function (email) {
+         downloadService.setEmail(email);
+      };
+   };
+   DownloadCtrl.$inject = ["downloadService"];
+
+   var DownloadService = function DownloadService($http, $q, $rootScope, mapService, persistService) {
+      var key = "download_email",
+          downloadLayerGroup = "Download Layers",
+          mapState = {
+         zoom: null,
+         center: null,
+         layer: null
+      },
+          _data = {
+         email: null,
+         item: null
+      },
+          service = {
+         getLayerGroup: function getLayerGroup() {
+            return mapService.getGroup(downloadLayerGroup);
+         },
+
+         setState: function setState(data) {
+            if (data) {
+               prepare();
+            } else {
+               restore(map);
+            }
+
+            function prepare() {
+               var bounds = [[data.bounds.yMin, data.bounds.xMin], [data.bounds.yMax, data.bounds.xMax]];
+
+               if (mapState.layer) {
+                  mapService.getGroup(downloadLayerGroup).removeLayer(mapState.layer);
+               }
+               if (!data.queryLayer) {
+                  mapState.layer = L.rectangle(bounds, { color: "black", fill: false });
+                  mapService.getGroup(downloadLayerGroup).addLayer(mapState.layer);
+               }
+            }
+
+            function restore(map) {
+               mapService.clearGroup(downloadLayerGroup);
+               mapState.layer = null;
+            }
+         },
+
+         add: function add(item) {
+            this.clear();
+            _data.item = item;
+            _data.item.download = true;
+            if (!item.processsing) {
+               item.processing = {
+                  clip: {
+                     xMax: null,
+                     xMin: null,
+                     yMax: null,
+                     yMin: null
+                  }
+               };
+            }
+         },
+
+         clear: function clear() {
+            if (_data.item) {
+               _data.item.download = false;
+               _data.item = null;
+            }
+         },
+
+         setEmail: function setEmail(email) {
+            persistService.setItem(key, email);
+         },
+
+         getEmail: function getEmail() {
+            return persistService.getItem(key).then(function (value) {
+               _data.email = value;
+               return value;
+            });
+         },
+
+         data: function data() {
+            return $q.when(_data);
+         }
+      };
+
+      return service;
+   };
+   DownloadService.$inject = ['$http', '$q', '$rootScope', 'mapService', 'persistService'];
+
+   angular.module("bathy.download", ['bathy.geoprocess']).directive("wizardPopup", ["downloadService", function (downloadService) {
+      return {
+         restrict: "AE",
+         templateUrl: "wizard/download/popup.html",
+         link: function link(scope) {
+            downloadService.data().then(function (data) {
+               scope.data = data;
+
+               scope.$watch("data.item", function (newValue, oldValue) {
+                  if (newValue) {
+                     scope.stage = "bbox";
+                  }
+
+                  if (newValue || oldValue) {
+                     downloadService.setState(newValue);
+                  }
+               });
+            });
+         }
+      };
+   }]).directive("wizardDownload", ["downloadService", function (downloadService) {
+      return {
+         restrict: "AE",
+         controller: "DownloadCtrl",
+         templateUrl: "wizard/download/popup.html",
+         link: function link() {
+            console.log("What the download...");
+         }
+      };
+   }]).directive("bathyDownload", ['downloadService', function (downloadService) {
+      return {
+         templateUrl: "bathy/download/download.html",
+         controller: "DownloadCtrl",
+         link: function link(scope, element) {
+            downloadService.data().then(function (data) {
+               scope.data = data;
+            });
+
+            scope.$watch("data.item", function (item, old) {
+               if (item || old) {
+                  downloadService.setState(item);
+               }
+            });
+         }
+      };
+   }]).directive("downloadAdd", ['$rootScope', 'downloadService', 'flashService', function ($rootScope, downloadService, flashService) {
+      return {
+         template: "<button type='button' class='undecorated' ng-click='toggle()'><span class='fa-stack'  tooltip-placement='right' tooltip='Extract data.'>" + "<i class='fa fa-lg fa-download' ng-class='{active:item.download}'></i>" + "</span></button>",
+         restrict: "AE",
+         scope: {
+            item: "=",
+            group: "="
+         },
+         link: function link(scope, element) {
+            scope.toggle = function () {
+               if (scope.item.download) {
+                  downloadService.clear(scope.item);
+               } else {
+                  flashService.add("Select an area of interest that intersects the highlighted areas.");
+                  downloadService.add(scope.item);
+                  if (scope.group && scope.group.sysId) {
+                     $rootScope.$broadcast('hide.wms', scope.group.sysId);
+                  }
+               }
+            };
+         }
+      };
+   }]).directive("downloadEmail", ['downloadService', function (downloadService) {
+      return {
+         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-email">Email</span>' + '<input required="required" type="email" ng-change="download.changeEmail(email)" ng-model="email" class="form-control" placeholder="Email address to send download link" aria-describedby="bathy-email">' + '</div>',
+         restrict: "AE",
+         link: function link(scope, element) {
+            downloadService.getEmail().then(function (email) {
+               scope.email = email;
+            });
+         }
+      };
+   }]).directive("downloadFilename", ['flashService', 'downloadService', function (flashService, downloadService) {
+      return {
+         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-filename">Filename</span>' + '<input type="text"' + ' ng-maxlength="30" ng-trim="true" ng-keypress="restrict($event)"' + ' ng-model="data.filename" class="form-control" placeholder="Optional filename" aria-describedby="bathy-filename">' + '<span class="input-group-addon" id="basic-addon2">.zip</span>' + '</div>' + '<div>Only up to 9 characters made up of alphanumeric or "_" allowed for file name</div>',
+         restrict: "AE",
+         scope: {
+            data: "="
+         },
+         link: function link(scope, element) {
+            var flasher;
+            scope.restrict = function (event) {
+               var key = event.keyCode;
+               var char = String.fromCharCode(key).toUpperCase();
+               if (key > 31 && !char.match(/[\_A-Z0-9]/ig)) {
+                  flashService.remove(flasher);
+                  flasher = flashService.add('Only alphanumeric characters or "_" allowed in filename.', 5000);
+                  event.preventDefault();
+               } else if (key > 31 && event.currentTarget.value && event.currentTarget.value.length >= 9) {
+                  flashService.remove(flasher);
+                  flasher = flashService.add('Filename is restricted to 9 characters.', 5000);
+                  event.preventDefault();
+               }
+            };
+         }
+      };
+   }]).controller("DownloadCtrl", DownloadCtrl).factory("downloadService", DownloadService);
+}
+"use strict";
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -3563,11 +3563,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
    });
 }
-angular.module("bathy.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("bathy/daterange/daterange.html","<div class=\"row\" >\r\n	<div class=\"col-md-5\">\r\n		<div class=\"form-inline\">\r\n			<label>\r\n				<input id=\"daterangeslider\" type=\"checkbox\" ng-model=\"daterange.data.enabled\" ng-click=\"change()\"></input>\r\n				Restrict to date range\r\n			</label>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"col-md-7\" ng-show=\"daterange.data.enabled\">\r\n		<div class=\"bathyDaterange\">\r\n			<bathy-daterange-slider/>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\" style=\"text-align:center\">\r\n				<span class=\"pull-left\">Earliest</span>\r\n				<span ng-show=\"daterange.data.lower\">{{daterange.data.lower}}</span> -\r\n				<span ng-show=\"daterange.data.upper\">{{daterange.data.upper}}</span>\r\n				<span class=\"pull-right\">Up to today</span>\r\n		</div>\r\n	</div>\r\n</div>");
-$templateCache.put("bathy/extent/extent.html","<div class=\"row\" style=\"border-top: 1px solid gray; padding-top:5px\">\r\n	<div class=\"col-md-5\">\r\n		<div class=\"form-inline\">\r\n			<label>\r\n				<input id=\"extentEnable\" type=\"checkbox\" ng-model=\"parameters.fromMap\" ng-click=\"change()\"></input> \r\n				Restrict area to map\r\n			</label>\r\n		</div>\r\n	</div>\r\n	 \r\n	<div class=\"col-md-7\" ng-show=\"parameters.fromMap\">\r\n		<div class=\"container-fluid\">\r\n			<div class=\"row\">\r\n				<div class=\"col-md-offset-3 col-md-8\">\r\n					<strong>Y Max:</strong> \r\n					<span>{{parameters.yMax | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n			<div class=\"row\">\r\n				<div class=\"col-md-6\">\r\n					<strong>X Min:</strong>\r\n					<span>{{parameters.xMin | number : 4}}</span> \r\n				</div>\r\n				<div class=\"col-md-6\">\r\n					<strong>X Max:</strong>\r\n					<span>{{parameters.xMax | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n			<div class=\"row\">\r\n				<div class=\"col-md-offset-3 col-md-8\">\r\n					<strong>Y Min:</strong>\r\n					<span>{{parameters.yMin | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
+angular.module("bathy.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("download/datasets/datasets.html","<div ng-show=\"datasets.bounds\">\r\n   <div class=\"datasets-group\" ng-if=\"datasets.active == \'groups\'\">\r\n      <datasets-type ng-repeat=\"value in datasets.types\" type=\"value\" name=\"value.data_type\" />\r\n   </div>\r\n   <div class=\"datasets-list\" ng-if=\"datasets.active == \'list\'\">\r\n      <datasets-list ng-repeat=\"item in datasets.list\" item=\"item\" />\r\n   </div>\r\n</div>");
+$templateCache.put("download/datasets/type.html","<div class=\"dataset-group\">\r\n   <h4>{{name}}</h4>\r\n   <div class=\"dataset-subgroup\" ng-repeat=\"tile in type.tiles | withinBounds\"\r\n               ng-mouseenter=\"show(tile)\" ng-mouseleave=\"hide()\">\r\n      <h5 ng-click=\"zoom(tile)\">Tile ID: {{tile.tile_id}}</h5>\r\n      <div>\r\n         <div class=\"dataset-item\" ng-repeat=\"format in tile.downloadables | sortFormat\">\r\n            <input type=\"checkbox\" ng-model=\"format.selected\"> <span style=\"width:8em; display: inline-block\">{{format.format}}</span> ({{format.file_size | bytes}})\r\n         </div>\r\n      </div>\r\n   </div>\r\n</div>");
+$templateCache.put("download/start/start.html","<div>\r\n   <map-clip></map-clip>\r\n   <datasets-container></datasets-container>\r\n</div>");
+$templateCache.put("bathy/daterange/daterange.html","<div class=\"row\" >\r\n	<div class=\"col-md-5\">\r\n		<div class=\"form-inline\">\r\n			<label>\r\n				<input id=\"daterangeslider\" type=\"checkbox\" ng-model=\"daterange.data.enabled\" ng-click=\"change()\"></input>\r\n				Restrict to date range\r\n			</label>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"col-md-7\" ng-show=\"daterange.data.enabled\">\r\n		<div class=\"bathyDaterange\">\r\n			<bathy-daterange-slider/>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\" style=\"text-align:center\">\r\n				<span class=\"pull-left\">Earliest</span>\r\n				<span ng-show=\"daterange.data.lower\">{{daterange.data.lower}}</span> -\r\n				<span ng-show=\"daterange.data.upper\">{{daterange.data.upper}}</span>\r\n				<span class=\"pull-right\">Up to today</span>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("bathy/elevation/elevation.html","<div class=\"container-full elevationContainer\" ng-show=\"geometry\" style=\"background-color:white; opacity:0.9;padding:2px\">\r\n	<div class=\"row\">\r\n		<div class=\"col-md-4\">\r\n			<span class=\"graph-brand\">Path Elevation</span>\r\n		</div>	\r\n		<div class=\"col-md-8\">\r\n			<div class=\"btn-toolbar pull-right\" role=\"toolbar\" style=\"margin-right: 3px;\">\r\n				<div class=\"btn-group\" ng-show=\"intersectsWaterTable\">	\r\n					<button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleWaterTable()\" \r\n							title=\"Show groundwater over elevation\">{{paths.length == 1?\'Show\':\'Hide\'}} Water Table</button>\r\n				</div>	\r\n				<div class=\"btn-group\">	\r\n					<button type=\"button\" class=\"btn btn-default\" title=\"Find out information about the data behind these graphs\" \r\n							ng-click=\"showInfo = !showInfo\">\r\n						<i class=\"fa fa-info-circle\" role=\"presentation\" style=\"font-size:16px; color:black\"></i>\r\n					</button>\r\n					<exp-info title=\"Graph Information\" style=\"width:400px;position:absolute;bottom:-80px;right:60px\" show-close=\"true\" is-open=\"showInfo\"><div mars-info-elevation></div></exp-info>				\r\n					<button type=\"button\" class=\"btn btn-default\" title=\"Close graphs\" ng-click=\"close()\">\r\n						<i class=\"fa fa-times-circle\" role=\"presentation\" style=\"font-size:16px; color:black\"></i>\r\n					</button>				\r\n				</div>\r\n			</div>\r\n		</div>	\r\n	</div>\r\n	<div explorer-graph data=\"paths\" config=\"config\" click=\"graphClick(event)\" move=\"graphMove(event)\" leave=\"graphLeave(event)\" enter=\"graphEnter(event)\" show-zero-line=\"true\"></div>\r\n	<div exp-point-features features=\"featuresUnderPoint\" class=\"featuresUnderPoint\"></div>\r\n	<div exp-point point=\"point\" class=\"featuresInfo\" style=\"display:none\"></div>\r\n	<div class=\"elevationHoverPanel\" mars-point-info ng-show=\"position\"\r\n		ng-attr-style=\"top:{{position.pageY - 70}}px;left:{{position.pageX * 0.94 - 10}}px;\">\r\n		<div class=\"ng-binding\"><strong>Elev.:</strong>{{position.point.z|number:0}}m</div>\r\n		<div class=\"ng-binding\"><strong>Dist.:</strong>{{length * position.percentX * 0.01|length : true }}</div>\r\n	</div>\r\n	</div>\r\n</div>");
 $templateCache.put("bathy/elevation/elevationInfo.html","<div>\r\nThe elevation graph is calculated from the 3\" DEM data. \r\nThe data is held in a grid with a cell size of approx. 90 m. \r\nThe data has a &plusmn;5 m error. Full metadata about the data and how to acquire the data can be found \r\n<a target=\"_blank\" href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/gcat_aac46307-fce9-449d-e044-00144fdd4fa6\">here</a>\r\n<br/>\r\nIf the path of the graph intersects areas that we have prepared water table data there will be the ability to plot this data. \r\nThe accuracy is not as high as the elevation data and has &plusmn;50 m error. Smoothing with this error can make the \r\nwater table appear above the elevation of the surface on occasions. \r\nData availability will be indicated by the button labelled \"Show Water Table\". \r\n<a href=\"javascript:;\" ng-click=\"toggleWaterTableShowing()\">Click to {{state.isWaterTableShowing?\'hide\':\'view\'}} the water table extent.</a>\r\n</div>");
 $templateCache.put("bathy/glossary/glossary.html","<div ng-controller=\"GlossaryCtrl as glossary\">\r\n   <div style=\"position:relative;padding:5px;padding-left:10px;\">\r\n      <div class=\"panel-heading\">\r\n         <h3 class=\"panel-title\">Glossary</h3>\r\n      </div>\r\n      <div class=\"panel-body\">\r\n         <table class=\"table table-striped\">\r\n            <thead>\r\n               <tr>\r\n                  <th>Term</th>\r\n                  <th>Definition</th>\r\n               </tr>\r\n            </thead>\r\n            <tbody>\r\n               <tr ng-repeat=\"term in glossary.terms\">\r\n                  <td>{{term.term}}</td>\r\n                  <td>{{term.definition}}</td>\r\n               </tr>\r\n            </tbody>\r\n         </table>\r\n      </div>\r\n   </div>");
+$templateCache.put("bathy/extent/extent.html","<div class=\"row\" style=\"border-top: 1px solid gray; padding-top:5px\">\r\n	<div class=\"col-md-5\">\r\n		<div class=\"form-inline\">\r\n			<label>\r\n				<input id=\"extentEnable\" type=\"checkbox\" ng-model=\"parameters.fromMap\" ng-click=\"change()\"></input> \r\n				Restrict area to map\r\n			</label>\r\n		</div>\r\n	</div>\r\n	 \r\n	<div class=\"col-md-7\" ng-show=\"parameters.fromMap\">\r\n		<div class=\"container-fluid\">\r\n			<div class=\"row\">\r\n				<div class=\"col-md-offset-3 col-md-8\">\r\n					<strong>Y Max:</strong> \r\n					<span>{{parameters.yMax | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n			<div class=\"row\">\r\n				<div class=\"col-md-6\">\r\n					<strong>X Min:</strong>\r\n					<span>{{parameters.xMin | number : 4}}</span> \r\n				</div>\r\n				<div class=\"col-md-6\">\r\n					<strong>X Max:</strong>\r\n					<span>{{parameters.xMax | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n			<div class=\"row\">\r\n				<div class=\"col-md-offset-3 col-md-8\">\r\n					<strong>Y Min:</strong>\r\n					<span>{{parameters.yMin | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("bathy/header/header.html","<div class=\"container-full common-header\" style=\"padding-right:10px; padding-left:10px\">\r\n    <div class=\"navbar-header\">\r\n\r\n        <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".ga-header-collapse\">\r\n            <span class=\"sr-only\">Toggle navigation</span>\r\n            <span class=\"icon-bar\"></span>\r\n            <span class=\"icon-bar\"></span>\r\n            <span class=\"icon-bar\"></span>\r\n        </button>\r\n\r\n        <a href=\"http://www.ga.gov.au\" class=\"hidden-xs\"><img src=\"data:image/png;base64,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\" alt=\"Australian Government - Geoscience Australia\" class=\"logo\"></img></a>\r\n        <a href=\"http://www.ga.gov.au\" class=\"visible-xs\"><img src=\"data:image/png;base64,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\" alt=\"Australian Government - Geoscience Australia\" class=\"logo-stacked\"></img></a>\r\n        <a href=\"/\" class=\"appTitle visible-xs\">\r\n            <h1 style=\"font-size:120%\">{{heading}}</h1>\r\n        </a>\r\n    </div>\r\n    <div class=\"navbar-collapse collapse ga-header-collapse\">\r\n        <ul class=\"nav navbar-nav\">\r\n            <li class=\"hidden-xs\"><a href=\"/\"><h1 class=\"applicationTitle\">{{heading}}</h1></a></li>\r\n        </ul>\r\n        <ul class=\"nav navbar-nav navbar-right nav-icons\">\r\n			<li mars-version-display role=\"menuitem\" style=\"padding-top: 19px;\"></li>\r\n			<li style=\"width:10px\"></li>\r\n        </ul>\r\n    </div><!--/.nav-collapse -->\r\n</div>\r\n\r\n<!-- Strap -->\r\n<div class=\"row\">\r\n    <div class=\"col-md-12\">\r\n        <div class=\"strap-blue\">\r\n        </div>\r\n        <div class=\"strap-white\">\r\n        </div>\r\n        <div class=\"strap-red\">\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("bathy/help/faqs.html","<div class=\"container\" >\r\n	<p style=\"text-align: left; margin: 10px; font-size: 14px;\">\r\n		<strong>FAQS</strong>\r\n	</p>\r\n\r\n	<h6 ng-repeat=\"faq in faqs\"><button type=\"button\" class=\"undecorated\" ng-click=\"focus(faq.key)\">{{faq.question}}</button></h6>\r\n	<hr/>\r\n	<div class=\"row\" ng-repeat=\"faq in faqs\">\r\n		<div class=\"col-md-12\">\r\n			<h6 tabindex=\"0\" id=\"faqs_{{faq.key}}\">{{faq.question}}</h6>\r\n			<span ng-bind-html=\"faq.answer\"></span>\r\n			<hr/>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("bathy/help/help.html","<div ng-controller=\"HelpCtrl as help\">\r\n	<div style=\"position:relative;padding:5px;padding-left:10px;\" >\r\n		<div style=\"padding:5px;\" >\r\n			<div class=\"panel-heading\">\r\n				<h3 class=\"panel-title\">Help</h3>\r\n			</div>\r\n			<div class=\"panel-body\">\r\n				The steps to get data!\r\n				<ol>\r\n					<li>Select dataset of interest <i class=\"fa fa-download\"></i> from Select tab</li>\r\n					<li>Define area</li>\r\n					<li>Select output format</li>\r\n					<li>Select coordinate system</li>\r\n					<li>Enter email address</li>\r\n					<li>Submit entries</li>\r\n				</ol>\r\n				An email will be sent to you on completion of the data extract with a link to your data.\r\n				<bathy-faqs faqs=\"help.faqs\" ></bathy-faqs>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
@@ -3585,14 +3588,11 @@ $templateCache.put("bathy/side-panel/side-panel-right.html","<div class=\"cbp-sp
 $templateCache.put("bathy/side-panel/trigger.html","<button ng-click=\"toggle()\" type=\"button\" class=\"map-tool-toggle-btn\">\r\n   <span class=\"hidden-sm\">{{name}}</span>\r\n   <i class=\"fa fa-lg\" ng-class=\"iconClass\"></i>\r\n</button>");
 $templateCache.put("bathy/tabs/maps.html","Maps. htrml");
 $templateCache.put("bathy/tabs/tabs.html","<div ng-controller=\"tabsController\">\r\n\r\n	<!-- resize handle -->\r\n	<div ng-mousedown=\"catchResize()\" ng-hide=\"view === \'\'\" class=\'x-resize\'></div>\r\n\r\n	<!-- tabs go here -->\r\n	<div id=\"tabs-container\" class=\"rotate-tabs\" ng-style=\"{\'right\' : contentLeft +\'px\'}\">\r\n		<div class=\"tab-item\" ng-click=\"setView(\'select\')\" ng-class=\"{\'bold\': view == \'select\'}\" ng-keydown=\"$event.which === 13 && setView(\'select\')\" tabindex=\"0\">Datasets</div>\r\n		<!--\r\n		<div class=\"tab-item\" ng-click=\"setView(\'search\')\" ng-class=\"{\'bold\': view == \'search\'}\" ng-keydown=\"$event.which === 13 && setView(\'search\')\" tabindex=\"0\">Search</div>\r\n		<div class=\"tab-item\" ng-click=\"setView(\'maps\')\" ng-class=\"{\'bold\': view == \'maps\'}\" ng-keydown=\"$event.which === 13 && setView(\'maps\')\" tabindex=\"0\">Layers</div>\r\n		-->\r\n		<div class=\"tab-item\" ng-click=\"setView(\'download\')\" ng-controller=\"DownloadCtrl as download\" ng-class=\"{\'bold\': view == \'download\'}\" ng-keydown=\"$event.which === 13 && setView(\'download\')\" tabindex=\"0\">Orders <strong ng-show=\"download.data.count\">({{download.data.count}})</strong></div>\r\n		<div class=\"tab-item\" ng-click=\"setView(\'glossary\')\" ng-class=\"{\'bold\': view == \'glossary\'}\" ng-keydown=\"$event.which === 13 && setView(\'glossary\')\" tabindex=\"0\">Glossary</div>\r\n		<div class=\"tab-item\" ng-click=\"setView(\'help\')\" ng-class=\"{\'bold\': view == \'help\'}\" ng-keydown=\"$event.which === 13 && setView(\'help\')\" tabindex=\"0\">Help</div>\r\n	</div>\r\n\r\n	<!-- directives go here -->\r\n	<div id=\"tabs-content-container\" ng-style=\"{\'width\' : contentWidth + \'px\'}\">\r\n		<div class=\"tab-content-item\" ng-show=\"view == \'select\'\" bathy-select></div>\r\n		<div class=\"tab-content-item\" ng-show=\"view == \'search\'\" bathy-search auto-scroll=\".scrollPanel\" trigger=\"more.search.results\"></div>\r\n		<div class=\"tab-content-item\" ng-show=\"view == \'maps\'\" bathy-maps></div>\r\n		<div class=\"tab-content-item\" ng-show=\"view == \'glossary\'\" bathy-glossary></div>\r\n		<div class=\"tab-content-item\" ng-show=\"view == \'help\'\" bathy-help></div>\r\n		<div class=\"tab-content-item\" ng-show=\"view == \'download\'\" bathy-download></div>\r\n	</div>\r\n</div>\r\n");
-$templateCache.put("bathy/toolbar/toolbar.html","<div class=\"bathy-toolbar noPrint\">\r\n    <div class=\"toolBarContainer\">\r\n        <div>\r\n            <ul class=\"left-toolbar-items\"></ul>\r\n            <ul class=\"right-toolbar-items\">\r\n                <li>\r\n                    <panel-trigger panel-id=\"datasets\" panel-width=\"540px\" name=\"Downloads\" icon-class=\"fa-download\" default=\"true\"></panel-trigger>\r\n                </li>\r\n                <li>\r\n                    <panel-trigger panel-id=\"glossary\" panel-width=\"500px\" name=\"Glossary\" icon-class=\"fa-list-ul\"></panel-trigger>\r\n                </li>\r\n                <li>\r\n                    <panel-trigger panel-id=\"help\" panel-width=\"500px\" name=\"Help\" icon-class=\"fa-question\"></panel-trigger>\r\n                </li>\r\n                <li reset-page></li>\r\n            </ul>\r\n        </div>\r\n    </div>\r\n</div>");
-$templateCache.put("download/datasets/datasets.html","<div ng-show=\"datasets.bounds\">\r\n   <div class=\"datasets-group\" ng-if=\"datasets.active == \'groups\'\">\r\n      <datasets-type ng-repeat=\"value in datasets.types\" type=\"value\" name=\"value.data_type\" />\r\n   </div>\r\n   <div class=\"datasets-list\" ng-if=\"datasets.active == \'list\'\">\r\n      <datasets-list ng-repeat=\"item in datasets.list\" item=\"item\" />\r\n   </div>\r\n</div>");
-$templateCache.put("download/datasets/type.html","<div class=\"dataset-group\">\r\n   <h4>{{name}}</h4>\r\n   <div class=\"dataset-subgroup\" ng-repeat=\"tile in type.tiles | withinBounds\"\r\n               ng-mouseenter=\"show(tile)\" ng-mouseleave=\"hide()\">\r\n      <h5 ng-click=\"zoom(tile)\">Tile ID: {{tile.tile_id}}</h5>\r\n      <div>\r\n         <div class=\"dataset-item\" ng-repeat=\"format in tile.downloadables | sortFormat\">\r\n            <input type=\"checkbox\" ng-model=\"format.selected\"> <span style=\"width:8em; display: inline-block\">{{format.format}}</span> ({{format.file_size | bytes}})\r\n         </div>\r\n      </div>\r\n   </div>\r\n</div>");
-$templateCache.put("download/start/start.html","<div>\r\n   <map-clip></map-clip>\r\n   <datasets-container></datasets-container>\r\n</div>");
+$templateCache.put("bathy/toolbar/toolbar.html","<div class=\"bathy-toolbar noPrint\">\r\n    <div class=\"toolBarContainer\">\r\n        <div>\r\n            <ul class=\"left-toolbar-items\"></ul>\r\n            <ul class=\"right-toolbar-items\">\r\n                <li>\r\n                    <panel-trigger panel-id=\"datasets\" panel-width=\"540px\" name=\"Downloads\" icon-class=\"fa-download\" default=\"true\"></panel-trigger>\r\n                </li>\r\n                <li reset-page></li>\r\n            </ul>\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("wizard/bbox/bbox.html","<button type=\"button\" class=\"undecorated\" ng-click=\"toggle()\" tooltip-placement=\"right\" tooltip=\"Show data extent on the map.\">\r\n	<i class=\"fa pad-right fa-lg\" ng-class=\"{\'fa-eye orange\':data.hasBbox,\'fa-eye-slash\':!data.hasBbox}\"></i>\r\n</button>");
-$templateCache.put("wizard/download/download.html","<exp-modal ng-controller=\"DownloadCtrl as dl\" icon-class=\"fa-download\" is-open=\"dl.data.item.download\" title=\"Download data\" on-close=\"dl.remove()\" is-modal=\"true\">\r\n	<div style=\"padding:5px;\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>{{dl.data.item.title}}</h4>\r\n				{{dl.data.item.abstract}}\r\n   			</div>\r\n		</div>\r\n		<bathy-geoprocess data=\"dl.data.item\"></bathy-geoprocess>\r\n	</div>\r\n</exp-modal>");
-$templateCache.put("wizard/download/popup.html","<exp-modal icon-class=\"fa-download\"  is-open=\"data.item.download\" title=\"Download wizard\" on-close=\"dl.remove()\">\r\n	<div class=\"container-fluid downloadInner\" >\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{dl.data.item.sysId}}\" target=\"_blank\"><strong class=\"ng-binding\">{{dl.data.item.title}}</strong></a>\r\n				</h4>\r\n   			</div>\r\n		</div>\r\n		<wizard-geoprocess data=\"dl.data.item\"></wizard-geoprocess>\r\n	</div>\r\n</exp-modal>");
 $templateCache.put("wizard/clip/clip.html","<div class=\"well well-sm\" style=\"margin-bottom:5px\">\r\n	<div class=\"container-fluid\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\" style=\"padding:0\">\r\n				<div class=\"\" role=\"group\" aria-label=\"...\">\r\n					<button ng-click=\"initiateDraw()\" ng-disable=\"client.drawing\"\r\n                      tooltip-append-to-body=\"true\" tooltip-placement=\"bottom\" uib-tooltip=\"Enable drawing of a bounding box. On enabling, click on the map and drag diagonally\"\r\n						class=\"btn btn-primary btn-default\">Select an area...</button>\r\n					<button ng-click=\"showInfo = !showInfo\" tooltip-placement=\"bottom\" uib-tooltip=\"Information.\" style=\"float:right\" class=\"btn btn-primary btn-default\"><i class=\"fa fa-info\"></i></button>\r\n				</div>\r\n				<exp-info title=\"Selecting an area\" show-close=\"true\" style=\"width:450px;position:fixed;top:200px;right:40px\" is-open=\"showInfo\">\r\n					<clip-info-bbox></clip-info-bbox>\r\n				</exp-info>\r\n			</div>\r\n		</div>\r\n\r\n		<div ng-show=\"oversize\" style=\"margin-top:6px\">\r\n			<div class=\"alert alert-danger\"\r\n            style=\"padding:2px; margin-bottom:0px\" role=\"alert\">Please restrict the size of your selected area to no more than 12 square degrees.</div>\r\n		</div>\r\n\r\n		<div class=\"row\" ng-hide=\"(!clip.xMin && clip.xMin != 0) || oversize\" style=\"padding-top:7px;\">\r\n			<div class=\"col-md-12\">\r\n				Selected bounds: {{clip.xMin|number : 4}}&deg; west, {{clip.yMax|number : 4}}&deg; north, {{clip.xMax|number : 4}}&deg; east, {{clip.yMin|number\r\n				: 4}}&deg; south\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"container-fluid\" style=\"padding-top:7px\" ng-show=\"typing\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\"> </div>\r\n			<div class=\"col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-offset-3 col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("wizard/clip/infobbox.html","<div class=\"\">\r\n	<strong style=\"font-size:120%\">Select an area of interest.</strong>\r\n   By hitting the \"Select an area...\" button an area on the map can be selected with the mouse by clicking a\r\n   corner and while holding the left mouse button\r\n	down drag diagonally across the map to the opposite corner.\r\n	<br/>\r\n	Clicking the \"Select an area...\" button again allows replacing a previous area selection. <br/>\r\n	<strong>Notes:</strong>\r\n   <ul>\r\n      <li>The data does not cover all of Australia.</li>\r\n      <li>Restrict a search area to below four square degrees. eg 2x2 or 1x4</li>\r\n   </ul>\r\n	<p style=\"padding-top:5px\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.\r\n		You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you\r\n		don\'t like the position of your drawn area, hit the \"Draw\" button and draw a new bounding box.\r\n	</p>\r\n</div>");
 $templateCache.put("wizard/geoprocess/geoprocess.html","<div class=\"container-fluid fred\" ng-form>\r\n	<div ng-show=\"stage==\'bbox\'\">	\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\">\r\n				<wizard-clip trigger=\"stage == \'bbox\'\" drawn=\"drawn()\" clip=\"data.processing.clip\" bounds=\"data.bounds\"></wizard-clip> \r\n			</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n 			<div class=\"col-md-12\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validClip(data) || checkingOrFailed\" ng-click=\"stage=\'formats\'\">Next</button>\r\n			</div>	\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Select an area of interest.</strong> There are two ways to select your area of interest:\r\n			<ol>\r\n				<li>Draw an area on the map with the mouse by clicking a corner and while holding the left mouse button \r\n					down drag diagonally across the map to the opposite corner or</li>\r\n				<li>Type your co-ordinates into the areas above.</li>\r\n			</ol> \r\n			Once drawn the points can be modified by the overwriting the values above or drawing another area by clicking the draw button again. \r\n			Ensure you select from the highlighted areas as the data can be quite sparse for some data.<br/>\r\n			<p style=\"padding-top:5px\">\r\n			<strong>Warning:</strong> Some extracts can be huge. It is best if you start with a small area to experiment with first. An email will be sent \r\n			with the size of the extract. Download judiciously. \r\n			</p>\r\n			<p style=\"padding-top\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map. \r\n				You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you\r\n				don\'t like the position of your drawn area, hit the \"Draw\" button and draw a new bounding box.\r\n			</p>\r\n		</div>				\r\n	</div>    		\r\n\r\n	<div ng-show=\"stage==\'formats\'\">\r\n		<div class=\"well\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutputFormat\">\r\n					Output Format\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutputFormat\" style=\"width:95%\" ng-model=\"data.processing.outFormat\" ng-options=\"opt.value for opt in config.outFormat\"></select>  				\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutCoordSys\">\r\n					Coordinate System					\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutCoordSys\" style=\"width:95%\" ng-model=\"data.processing.outCoordSys\" ng-options=\"opt.value for opt in config.outCoordSys | sysIntersect : data.processing.clip\"></select>  				\r\n			</div>\r\n		</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'bbox\'\">Previous</button>\r\n			</div>	\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validSansEmail(data)\" ng-click=\"stage=\'email\'\">Next</button>\r\n   			</div>\r\n		</div>\r\n		\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Data representation.</strong> Select how you want your data presented.<br/>\r\n			Output format is the structure of the data and you should choose a format compatible with the tools that you will use to manipulate the data.\r\n			<ul>\r\n				<li ng-repeat=\"format in outFormats\"><strong>{{format.value}}</strong> - {{format.description}}</li>\r\n			</ul> \r\n			Select what <i>coordinate system</i> or projection you would like. If in doubt select WGS84.<br/>\r\n			Not all projections cover all of Australia. If the area you select is not covered by a particular projection then the option to download in that projection will not be available.\r\n		</div>	\r\n	</div>\r\n	\r\n	<div ng-show=\"stage==\'email\'\">\r\n		<div class=\"well\" exp-enter=\"stage=\'confirm\'\">\r\n			<div download-email></div>\r\n			<br/>\r\n			<div download-filename data=\"data.processing\"></div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'formats\'\">Previous</button>\r\n			</div>	\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!allDataSet(data)\" ng-click=\"stage=\'confirm\'\">Submit</button>\r\n   			</div>\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Email notification</strong> The extract of data can take some time. By providing an email address we will be able to notify you when the job is complete. The email will provide a link to the extracted \r\n			data which will be packaged up as a single file. To be able to proceed you need to have provided:\r\n			<ul>\r\n				<li>An area of interest to extract the data (referred to as a bounding box).</li>\r\n				<li>An output format.</li>\r\n				<li>A valid coordinate system or projection.</li>\r\n				<li>An email address to receive the details of the extraction.</li>\r\n				<li><strong>Note:</strong>Email addresses need to be and are stored in the system.</li>\r\n			</ul>\r\n			<strong style=\"font-size:120%\">Optional filename</strong> The extract of data can take some time. By providing an optional filename it will allow you\r\n			to associate extracted data to your purpose for downloading data. For example:\r\n			<ul>\r\n				<li>myHouse will have a file named myHouse.zip</li>\r\n				<li>Sorrento would result in a file named Sorrento.zip</li>\r\n			</ul>\r\n		</div>\r\n	</div>\r\n	\r\n	<div ng-show=\"stage==\'confirm\'\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12 abstractContainer\">\r\n				{{data.abstract}}\r\n			</div>\r\n		</div>\r\n		<h3>You have chosen:</h3>\r\n		<table class=\"table table-striped\">\r\n			<tbody>\r\n				<tr>\r\n					<th>Area</th>\r\n					<td>\r\n						<span style=\"display:inline-block; width: 10em\">Lower left (lat/lng&deg;):</span> {{data.processing.clip.yMin | number : 6}}, {{data.processing.clip.xMin | number : 6}}<br/>\r\n						<span style=\"display:inline-block;width: 10em\">Upper right (lat/lng&deg;):</span> {{data.processing.clip.yMax | number : 6}}, {{data.processing.clip.xMax | number : 6}}\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Output format</th>\r\n					<td>{{data.processing.outFormat.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Coordinate system</th>\r\n					<td>{{data.processing.outCoordSys.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Email address</th>\r\n					<td>{{email}}</td>\r\n				</tr>\r\n				<tr ng-show=\"data.processing.filename\">\r\n					<th>Filename</th>\r\n					<td>{{data.processing.filename}}</td>\r\n				</tr>\r\n			</tbody>\r\n		</table>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" style=\"width:6em\" ng-click=\"stage=\'email\'\">Back</button>\r\n			</div>	\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-click=\"startExtract()\">Confirm</button>\r\n   			</div>\r\n		</div>\r\n	</div>\r\n</div>");
+$templateCache.put("wizard/download/download.html","<exp-modal ng-controller=\"DownloadCtrl as dl\" icon-class=\"fa-download\" is-open=\"dl.data.item.download\" title=\"Download data\" on-close=\"dl.remove()\" is-modal=\"true\">\r\n	<div style=\"padding:5px;\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>{{dl.data.item.title}}</h4>\r\n				{{dl.data.item.abstract}}\r\n   			</div>\r\n		</div>\r\n		<bathy-geoprocess data=\"dl.data.item\"></bathy-geoprocess>\r\n	</div>\r\n</exp-modal>");
+$templateCache.put("wizard/download/popup.html","<exp-modal icon-class=\"fa-download\"  is-open=\"data.item.download\" title=\"Download wizard\" on-close=\"dl.remove()\">\r\n	<div class=\"container-fluid downloadInner\" >\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{dl.data.item.sysId}}\" target=\"_blank\"><strong class=\"ng-binding\">{{dl.data.item.title}}</strong></a>\r\n				</h4>\r\n   			</div>\r\n		</div>\r\n		<wizard-geoprocess data=\"dl.data.item\"></wizard-geoprocess>\r\n	</div>\r\n</exp-modal>");
 $templateCache.put("wizard/search/search.html","<div>\r\n<div style=\"position:relative;padding:5px;padding-left:10px;\" ng-controller=\"SearchCtrl as search\" class=\"scrollPanel\">\r\n	<p style=\"text-align: left; margin: 10px; font-size: 16px;\">\r\n		<strong>Search</strong>\r\n	</p>\r\n	<form class=\"form-horizontal\">\r\n		<div class=\"well\">\r\n			<div class=\"form-group\">\r\n				<label for=\"searchFilter\" class=\"col-sm-1 control-label\">Filter</label>\r\n				<div class=\"col-sm-11\">\r\n					<input placeholder=\'Leave blank to match all, type to filter results\' type=\"text\" class=\"form-control\" ng-keyup=\"search.search()\" ng-model=\"search.filter\" ></input>\r\n				</div>\r\n			</div>\r\n			<div>\r\n				<span ng-show=\"search.data.response.docs\">\r\n					<strong>Showing</strong> {{search.data.response.docs.length}} of {{search.data.response.numFound}} <strong>matches. </strong>\r\n					({{search.data.responseHeader.QTime/ 1000}} seconds)\r\n					<span ng-show=\"search.data.responseHeader\" class=\"pull-right\">\r\n\r\n						<div class=\"btn-group\" dropdown style=\"padding-right:1em\">\r\n							<button type=\"button\" class=\"undecorated\" bathy-bbox-show-all style=\"padding-left:5em\">\r\n								Show all data extents\r\n							</button>\r\n						    <button type=\"button\" class=\"undecorated dropdown-toggle\" dropdown-toggle title=\"Restrict datasets based on area of coverage\">\r\n        						<span class=\"caret\"></span>\r\n        						<span class=\"sr-only\">More options for showing and hiding datasets\' extents based on size and if only some are viewable.</span>\r\n      						</button>\r\n      						<ul class=\"dropdown-menu\" role=\"menu\">\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-show-visible  tooltip=\"Show only those datasets that have all of their data within the current viewable map\">Show fully visible</a></li>\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-hide-all  tooltip=\"Hide all datasets\' bounding area. \">Hide all</a></li>\r\n      						</ul>\r\n    					</div>\r\n					</span>\r\n				</span>\r\n			</div>\r\n			<div>\r\n				<div class=\"container-fluid\">\r\n					<bathy-extent></bathy-extent>\r\n					<bathy-facetenable></bathy-facetenable>\r\n					<bathy-daterange></bathy-daterange>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</form>\r\n\r\n	<div class=\"container\" style=\"width:100%\">\r\n		<div class=\"row\" ng-repeat=\"doc in search.data.response.docs\">\r\n			<div class=\"col-md-12\"  ng-class-odd=\"\'odd\'\" ng-class-even=\"\'even\'\" ng-mouseleave=\"search.lolight(doc)\" ng-mouseenter=\"search.hilight(doc)\">\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;\">\r\n					<button type=\"button\" class=\"undecorated\" ng-click=\"expanded = !expanded\" title=\"Click to see more about this dataset\" tooltip-placement=\"right\" tooltip=\"Show more details.\">\r\n						<i class=\"fa pad-right fa-2x\" ng-class=\"{\'fa-caret-down\':expanded,\'fa-caret-right\':(!expanded)}\"></i>\r\n					</button>\r\n					<download-add item=\"doc\"></download-add>\r\n					<bathy-wms data=\"doc\"></bathy-wms>\r\n					<bathy-bbox data=\"doc\" ng-if=\"doc.showExtent\"></bathy-bbox>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{doc.sysId}}\" target=\"_blank\" ><strong>{{doc.title}}</strong></a>\r\n				</span>\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;padding-right:15px;\"\r\n						tooltip-enable=\"!expanded\" tooltip-class=\"searchAbstractTooltip\" tooltip=\"{{doc.abstract | truncate : 250}}\" >\r\n					<download-actions doc=\"doc\" ng-show=\"expanded\"></download-actions>\r\n					{{doc.abstract}}\r\n				</span>\r\n				<div ng-show=\"expanded\">\r\n					<h6>Authors</h6>\r\n					{{doc.author | authors}}\r\n					<h6>Keywords</h6>\r\n					<div>\r\n						<span class=\"badge\" ng-repeat=\"keyword in doc.keywords track by $index\">{{keyword}}</span>\r\n					</div>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n</div>");}]);
