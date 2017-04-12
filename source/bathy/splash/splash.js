@@ -1,9 +1,9 @@
 {
 
-   angular.module("bathy.splash", [])
+   angular.module("bathy.splash", ["ui.bootstrap.modal"])
 
-      .directive('bathySplash', ['$rootScope', '$modal', '$log', 'splashService',
-         function ($rootScope, $modal, $log, splashService) {
+      .directive('bathySplash', ['$rootScope', '$uibModal', '$log', 'splashService',
+         function ($rootScope, $uibModal, $log, splashService) {
             return {
                controller: ['$scope', 'splashService', function ($scope, splashService) {
                   $scope.acceptedTerms = true;
@@ -18,16 +18,16 @@
 
                   scope.$watch("acceptedTerms", function (value) {
                      if (value === false) {
-                        modalInstance = $modal.open({
+                        modalInstance = $uibModal.open({
                            templateUrl: 'bathy/splash/splash.html',
                            size: "lg",
                            backdrop: "static",
                            keyboard: false,
-                           controller: ['$scope', '$modalInstance', 'acceptedTerms', 'messages', function ($scope, $modalInstance, acceptedTerms, messages) {
+                           controller: ['$scope', 'acceptedTerms', 'messages', function ($scope, acceptedTerms, messages) {
                               $scope.acceptedTerms = acceptedTerms;
                               $scope.messages = messages;
                               $scope.accept = function () {
-                                 $modalInstance.close(true);
+                                 modalInstance.close(true);
                               };
                            }],
                            resolve: {

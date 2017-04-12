@@ -43,22 +43,6 @@ ga('send', 'pageview');
 
 <body ng-controller="RootCtrl as root">
 
-<!--[if lt IE 9]>
-<div style="margin-right:100px; position:absolute; top:0">
-<style>
-.navbar {
-	display:none!important;
-}
-</style>
-<p>
-<img src="resources/css/images/geoscience_inline_padded_small.png" style="float:left;padding-right:10px;" />
-<br/>
-<strong>MH370 Bathymetry and  Backscatter Data - browser requirements.</strong><br/>
-Unfortunately this application requires a browser made more recently than what you are using. We will not be providing a lower spec
-version of this application. The latest Firefox, Chrome plus Microsoft Internet Explorer 9 and higher including Edge browsers have been tested to work as of mid-2015.
-</div>
-<![endif]-->
-
 <!-- BEGIN: Sticky Header -->
 <div bathy-header style="z-index:1"
 			class="navbar navbar-default navbar-fixed-top"
@@ -79,7 +63,9 @@ version of this application. The latest Firefox, Chrome plus Microsoft Internet 
 
 <side-panel-left style="z-index: 2"></side-panel-left>
 
-<bathy-panes data="root.data" default-item="select"></bathy-panes>
+<side-panel-right-oppose>
+   <bathy-panes data="root.data" default-item="select"></bathy-panes>
+</side-panel-right-oppose>
 
 <side-panel-right style="z-index: 2"></side-panel-right>
 
@@ -96,23 +82,22 @@ version of this application. The latest Firefox, Chrome plus Microsoft Internet 
 <!-- END: Sticky Footer -->
 
 	<script src="//maps.google.com/maps/api/js?key=AIzaSyCXzhreLhP8a0z4TZNGOHUbH1Pacz3ghPE&v=3&language=en&libraries=places"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <!--[if IE 9 ]>    <script src="assets/placeholder/placeholders.jquery.min.js"></script> <![endif]-->
 
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 	<script src="//cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
 	<script src="//cdn.jsdelivr.net/leaflet.esri/1.0.0/esri-leaflet.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-animate.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-sanitize.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-aria.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-messages.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-animate.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-sanitize.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-aria.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-messages.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.js" charset="utf-8"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
 
     <script src="bathy/bower_components/ngAutocomplete/src/ngAutocomplete.js"></script>
-    <script src="bathy/bower_components/x2js/xml2json.min.js"></script>
 
     <script src="bathy/bower_components/leaflet-draw/dist/leaflet.draw.js"></script>
     <script src="bathy/bower_components/ga-explorer-map-components/dist/vendor/leaflet-locationfilter/locationfilter.js"></script>

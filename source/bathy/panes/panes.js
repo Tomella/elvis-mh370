@@ -13,6 +13,12 @@
 
                $scope.view = $scope.defaultItem;
 
+               $rootScope.$on('side.panel.change', (event) => {
+                  let evt = document.createEvent("HTMLEvents");
+                  evt.initEvent("resize", false, true);
+                  window.dispatchEvent(evt);
+               });
+
                $scope.setView = function (what) {
                   var oldView = $scope.view;
 

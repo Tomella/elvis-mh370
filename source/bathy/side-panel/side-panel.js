@@ -1,7 +1,7 @@
 {
    angular.module("bathy.side-panel", [])
 
-      .factory('panelSideFactory', () => {
+      .factory('panelSideFactory', ['$rootScope', ($rootScope) => {
          let state = {
             left: {
                active: null,
@@ -38,10 +38,28 @@
 
             setRight: function (data) {
                state.right.width = data.width;
-               return setSide(state.right, data.name);
+               let response = setSide(state.right, data.name);
+               $rootScope.$broadcast('side.panel.change', {
+                  side: "right",
+                  data: state.right
+               });
+               return response;
             }
          };
-      })
+      }])
+
+      .directive('sidePanelRightOppose', ["panelSideFactory", function (panelSideFactory) {
+         return {
+            restrict: 'E',
+            transclude: true,
+            template: '<div class="contentContainer" ng-attr-style="right:{{right.width}}">' +
+                        '<ng-transclude></ng-transclude>' +
+                     '</div>',
+            link: function (scope) {
+               scope.right = panelSideFactory.state.right;
+            }
+         };
+      }])
 
       .directive('sidePanelRight', ["panelSideFactory", function (panelSideFactory) {
          return {

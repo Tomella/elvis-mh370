@@ -108,7 +108,7 @@
 				function overSizeLimit(clip) {
 					// Shouldn't need abs but it doesn't hurt.
 					let size = Math.abs((clip.xMax - clip.xMin) * (clip.yMax - clip.yMin));
-					return size > 144;
+					return size > 2000;
 				}
 
 				function forceNumbers(clip) {

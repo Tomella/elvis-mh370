@@ -1,6 +1,6 @@
 <div ng-show="datasets.bounds">
    <div class="datasets-group" ng-if="datasets.active == 'groups'">
-      <datasets-type ng-repeat="value in datasets.types" type="value" name="value.data_type" />
+      <datasets-type ng-repeat="value in datasets.types | someIntersects" type="value" name="value.data_type" />
    </div>
    <div class="datasets-list" ng-if="datasets.active == 'list'">
       <datasets-list ng-repeat="item in datasets.list" item="item" />

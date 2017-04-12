@@ -48,10 +48,7 @@
       'bathy.datasets',
       'bathy.daterange',
       'bathy.extent',
-      'bathy.glossary',
       'bathy.header',
-      'bathy.help',
-      'bathy.legend',
       'bathy.maps',
       'bathy.panes',
       'bathy.plot',
@@ -61,10 +58,8 @@
       "bathy.side-panel",
       'bathy.splash',
       'bathy.start',
-      'bathy.tabs',
       'bathy.templates',
-      'bathy.toolbar',
-      'bathy.wms'
+      'bathy.toolbar'
    ])
 
       // Set up all the service providers here.
@@ -76,20 +71,7 @@
             persistServiceProvider.handler("local");
             projectsServiceProvider.setProject("bathy");
          }])
-      /*
 
-            .factory("userService", [function () {
-               return {
-                  login: noop,
-                  hasAcceptedTerms: noop,
-                  setAcceptedTerms: noop,
-                  getUsername: function () {
-                     return "anon";
-                  }
-               };
-               function noop() { return true; }
-            }])
-      */
       .controller("RootCtrl", RootCtrl)
 
       .filter('bytes', function () {

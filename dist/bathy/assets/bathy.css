@@ -116,6 +116,14 @@ body {
 }
 
 .mapContainer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0px;
+  right: 0px;
+}
+
+.mapContainer {
   width: 100%;
   height: 100%;
 }
@@ -385,64 +393,6 @@ input.ng-valid.ng-touched {
 i.fa.active {
   color: red;
 }
-.bathy-toolbar {
-  position: fixed;
-  top: 82px;
-  background-color: #006983;
-  left: 0;
-  right: 0;
-  height: 30px;
-}
-
-.map-tool-toggle-btn {
-  background-color: #006983;
-  border: none;
-  height: 30px;
-}
-
-.toolBarContainer>div>ul {
-  list-style: none;
-}
-
-.toolBarContainer>div>ul {
-  list-style: none;
-}
-
-.left-toolbar-items {
-  float: left;
-  padding-left: 0;
-  margin-left: 10px;
-  margin-bottom: 0;
-  color: #fff;
-  font-style: normal;
-  font-weight: 400;
-  height: 30px;
-  width: 25%;
-  white-space: nowrap;
-}
-
-.right-toolbar-items {
-  float: right;
-  padding-left: 0;
-  margin-left: 10px;
-  margin-bottom: 0;
-  color: #fff;
-  font-style: normal;
-  font-weight: 400;
-  height: 30px;
-}
-
-.right-toolbar-items div,
-.right-toolbar-items li {
-  display: inline;
-}
-
-.toolbarButton {
-  background-color: #006983;
-  border: none;
-  height: 30px;
-  font-size: 13px;
-}
 /* Side Panel */
 
 /* General styles for all menus */
@@ -534,6 +484,64 @@ i.fa.active {
 .cbp-spmenu-open .left-side-menu-container,
 .cbp-spmenu-open .right-side-menu-container {
   overflow-y: auto;
+}
+.bathy-toolbar {
+  position: fixed;
+  top: 82px;
+  background-color: #006983;
+  left: 0;
+  right: 0;
+  height: 30px;
+}
+
+.map-tool-toggle-btn {
+  background-color: #006983;
+  border: none;
+  height: 30px;
+}
+
+.toolBarContainer>div>ul {
+  list-style: none;
+}
+
+.toolBarContainer>div>ul {
+  list-style: none;
+}
+
+.left-toolbar-items {
+  float: left;
+  padding-left: 0;
+  margin-left: 10px;
+  margin-bottom: 0;
+  color: #fff;
+  font-style: normal;
+  font-weight: 400;
+  height: 30px;
+  width: 25%;
+  white-space: nowrap;
+}
+
+.right-toolbar-items {
+  float: right;
+  padding-left: 0;
+  margin-left: 10px;
+  margin-bottom: 0;
+  color: #fff;
+  font-style: normal;
+  font-weight: 400;
+  height: 30px;
+}
+
+.right-toolbar-items div,
+.right-toolbar-items li {
+  display: inline;
+}
+
+.toolbarButton {
+  background-color: #006983;
+  border: none;
+  height: 30px;
+  font-size: 13px;
 }
 .dataset-group {
   padding-left: 5px;

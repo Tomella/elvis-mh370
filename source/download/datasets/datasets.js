@@ -24,12 +24,16 @@
          let x = 1; // Set the indices once
          let y = 0; // Set the indices once
 
-         this._data.list.forEach(tile => {
+         this._data.list.forEach(tiles => {
+            let tile = tiles[0];
             let min = tile.bbox[0];
             let max = tile.bbox[1];
-            tile.intersects = (min[x] < maxX && max[x] > minX) && (min[y] < maxY && max[y] > minY);
-            tile.downloadables.forEach(downloadable => {
-               downloadable.selected &= tile.intersects; // Deselect any that are selected but aren't within the bounds.
+            let intersects = (min[x] < maxX && max[x] > minX) && (min[y] < maxY && max[y] > minY);
+            tiles.forEach(tile => {
+               tile.intersects = intersects;
+               tile.downloadables.forEach(downloadable => {
+                  downloadable.selected &= tile.intersects; // Deselect any that are selected but aren't within the bounds.
+               });
             });
          });
 
@@ -104,8 +108,10 @@
                tile.dataType = dataType;
 
                if (!keys[tile.tile_id]) {
-                  list.push(tile);
-                  keys[tile.tile_id] = true;
+                  let tiles = keys[tile.tile_id] = [tile];
+                  list.push(tiles);
+               } else {
+                  keys[tile.tile_id].push(tile);
                }
             });
          });
@@ -115,7 +121,8 @@
       showTiles() {
          let latlngs = [];
          this._data.list.forEach(item => {
-            latlngs.push(item.polygon);
+            // We only need the first one as they are grouped by tile id so have same bbox
+            latlngs.push(item[0].polygon);
          });
          this.polys = L.multiPolygon(latlngs, { color: '#dddddd', fill: false, weight: 1 });
          this.mapService.getMap().then(map => {
@@ -151,6 +158,14 @@
       .filter("spatialSort", [function () {
          return function (items) {
             return items;
+         };
+      }])
+
+      .filter("someIntersects", [function () {
+         return function (types) {
+            return types ? types.filter(type =>
+               type.tiles.some(tile => tile.intersects)
+            ) : [];
          };
       }]);
 }
