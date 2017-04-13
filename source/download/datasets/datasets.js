@@ -86,7 +86,9 @@
 
       makeList() {
          let list = this._data.list = [];
+         let formats = {};
          let keys = {};
+         this._data.formats = [];
 
          this._data.types.forEach(type => {
             let dataType = type.data_type;
@@ -113,8 +115,21 @@
                } else {
                   keys[tile.tile_id].push(tile);
                }
+
+               // Harvest unique formats
+               tile.downloadables.forEach(downloadable => {
+                  if (!formats[downloadable.format]) {
+                     formats[downloadable.format] = downloadable.format;
+                     this._data.formats.push({
+                        name: downloadable.format,
+                        selected: true
+                     });
+                  }
+               });
             });
          });
+         // Sort it alphabetically
+         this._data.formats.sort((a, b) => a.name > b.name);
          console.log(this._data);
       }
 
@@ -153,6 +168,28 @@
          };
       }])
 
+      .directive("formatsFilter", ["datasetsService", function (datasetsService) {
+         return {
+            templateUrl: "download/datasets/formatsfilter.html",
+            restrict: "AE",
+            scope: {
+               formats: "="
+            },
+            link: function (scope) {
+               scope.model = {
+                  get all() {
+                     return scope.formats ? scope.formats.every(format => format.selected) : false;
+                  },
+
+                  set all(value) {
+                     scope.formats.forEach(format => format.selected = value);
+                  }
+               };
+               scope.datasets = datasetsService.data;
+            }
+         };
+      }])
+
       .service("datasetsService", DatasetsService)
 
       .filter("spatialSort", [function () {
@@ -162,9 +199,14 @@
       }])
 
       .filter("someIntersects", [function () {
-         return function (types) {
+         return function (types, formats) {
+            formats = formats ? formats : [];
+            let formatMap = {};
+            formats.forEach(format => {
+               formatMap[format.name] = format.selected;
+            });
             return types ? types.filter(type =>
-               type.tiles.some(tile => tile.intersects)
+               type.tiles.some(tile => tile.intersects && tile.downloadables.some(downloadable => formatMap[downloadable.format]))
             ) : [];
          };
       }]);

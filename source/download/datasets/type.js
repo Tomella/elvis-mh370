@@ -6,6 +6,7 @@
             restrict: "AE",
             scope: {
                name: "=",
+               formats: "=",
                type: "="
             },
             link: function(scope) {
@@ -19,6 +20,24 @@
                   datasetsService.zoom(dataset);
                };
             }
+         };
+      }])
+
+      .filter("selectedFormat", [function () {
+         return function (downloadables, formats) {
+            return (downloadables ? downloadables : []).filter(downloadable => {
+               return formats.some(format => format.selected && format.name === downloadable.format);
+            });
+         };
+      }])
+
+      .filter("someFormats", [function () {
+         return function (tiles, formats) {
+            return tiles.filter(tile =>
+               tile.downloadables.filter(downloadable =>
+                  formats.some(format => format.selected && format.name === downloadable.format)
+               ).length > 0
+            );
          };
       }])
 
