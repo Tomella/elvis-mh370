@@ -1,0 +1,20 @@
+#!/bin/bash
+# Run once as root as they are globally installed
+# sudo bash
+curl --silent --location https://rpm.nodesource.com/setup_6.x | bash -
+yum -y install nodejs
+yum install -y gcc-c++ make
+yum install -y httpd24
+yum install -y git
+npm install -g forever
+npm install -g bower
+chkconfig httpd on
+service httpd start
+
+# Are you still creating a password protected app? If so run these commands, substituting user id and providing password at prompt
+# mkdir -p /var/www/auth
+# cd /var/www/auth
+# htpasswd -c .htpasswd $BATHY_USER_ID
+# cp -f /home/ec2-user/elvis-mh370/deployment/bathy_httpd.conf /etc/httpd/conf.d
+# chmod 644 /etc/httpd/conf.d/bathy_httpd.conf
+# service httpd restart

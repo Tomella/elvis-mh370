@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Bootstrap the first pull from bit bucket.
+# WARNING At this time it is a private repository so you need a valid key in ~/.ssh/xx_rsa (or whatever you want to call it)
+# cd /home/ec2-user
+# git clone git@bitbucket.org:Tomella/elvis-mh370.git
+# bower install
+
+# Should be home already but make sure.
+cd /home/ec2-user/elvis-mh370
+
+# Update code base
+# WARNING At this time it is a private repository so you need a valid key in ~/.ssh/xx_rsa (or whatever you want to call it)
+git pull
+bower update
+# Copy static content to Apache
+sudo cp -rf dist/* /var/www/html
+# Update any proxies that might have changed
+sudo cp -f code-deploy/proxies.conf /etc/httpd/conf.d
+# Pick up any new proxies
+sudo service httpd restart
+# Stop the application
+sudo service fsdf stop
+# Update the service
+sudo cp -f code-deploy/fsdf /etc/rc.d/init.d
+# Make it executable
+sudo chmod +x /etc/rc.d/init.d/fsdf
+# Start the app, there might be new services
+sudo service fsdf start

@@ -43,7 +43,6 @@
       'bathy.bounds',
       'bathy.clip',
       'bathy.datasets',
-      'bathy.daterange',
       'bathy.extent',
       'bathy.header',
       'bathy.maps',
@@ -79,7 +78,19 @@
                number = Math.floor(Math.log(bytes) / Math.log(1024));
             return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
          };
-      });
+      })
+
+		.factory("userService", [function () {
+			return {
+				login: noop,
+				hasAcceptedTerms: noop,
+				setAcceptedTerms: noop,
+				getUsername: function () {
+					return "anon";
+				}
+			};
+			function noop() { return true; }
+		}]);
 
 
 // A couple of polyfills for ie11

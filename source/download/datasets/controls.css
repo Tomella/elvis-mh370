@@ -1,0 +1,48 @@
+.continue-container {
+   padding: 4px;
+   position: fixed;
+   bottom: 8px;
+   right: 16px;
+   width: 30em;
+}
+
+.listItemHeading {
+	font-weight: bold;
+}
+
+.listItemLas, .listItemPrj, .listItemAsc {
+	padding-left: 10px;
+}
+
+.listEven {
+	background-color: #eee;
+}
+
+.listRow {
+   border-bottom: 1px solid lightgray;
+}
+
+.listRow div {
+   padding-top: 1px;
+   padding-bottom: 1px;
+}
+
+.listTypeLabel {
+   font-weight: bold;
+}
+
+.listType {
+   padding-left:7px;
+   display: inline-block;
+}
+
+.listItem {
+   padding-left:6px;
+   padding-bottom:6px;
+}
+
+.listTopExpander {
+   float: right;
+   padding-top:30px;
+   font-size: 80%;
+}

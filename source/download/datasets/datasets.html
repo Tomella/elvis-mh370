@@ -1,6 +1,8 @@
 <div ng-show="datasets.bounds">
    <formats-filter formats="datasets.formats"></formats-filter>
-   <div class="datasets-group" ng-if="datasets.active == 'groups'">
-      <datasets-type ng-repeat="value in datasets.types | someIntersects : datasets.formats" type="value" name="value.data_type" formats="datasets.formats"/>
+   <div class="dataset-list">
+      <datasets-type ng-repeat="value in datasets.types | someIntersects : datasets.formats"
+               type="value" name="value.data_type" formats="datasets.formats"/>
    </div>
+   <datasets-controls datasets="datasets"></datasets-controls>
 </div>

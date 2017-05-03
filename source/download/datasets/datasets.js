@@ -15,6 +15,9 @@
       }
 
       setBounds(clip) {
+         // Clear previous selections
+         this._data.list.forEach(dl => dl.selected = false);
+
          this._data.bounds = clip;
 
          let maxX = clip[2];
@@ -24,16 +27,14 @@
          let x = 1; // Set the indices once
          let y = 0; // Set the indices once
 
-         this._data.list.forEach(tiles => {
-            let tile = tiles[0];
+         this._data.tiles.forEach(tile => {
             let min = tile.bbox[0];
             let max = tile.bbox[1];
             let intersects = (min[x] < maxX && max[x] > minX) && (min[y] < maxY && max[y] > minY);
-            tiles.forEach(tile => {
-               tile.intersects = intersects;
-               tile.downloadables.forEach(downloadable => {
-                  downloadable.selected &= tile.intersects; // Deselect any that are selected but aren't within the bounds.
-               });
+
+            tile.intersects = intersects;
+            tile.downloadables.forEach(downloadable => {
+               downloadable.selected &= tile.intersects; // Deselect any that are selected but aren't within the bounds.
             });
          });
 
@@ -86,14 +87,16 @@
 
       makeList() {
          let list = this._data.list = [];
+         let tiles = this._data.tiles = [];
          let formats = {};
-         let keys = {};
          this._data.formats = [];
 
          this._data.types.forEach(type => {
             let dataType = type.data_type;
 
             type.tiles.forEach(tile => {
+               tiles.push(tile);
+
                let bbox = tile.bbox.split(",").map(str => +str);
                tile.bbox = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
                tile.polygon = [
@@ -104,20 +107,17 @@
                   [bbox[1], bbox[0]]
                ];
 
+               tile.parent = type;
+
                // Used to filter those datasets within view
                tile.intersects = true;
                tile.center = tile.centre_pt.split(",").map(str => +str).reverse();
                tile.dataType = dataType;
 
-               if (!keys[tile.tile_id]) {
-                  let tiles = keys[tile.tile_id] = [tile];
-                  list.push(tiles);
-               } else {
-                  keys[tile.tile_id].push(tile);
-               }
-
                // Harvest unique formats
                tile.downloadables.forEach(downloadable => {
+                  list.push(downloadable);
+                  downloadable.parent = tile;
                   if (!formats[downloadable.format]) {
                      formats[downloadable.format] = downloadable.format;
                      this._data.formats.push({
@@ -135,9 +135,8 @@
 
       showTiles() {
          let latlngs = [];
-         this._data.list.forEach(item => {
-            // We only need the first one as they are grouped by tile id so have same bbox
-            latlngs.push(item[0].polygon);
+         this._data.tiles.forEach(item => {
+            latlngs.push(item.polygon);
          });
          this.polys = L.multiPolygon(latlngs, { color: '#dddddd', fill: false, weight: 1 });
          this.mapService.getMap().then(map => {
@@ -153,7 +152,7 @@
    }
    DatasetsService.$inject = ["$http", "$rootScope", "configService", "mapService"];
 
-   angular.module("bathy.datasets", ["bathy.datasets.type"])
+   angular.module("bathy.datasets", ["bathy.datasets.controls", "bathy.datasets.type"])
       .directive("datasetsContainer", ["$rootScope", "datasetsService", function ($rootScope, datasetsService) {
          return {
             templateUrl: "download/datasets/datasets.html",

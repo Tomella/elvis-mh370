@@ -1,0 +1,32 @@
+.reviewing-odd {
+   background-color: #eeeeee;
+}
+
+.row.reviewing-divider {
+   border-top: 1px solid lightgray;
+   padding-top: 5px;
+   margin-top:5px;
+}
+
+.reviewing-datasets {
+   max-height:450px;
+   overflow-y: auto;
+   overflow-x: hidden;
+}
+
+@media (max-height: 750px) {
+   .reviewing-datasets {
+      max-height: 350px;
+   }
+}
+
+@media (max-height: 650px) {
+   .reviewing-datasets {
+      max-height: 250px;
+   }
+}
+
+.exclude {
+   color: #777777;
+   text-decoration: line-through;
+}
