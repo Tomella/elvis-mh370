@@ -5,13 +5,25 @@
 .row.reviewing-divider {
    border-top: 1px solid lightgray;
    padding-top: 5px;
-   margin-top:5px;
+   margin-top: 5px;
 }
 
 .reviewing-datasets {
-   max-height:450px;
+   max-height: 450px;
    overflow-y: auto;
    overflow-x: hidden;
+}
+
+.reviewing-mosaic {
+   padding-left: 20px;
+}
+
+.reviewing-label {
+   width: 15em;
+}
+
+.reviewing-select {
+   width: 35em;
 }
 
 @media (max-height: 750px) {

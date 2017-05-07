@@ -27,7 +27,12 @@
                                  };
 
                                  $scope.isValid = function() {
-                                    return true;
+                                    let data = this.data;
+                                    let valid = products.filter(product => !product.removed).length;
+
+                                    let validMosaic = data.mosaic && data.email && data.outCoordSys && data.outFormat;
+
+                                    return (valid && !data.mosaic) || validMosaic;
                                  };
 
                                  $scope.countAccepted = function() {
@@ -86,7 +91,24 @@
 
       .filter("sizeAcceptedProducts", [function () {
          return function (list) {
-            return list.filter(item => !item.removed).reduce((acc, item) => acc + (+item.download.file_size), 0);
+            return (list ? list : []).filter(item => !item.removed).reduce((acc, item) => acc + (+item.download.file_size), 0);
+         };
+      }])
+
+      .filter("withinClip", [function () {
+         return function (list, clip) {
+            if (!clip) {
+               return [];
+            }
+
+            return (list ? list : []).filter(item =>
+               !item.extent ||
+                  (item.extent.xMax >= clip.xMax &&
+                     item.extent.xMin <= clip.xMin &&
+                     item.extent.yMax >= clip.yMax &&
+                     item.extent.yMin <= clip.yMin
+                  )
+            );
          };
       }])
 
@@ -101,7 +123,9 @@
                   download,
                   removed: false
                }));
+
                this.data.reviewing = true;
+               this.data.clip = clipService.data.clip;
 
                let tiles = {};
                this.data.mosaics = downloads.filter(download => {
@@ -118,58 +142,57 @@
 
             startExtract: function () {
                let clip = clipService.data.clip;
+               let config = this.data.config;
                this.setEmail(this.data.email);
 
-               return configService.getConfig("processing").then(config => {
-                  let postData = {
-                     selected: this.data.downloads.filter(product => !product.removed)
-                        .map(product =>
-                           ({
-                              file_last_modified: product.download.file_last_modified,
-                              file_name: product.download.file_name,
-                              file_size: product.download.file_size,
-                              file_url: product.download.file_url,
-                              format: product.download.format
-                           })
-                     ),
-                     parameters: {
-                        xmin: clip.xMin,
-                        xmax: clip.xMax,
-                        ymin: clip.yMin,
-                        ymax: clip.yMax,
-                        email: this.data.email,
-                        tile_ids: this.data.mosaics.filter(tile => !tile.removed).map(container => container.tile.tile_id),
-                        output_format: "OGCKML",
-                        out_coord_sys: "EPSG:32745",
-                        out_grid_name: "dump"
-                     }
-                  };
-                  // Clean up the data.
-                  this.data.downloads.forEach(product => {
-                     product.download.selected = product.removed = false;
-                  });
+               let postData = {
+                  selected: this.data.downloads.filter(product => !product.removed)
+                     .map(product =>
+                        ({
+                           file_last_modified: product.download.file_last_modified,
+                           file_name: product.download.file_name,
+                           file_size: product.download.file_size,
+                           file_url: product.download.file_url,
+                           format: product.download.format
+                        })
+                  ),
+                  parameters: {
+                     xmin: clip.xMin,
+                     xmax: clip.xMax,
+                     ymin: clip.yMin,
+                     ymax: clip.yMax,
+                     email: this.data.email,
+                     tile_ids: this.data.mosaics.filter(tile => !tile.removed).map(container => container.tile.tile_id),
+                     output_format: this.data.outFormat.code,
+                     out_coord_sys: this.data.outCoordSys.code,
+                     out_grid_name: "dump"
+                  }
+               };
+               // Clean up the data.
+               this.data.downloads.forEach(product => {
+                  product.download.selected = product.removed = false;
+               });
 
-                  return $http({
-                     method: 'POST',
-                     url: "/postie", // config.processingUrl,
-                     data: postData,
-                     headers: { "Content-Type": "application/json" }
-                  }).then(function(response) {
-                     return {
-                        status: "success",
-                        message: "Your job has been submitted. An email will be sent on job completion."
-                     };
-                  }, function(d) {
-                     return {
-                        status: "error",
-                        message: "Sorry but the service failed to respond. Try again later."
-                     };
-                  });
+               return $http({
+                  method: 'POST',
+                  url: config.processingUrl,
+                  data: postData,
+                  headers: { "Content-Type": "application/json" }
+               }).then(function(response) {
+                  return {
+                     status: "success",
+                     message: "Your job has been submitted. An email will be sent on job completion."
+                  };
+               }, function(d) {
+                  return {
+                     status: "error",
+                     message: "Sorry but the service failed to respond. Try again later."
+                  };
                });
             },
 
             removeRemoved: function() {
-               products.forEach(product => {
+               this.data.downloads.forEach(product => {
                   product.removed = false;
                });
             },
@@ -182,6 +205,10 @@
 
          persistService.getItem(key).then(value => {
             service.data.email = value;
+         });
+
+         configService.getConfig("processing").then(processing => {
+            service.data.config = processing;
          });
 
          return service;

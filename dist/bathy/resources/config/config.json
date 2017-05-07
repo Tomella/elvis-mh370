@@ -57,18 +57,6 @@
       	 "edit" : false
       }
    },
-   "initiateServiceTemplates": {
-   		"custom": {
-   			"22be4b55-2465-4320-e053-10a3070a5236": {
-   				"key": "state",
-   				"templates": {
-   					"NSW": "https://elvis20161a-ga.fmecloud.com/fmejobsubmitter/elvis_prod/DEMClipZipShip_Master_S3Source.fmw?geocat_number=${id}&out_grid_name=${filename}&input_coord_sys=LL-WGS84&ymin=${yMin}&ymax=${yMax}&xmin=${xMin}&xmax=${xMax}&output_format=${outFormat}&out_coord_sys=${outCoordSys}&email_address=${email}&opt_showresult=false&opt_servicemode=async"
-   				}
-   			}
-   		},
-   		"default": "https://elvis20161a-ga.fmecloud.com/fmejobsubmitter/elvis_prod/DEMClipZipShip_Master_S3Source.fmw?geocat_number=${id}&out_grid_name=${filename}&input_coord_sys=LL-WGS84&ymin=${yMin}&ymax=${yMax}&xmin=${xMin}&xmax=${xMax}&output_format=${outFormat}&out_coord_sys=${outCoordSys}&email_address=${email}&opt_showresult=false&opt_servicemode=async"
-   },
-
 	"datasets": {
 		"datasetsUrl": "bathy/resources/config/datasets_20170411.json"
    },
@@ -90,7 +78,12 @@
 				"code":"NGRID",
 				"value" : "MapInfo Vertical Mapper Grid (NGrid)",
 				"description" : "NGrid is a binary raster format with header information. For each raster, there is only a single feature returned, since this feature will contain the entire raster. A single feature is stored in a single file, with header information in an associated MapInfo TAB file."
-			}
+			},
+         {
+            "code": "OGCKML",
+            "value": "Google KML",
+            "description": "KML is a file format used to display geographic data in an Earth browser such as Google Earth."
+         }
 		],
 		"outCoordSys" : [
 			{"code":"AUS-LM-CONIC", "value" : "Lambert Conformal Conic for Australia, WGS84"},
@@ -182,7 +175,7 @@
 					"yMin" : -56
 				}
 			},
-			{"code":"GDA94.Geoscience/Lmbrt", "value" : "GDA94 / Geoscience Australia Lambert (EPSG:3112)",
+			{"code":"EPSG:3112", "value" : "GDA94 / Geoscience Australia Lambert [GDA94.Geoscience/Lmbrt]",
 				"extent" : {
 					"xMax" : 155,
 					"xMin" : 108,
@@ -198,7 +191,97 @@
 					"yMin" : -45
 				}
 			},
-			{"code":"LL-WGS84", "value" : "WGS84 Lat/Longs (EPSG:4326)"}
+			{"code":"LL-WGS84", "value" : "WGS84 Lat/Longs (EPSG:4326)"},
+			{
+				"code": "EPSG:32743",
+				"value": "UTM-WGS 1984 datum, Zone 43 South, Meter; Cent. Meridian 75d E [UTM84-43S]",
+				"extent": {
+					"xMax" : 78,
+					"xMin" : 72,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32744",
+				"value": "UTM-WGS 1984 datum, Zone 44 South, Meter; Cent. Meridian 81d E [UTM84-44S]",
+				"extent": {
+					"xMax" : 84,
+					"xMin" : 78,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32745",
+				"value": "UTM-WGS 1984 datum, Zone 45 South, Meter; Cent. Meridian 87d E [UTM84-45S]",
+				"extent": {
+					"xMax" : 90,
+					"xMin" : 84,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32746",
+				"value": "UTM-WGS 1984 datum, Zone 46 South, Meter; Cent. Meridian 93d E [UTM84-46S]",
+				"extent": {
+					"xMax" : 96,
+					"xMin" : 90,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32747",
+				"value": "UTM-WGS 1984 datum, Zone 47 South, Meter; Cent. Meridian 99d E [UTM84-47S]",
+				"extent": {
+					"xMax" : 102,
+					"xMin" : 96,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32748",
+				"value": "UTM-WGS 1984 datum, Zone 48 South, Meter; Cent. Meridian 105d E [UTM84-48S]",
+				"extent": {
+					"xMax" : 108,
+					"xMin" : 102,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32749",
+				"value": "UTM-WGS 1984 datum, Zone 49 South, Meter; Cent. Meridian 111d E [UTM84-49S]",
+				"extent": {
+					"xMax" : 114,
+					"xMin" : 108,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32750",
+				"value": "UTM-WGS 1984 datum, Zone 50 South, Meter; Cent. Meridian 117d E [UTM84-50S]",
+				"extent": {
+					"xMax" : 120,
+					"xMin" : 114,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			},
+			{
+				"code": "EPSG:32751",
+				"value": "UTM-WGS 1984 datum, Zone 51 South, Meter; Cent. Meridian 123d E [UTM84-51S]",
+				"extent": {
+					"xMax" : 126,
+					"xMin" : 120,
+					"yMax" : 0,
+					"yMin" : -80
+				}
+			}
 		]
 	}
 }
