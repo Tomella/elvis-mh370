@@ -15,15 +15,19 @@ git pull
 bower update
 # Copy static content to Apache
 sudo cp -rf dist/* /var/www/html
+
+## Consider these behaviours for future capability like node services
 # Update any proxies that might have changed
-sudo cp -f code-deploy/proxies.conf /etc/httpd/conf.d
+# sudo cp -f code-deploy/proxies.conf /etc/httpd/conf.d
+
 # Pick up any new proxies
-sudo service httpd restart
+#sudo service httpd restart
+
 # Stop the application
-sudo service fsdf stop
+# sudo service fsdf stop
 # Update the service
-sudo cp -f code-deploy/fsdf /etc/rc.d/init.d
+# sudo cp -f code-deploy/fsdf /etc/rc.d/init.d
 # Make it executable
-sudo chmod +x /etc/rc.d/init.d/fsdf
+# sudo chmod +x /etc/rc.d/init.d/fsdf
 # Start the app, there might be new services
-sudo service fsdf start
+# sudo service fsdf start
