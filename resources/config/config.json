@@ -24,12 +24,29 @@
             "visible":true
          },
          {
-            "name":"Topography",
+            "name":"Bathymetry",
             "pseudoBaseLayer" : true,
             "type":["TileLayer"],
-            "key":"topography",
+            "key":"bathymetry",
             "parameters":[
-                "http://services.ga.gov.au/site_7/rest/services/Topographic_Base_Map_WM/MapServer/tile/{z}/{y}/{x}",
+                "http://s3-ap-southeast-2.amazonaws.com/mh370-cache/Bathymetry/L{z}R{y}C{x}.png",
+                {
+                   "layers" : "Image",
+                   "format" : "image/png",
+                   "transparent" : true,
+                   "opacity" : 0.7
+                }
+            ],
+            "addLayerControl":false,
+            "visible":true
+         },
+         {
+            "name":"Backscatter",
+            "pseudoBaseLayer" : true,
+            "type":["TileLayer"],
+            "key":"backscatter",
+            "parameters":[
+                "http://s3-ap-southeast-2.amazonaws.com/mh370-cache/Backscatter/L{z}R{y}C{x}.png",
                 {
                    "layers" : "Image",
                    "format" : "image/png",
