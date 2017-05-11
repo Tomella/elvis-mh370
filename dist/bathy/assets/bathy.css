@@ -268,37 +268,6 @@ input.ng-valid.ng-touched {
     width: 23em;
   }
 }
-@media print {
-@page {
-    size: landscape;
-}
-
-  .noPrint {
-    display: none;
-  }
-
-  .printOnly {
-    display: inline !important;
-  }
-
-  .contentContainer {
-    max-width: 100% !important;
-    overflow: hidden !important;
-    left: 0px !important;
-  }
-
-  .panel-inner-container {
-    display: none !important;
-  }
-
-  .leaflet-control-mouseposition {
-    display: none !important;
-  }
-
-  .leaflet-control-attribution {
-    display: none !important;
-  }
-}
 .bathyTabs {
   position: absolute;
   top: 60px;
@@ -378,20 +347,36 @@ input.ng-valid.ng-touched {
   overflow-y: auto;
   overflow-x: hidden;
 }
-.selectContainer {
-  width: 100%;
+@media print {
+@page {
+    size: landscape;
 }
 
-.selectAbstractTooltip {
-  /* width:450px; */
-}
+  .noPrint {
+    display: none;
+  }
 
-.orange {
-  color: orange;
-}
+  .printOnly {
+    display: inline !important;
+  }
 
-i.fa.active {
-  color: red;
+  .contentContainer {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    left: 0px !important;
+  }
+
+  .panel-inner-container {
+    display: none !important;
+  }
+
+  .leaflet-control-mouseposition {
+    display: none !important;
+  }
+
+  .leaflet-control-attribution {
+    display: none !important;
+  }
 }
 /* Side Panel */
 
@@ -485,6 +470,21 @@ i.fa.active {
 .cbp-spmenu-open .right-side-menu-container {
   overflow-y: auto;
 }
+.selectContainer {
+  width: 100%;
+}
+
+.selectAbstractTooltip {
+  /* width:450px; */
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 .bathy-toolbar {
   position: fixed;
   top: 82px;
@@ -542,6 +542,70 @@ i.fa.active {
   border: none;
   height: 30px;
   font-size: 13px;
+}
+.wizardPopup {
+  position: fixed;
+  top: 20px;
+  right: 15px;
+  width: 40%;
+  z-index: 5;
+}
+
+.wizardHide {
+  display: none;
+}
+
+.downloadInner {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.abstractContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+@media only screen and (max-height:1024px) {
+  .downloadInner {
+    max-height: 700px;
+  }
+
+  .abstractContainer {
+    max-height: 320px;
+  }
+}
+
+@media only screen and (max-height:786px) {
+  .downloadInner {
+    max-height: 500px;
+  }
+
+  .abstractContainer {
+    max-height: 120px;
+  }
+}
+
+@media only screen and (max-height:600px) {
+  .downloadInner {
+    max-height: 350px;
+  }
+}
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
 }
 .continue-container {
   padding: 4px;
@@ -651,68 +715,4 @@ i.fa.active {
 .exclude {
   color: #777777;
   text-decoration: line-through;
-}
-.wizardPopup {
-  position: fixed;
-  top: 20px;
-  right: 15px;
-  width: 40%;
-  z-index: 5;
-}
-
-.wizardHide {
-  display: none;
-}
-
-.downloadInner {
-  max-height: 800px;
-  overflow-y: auto;
-}
-
-.abstractContainer {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-@media only screen and (max-height:1024px) {
-  .downloadInner {
-    max-height: 700px;
-  }
-
-  .abstractContainer {
-    max-height: 320px;
-  }
-}
-
-@media only screen and (max-height:786px) {
-  .downloadInner {
-    max-height: 500px;
-  }
-
-  .abstractContainer {
-    max-height: 120px;
-  }
-}
-
-@media only screen and (max-height:600px) {
-  .downloadInner {
-    max-height: 350px;
-  }
-}
-.searchContainer {
-  width: 100%;
-}
-
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
 }
