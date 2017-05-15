@@ -18,9 +18,9 @@
                            size: "lg",
                            backdrop: "static",
                            keyboard: false,
-                           controller: ['$scope', '$uibModalInstance', 'products', 'mosaics',
-                              function ($scope, $uibModalInstance, products, mosaics) {
-                                 $scope.mosaics = mosaics;
+                           controller: ['$scope', '$uibModalInstance', 'products', 'clip',
+                              function ($scope, $uibModalInstance, products, clip) {
+                                 $scope.clip = clip;
                                  $scope.products = products;
                                  $scope.accept = function () {
                                     $uibModalInstance.close(true);
@@ -28,11 +28,9 @@
 
                                  $scope.isValid = function() {
                                     let data = this.data;
-                                    let valid = products.filter(product => !product.removed).length;
+                                    let valid = products.filter(product => !product.removed).length && data.email && data.outFormat;
 
-                                    let validMosaic = data.mosaic && data.email && data.outCoordSys && data.outFormat;
-
-                                    return (valid && !data.mosaic) || validMosaic;
+                                    return valid;
                                  };
 
                                  $scope.countAccepted = function() {
@@ -51,8 +49,8 @@
                               products: function () {
                                  return reviewService.data.downloads;
                               },
-                              mosaics: function () {
-                                 return reviewService.data.mosaics;
+                              clip: function () {
+                                 return reviewService.data.clip;
                               }
                            }
                         });
@@ -126,48 +124,69 @@
 
                this.data.reviewing = true;
                this.data.clip = clipService.data.clip;
-
-               let tiles = {};
-               this.data.mosaics = downloads.filter(download => {
-                  if (download.parent.dataType === "150m Bathymetry Grids" && !tiles[download.parent.tile_id]) {
-                      tiles[download.parent.tile_id] = true;
-                      return true;
-                  }
-                  return false;
-               }).map(download => ({
-                  mosaic: true,
-                  tile: download.parent
-               }));
             },
 
             startExtract: function () {
                let clip = clipService.data.clip;
                let config = this.data.config;
                this.setEmail(this.data.email);
-
                let postData = {
-                  selected: this.data.downloads.filter(product => !product.removed)
-                     .map(product =>
-                        ({
-                           file_last_modified: product.download.file_last_modified,
-                           file_name: product.download.file_name,
-                           file_size: product.download.file_size,
-                           file_url: product.download.file_url,
-                           format: product.download.format
-                        })
-                  ),
+                  selected: [],
                   parameters: {
                      xmin: clip.xMin,
                      xmax: clip.xMax,
                      ymin: clip.yMin,
                      ymax: clip.yMax,
                      email: this.data.email,
-                     tile_ids: this.data.mosaics.filter(tile => !tile.removed).map(container => container.tile.tile_id),
-                     output_format: this.data.outFormat.code,
-                     out_coord_sys: this.data.outCoordSys.code,
-                     out_grid_name: "dump"
+                     output_format: this.data.outFormat.code
                   }
                };
+               let selected = postData.selected;
+
+               // Get the selected groups. This has become a bit ugly because the backend service wants the data in a funny way.
+               let accumulator = {};
+               let downloads = this.data.downloads.filter(product => !product.removed).forEach(product => {
+                  let download = product.download;
+                  let parent = download.parent;
+                  let groupName = parent.dataType;
+                  let postItem = {};
+
+
+                  if (parent.type === "mosaic") {
+                     // Mosaics don't have a list for files and there is only ever one.
+                     selected.push({
+                        data_type: groupName,
+                        files: {
+                           format: download.format,
+                           file_name: download.file_name,
+                           file_url: "",
+                           file_size: "",
+                           file_last_modified: ""
+                        }
+                     });
+
+                  } else {
+                     // datasets have a list for files and we have them here
+                     let group = accumulator[groupName];
+                     if (!group) {
+                        group = accumulator[groupName] = {
+                           data_type: groupName,
+                           files: []
+                        };
+                        selected.push(group);
+                     }
+                     let list = group.files;
+                     list.push({
+                        format: download.format,
+                        file_name: download.file_name,
+                        file_url: download.file_url,
+                        file_size: download.file_size,
+                        file_last_modified: download.file_last_modified
+                     });
+                  }
+               });
+
+
                // Clean up the data.
                this.data.downloads.forEach(product => {
                   product.download.selected = product.removed = false;

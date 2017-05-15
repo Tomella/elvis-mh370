@@ -79,7 +79,8 @@
    },
 
 	"processing": {
-      "processingUrl": "https://elvis20161a-ga.fmecloud.com/fmejobsubmitter/dev_space/MH370ClipZipShip_Master.fmw?opt_showresult=true&opt_servicemode=async",
+
+      "processingUrl": "https://elvis20161a-ga.fmecloud.com/fmejobsubmitter/dev_space/MH370ClipZipShip.fmw?opt_showresult=false&opt_servicemode=async",
 		"outFormat" : [
 			{
 				"code":"ESRIASCIIGRID",

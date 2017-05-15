@@ -1,101 +1,77 @@
 <div class="modal-header">
-	<h3 class="modal-title splash">Review datasets, provide email and continue</h3>
+   <h3 class="modal-title splash">Review datasets, provide email and continue</h3>
 </div>
 <div class="modal-body" id="accept" ng-form exp-enter="accept()" icsm-splash-modal style="width: 100%; margin-left: auto; margin-right: auto;">
-	<div>
-		<div class="row">
-			<div class="col-md-12">
-				<h4>{{countAccepted()}} Selected Datasets <span ng-if="countAccepted()">(Approx: {{products | sizeAcceptedProducts | bytes}})</span></h4>
-				Review and delete unwanted datasets.
-			</div>
-		</div>
+   <div>
+      <div class="row">
+         <div class="col-md-12">
+            <h4>{{countAccepted()}} Selected Datasets</h4>
+            Review and delete unwanted datasets.
+         </div>
+      </div>
+
       <div class="reviewing-datasets">
-		   <div class="row" ng-repeat="product in products"  ng-class-odd="'reviewing-odd'">
-			   <div class="col-md-7">
-				   <button type="button" class="btn btn-default btn-xs" ng-click="product.removed = !product.removed"  role="checkbox">
+         <div class="row" ng-repeat="product in products" ng-class-odd="'reviewing-odd'">
+            <div class="col-md-11">
+               <button type="button" class="btn btn-default btn-xs" ng-click="product.removed = !product.removed" role="checkbox">
                   <i class="fa fa-2x" style="width:24px;height:20px;color:green" ng-class="{'fa-check': !product.removed}" aria-hidden="true"></i>
                </button>
-               <span style="padding-left:7px" ng-class="{'exclude': product.removed}">
-                  {{product.download.parent.tile_id}}
+
+               <span style="padding-left:7px" ng-class="{'exclude': product.removed}" ng-if="product.download.parent.type == 'mosaic'">
+                  Mosaic {{product.download.parent.dataType}}
                   - bounds:
-                     {{product.download.parent.bbox[0][1]|number : 1}}&deg; west,
-                     {{product.download.parent.bbox[1][0]|number : 1}}&deg; north,
-                     {{product.download.parent.bbox[1][1]|number : 1}}&deg; east,
-                     {{product.download.parent.bbox[0][0]|number : 1}}&deg; south
+                     {{clip.yMin|number : 1}}&deg; west,
+                     {{clip.xMin|number : 1}}&deg; north,
+                     {{clip.yMax|number : 1}}&deg; east,
+                     {{clip.xMax|number : 1}}&deg; south
                </span>
-			   </div>
-			   <div class="col-md-4" style="padding:6px">
-				   ({{product.download.parent.dataType}} - {{product.download.format}})
-			   </div>
-			   <div class="col-md-1" style="padding:6px">
-			   	{{product.download.file_size | bytes}}
-			   </div>
-		   </div>
-      </div>
-	</div>
-	<div ng-hide="!mosaics.length"  >
-		<div class="row">
-			<div class="col-md-12">
-				<h4>
-               <button class="btn btn-default btn-xs" ng-click="data.mosaic = !data.mosaic"  role="checkbox" aria-checked="{{data.mosaic}}">
-                  <i class="fa fa-2x" style="width:24px;height:20px;color:green" ng-class="{'fa-check': data.mosaic}" aria-hidden="true"></i>
-               </button>
-               Optionally 150m Bathymetry Grids datasets can be mosaicked into a single product
-            </h4>
-			</div>
-		</div>
-      <div class="reviewing-mosaic" ng-show="data.mosaic">
-			<span>Review and add/delete datasets to the mosaiced file.</span>
-		   <div class="row" ng-repeat="product in mosaics"  ng-class-odd="'reviewing-odd'">
-			   <div class="col-md-7">
-				   <button type="button" class="btn btn-default btn-xs" no-ng-click="product.mosaic = !product.mosaic">
-                  <i class="fa fa-2x" ng-class="{'fa-times-circle': !product.mosaic, 'fa-check-circle': product.mosaic}" aria-hidden="true"></i>
-               </button>
-               <span style="padding-left:7px" ng-class="{'exclude': !product.mosaic}">
-                  {{product.tile.tile_id}}
-                  - bounds:
-                     {{product.tile.bbox[0][1]|number : 1}}&deg; west,
-                     {{product.tile.bbox[1][0]|number : 1}}&deg; north,
-                     {{product.tile.bbox[1][1]|number : 1}}&deg; east,
-                     {{product.tile.bbox[0][0]|number : 1}}&deg; south
+
+
+
+               <span style="padding-left:7px" ng-class="{'exclude': product.removed}" ng-if="product.download.parent.type != 'mosaic'">
+                  {{product.download.parent.dataType}} <span style="font-weight:bold">{{product.download.parent.tile_id}}</span>               - {{product.download.format}} - bounds: {{product.download.parent.bbox[0][1]|number : 1}}&deg; west, {{product.download.parent.bbox[1][0]|number
+               : 1}}&deg; north, {{product.download.parent.bbox[1][1]|number : 1}}&deg; east, {{product.download.parent.bbox[0][0]|number
+               : 1}}&deg; south
                </span>
-			   </div>
-		   </div>
-         <div class="row">
-		      <div class="col-md-12">
-               <label class="reviewing-label" for="outFormat">Output format</label>
-               <select class="reviewing-select" ng-options="option.value for option in data.config.outFormat track by option.code"
-                  id="outFormat"  ng-model="data.outFormat"></select>
-		      </div>
-	      </div>
-         <div class="row">
-		      <div class="col-md-12">
-               <label class="reviewing-label" for="outCoordSys">Output coordinate system</label>
-               <select class="reviewing-select" id="outCoordSys"
-                     ng-options="option.value for option in ( data.config.outCoordSys | withinClip : data.clip ) track by option.code"
-                     ng-model="data.outCoordSys"></select>
-		      </div>
-	      </div>
+
+
+            </div>
+            <div class="col-md-1" style="padding:6px">
+               {{product.download.file_size | bytes}}
+            </div>
+         </div>
       </div>
-	</div>
-	<div class="row reviewing-divider">
-		<div class="col-md-12">
-			<p>
-				<strong>Email notification</strong> The extract of data can take some time. By providing an email address we will be
-				able to notify you when the job is complete. The email will provide a link to the extracted data which will be packaged
-				up as a single compressed file.
-			</p>
-			<div review-email></div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12">
-			<div class="pull-right" style="padding:8px;">
-				<button type="button" class="btn btn-primary" ng-click="accept()" ng-disabled="!isValid()">
+
+
+   </div>
+   <div class="row reviewing-divider">
+      <div class="col-md-3">
+         <label for="geoprocessOutputFormat">
+					Output Format
+				</label>
+      </div>
+      <div class="col-md-9">
+         <select id="geoprocessOutputFormat" style="width:95%" ng-model="data.outFormat" ng-options="opt.value for opt in data.config.outFormat"></select>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <p>
+            <strong>Email notification</strong> The extract of data can take some time. By providing an email address we
+            will be able to notify you when the job is complete. The email will provide a link to the extracted data which
+            will be packaged up as a single compressed file.
+         </p>
+         <div review-email></div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="pull-right" style="padding:8px;">
+            <button type="button" class="btn btn-primary" ng-click="accept()" ng-disabled="!isValid()">
                Start extract of datasets
              </button>
-				<button type="button" class="btn btn-primary" ng-click="cancel()">Cancel</button>
-			</div>
-		</div>
-	</div>
+            <button type="button" class="btn btn-primary" ng-click="cancel()">Cancel</button>
+         </div>
+      </div>
+   </div>
 </div>
