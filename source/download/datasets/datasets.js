@@ -57,12 +57,12 @@
 
       zoom(dataset) {
          this.mapService.getMap().then(map => {
-
+            let bounds;
             if (dataset.type === "mosaic" && this.rectangle) {
                bounds = map.fitBounds(this.rectangle.getBounds());
                return;
             }
-            let bounds = dataset.bbox;
+            bounds = dataset.bbox;
 
             // We need to buffer on the right.
             let xmax = bounds[1][1];
@@ -88,7 +88,7 @@
 
             if (dataset) {
                if (dataset.type === "mosaic") {
-                  this._showDataset = L.rectangle(this.bounds, { color: "#f00", weight: 2 });;
+                  this._showDataset = L.rectangle(this.bounds, { color: "#f00", weight: 2 });
                } else {
                   this._showDataset = L.polygon(dataset.polygon, { color: "#f00" });
                }
@@ -150,7 +150,7 @@
                   type: "mosaic",
                   downloadables : [{
                      format : "GEOTIFF",
-                     file_name : "Mosaic"
+                     file_name : mosaic.file_name
                   }]
                };
 

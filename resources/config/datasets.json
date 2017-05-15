@@ -5,7 +5,7 @@
          "mosaics" : [
             {
                "format" : "GEOTIFF",
-               "file_name" : "bathymetry_150.tif",
+               "file_name" : "mh370_bathy_150.tif",
                "geometry" : {
                   "type" : "Polygon",
                   "coordinates" : [
