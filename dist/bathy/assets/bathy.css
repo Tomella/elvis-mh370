@@ -1,3 +1,52 @@
+.wizardPopup {
+  position: fixed;
+  top: 20px;
+  right: 15px;
+  width: 40%;
+  z-index: 5;
+}
+
+.wizardHide {
+  display: none;
+}
+
+.downloadInner {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.abstractContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+@media only screen and (max-height:1024px) {
+  .downloadInner {
+    max-height: 700px;
+  }
+
+  .abstractContainer {
+    max-height: 320px;
+  }
+}
+
+@media only screen and (max-height:786px) {
+  .downloadInner {
+    max-height: 500px;
+  }
+
+  .abstractContainer {
+    max-height: 120px;
+  }
+}
+
+@media only screen and (max-height:600px) {
+  .downloadInner {
+    max-height: 350px;
+  }
+}
 body {
   overflow-y: hidden;
 }
@@ -221,6 +270,21 @@ input.ng-valid.ng-touched {
 
 .lgaContainer .row {
   font-size: 110%;
+}
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
 }
 .nav-icons {
   margin-top: 7px !important;
@@ -543,114 +607,6 @@ i.fa.active {
   height: 30px;
   font-size: 13px;
 }
-.wizardPopup {
-  position: fixed;
-  top: 20px;
-  right: 15px;
-  width: 40%;
-  z-index: 5;
-}
-
-.wizardHide {
-  display: none;
-}
-
-.downloadInner {
-  max-height: 800px;
-  overflow-y: auto;
-}
-
-.abstractContainer {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-@media only screen and (max-height:1024px) {
-  .downloadInner {
-    max-height: 700px;
-  }
-
-  .abstractContainer {
-    max-height: 320px;
-  }
-}
-
-@media only screen and (max-height:786px) {
-  .downloadInner {
-    max-height: 500px;
-  }
-
-  .abstractContainer {
-    max-height: 120px;
-  }
-}
-
-@media only screen and (max-height:600px) {
-  .downloadInner {
-    max-height: 350px;
-  }
-}
-.searchContainer {
-  width: 100%;
-}
-
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
-}
-.reviewing-odd {
-  background-color: #eeeeee;
-}
-
-.row.reviewing-divider {
-  border-top: 1px solid lightgray;
-  padding-top: 5px;
-  margin-top: 5px;
-}
-
-.reviewing-datasets {
-  max-height: 450px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.reviewing-mosaic {
-  padding-left: 20px;
-}
-
-.reviewing-label {
-  width: 15em;
-}
-
-.reviewing-select {
-  width: 35em;
-}
-
-@media (max-height: 750px) {
-  .reviewing-datasets {
-    max-height: 350px;
-  }
-}
-
-@media (max-height: 650px) {
-  .reviewing-datasets {
-    max-height: 250px;
-  }
-}
-
-.exclude {
-  color: #777777;
-  text-decoration: line-through;
-}
 .continue-container {
   padding: 4px;
   position: fixed;
@@ -715,4 +671,48 @@ i.fa.active {
 
 .dataset-item {
   padding-left: 5px;
+}
+.reviewing-odd {
+  background-color: #eeeeee;
+}
+
+.row.reviewing-divider {
+  border-top: 1px solid lightgray;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.reviewing-datasets {
+  max-height: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reviewing-mosaic {
+  padding-left: 20px;
+}
+
+.reviewing-label {
+  width: 15em;
+}
+
+.reviewing-select {
+  width: 35em;
+}
+
+@media (max-height: 750px) {
+  .reviewing-datasets {
+    max-height: 350px;
+  }
+}
+
+@media (max-height: 650px) {
+  .reviewing-datasets {
+    max-height: 250px;
+  }
+}
+
+.exclude {
+  color: #777777;
+  text-decoration: line-through;
 }
