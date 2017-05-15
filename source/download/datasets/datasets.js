@@ -38,12 +38,14 @@
             });
          });
 
-         let bounds = [[minY, minX], [maxY, maxX]];
+         this.bounds = [[minY, minX], [maxY, maxX]];
          if (this.rectangle) {
-            this.rectangle.setBounds(bounds);
+            if (this.bounds) {
+               this.rectangle.setBounds(this.bounds);
+            }
          } else {
             this.mapService.getMap().then(map => {
-               this.rectangle = L.rectangle(bounds, {color: "#f80", weight: 2});
+               this.rectangle = L.rectangle(this.bounds, { color: "#f80", weight: 2 });
                this.rectangle.addTo(map);
             });
          }
@@ -55,8 +57,14 @@
 
       zoom(dataset) {
          this.mapService.getMap().then(map => {
-            // We need to buffer on the right.
+
+            if (dataset.type === "mosaic" && this.rectangle) {
+               bounds = map.fitBounds(this.rectangle.getBounds());
+               return;
+            }
             let bounds = dataset.bbox;
+
+            // We need to buffer on the right.
             let xmax = bounds[1][1];
             let xmin = bounds[0][1];
             let width = xmax - xmin;
@@ -79,7 +87,11 @@
             }
 
             if (dataset) {
-               this._showDataset = L.polygon(dataset.polygon, { color: "#f00" });
+               if (dataset.type === "mosaic") {
+                  this._showDataset = L.rectangle(this.bounds, { color: "#f00", weight: 2 });;
+               } else {
+                  this._showDataset = L.polygon(dataset.polygon, { color: "#f00" });
+               }
                this._showDataset.addTo(map);
             }
          });
@@ -94,8 +106,10 @@
          this._data.types.forEach(type => {
             let dataType = type.data_type;
 
+            type.tiles = type.tiles || []; // Make sure we have a container.
             type.tiles.forEach(tile => {
                tiles.push(tile);
+               tile.type = "dataset";
 
                let bbox = tile.bbox.split(",").map(str => +str);
                tile.bbox = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
@@ -127,6 +141,53 @@
                   }
                });
             });
+
+            // Turn a mosaic into our canonical form as used throughout the app.
+            (type.mosaics || []).forEach(mosaic => {
+               let tile = {
+                  tile_id: "clipped mosaic",
+                  bbox : [],
+                  type: "mosaic",
+                  downloadables : [{
+                     format : "GEOTIFF",
+                     file_name : "Mosaic"
+                  }]
+               };
+
+               let downloadable = tile.downloadables[0];
+               downloadable.parent = tile;
+
+               tile.dataType = dataType;
+               tile.intersects = true;
+
+               list.push(downloadable);
+
+               tile.polygon = mosaic.geometry.coordinates;
+
+               //  "bbox" : "102,-12,108,-8",
+               let minX = Number.POSITIVE_INFINITY,
+                  minY = Number.POSITIVE_INFINITY,
+                  maxX = Number.NEGATIVE_INFINITY,
+                  maxY = Number.NEGATIVE_INFINITY;
+
+               tile.polygon.forEach(polygon => {
+                  polygon.forEach(coord => {
+                     minX = minX < coord[0] ? minX : coord[0];
+                     minY = minY < coord[1] ? minY : coord[1];
+                     maxX = maxX > coord[0] ? maxX : coord[0];
+                     maxY = maxY > coord[1] ? maxY : coord[1];
+                  });
+               });
+
+               tile.bbox = [[minY, minX], [maxY, maxX]];
+               tile.center = [
+                  minY + (maxY - minY) / 2,
+                  minX + (maxX - minX) / 2
+               ];
+               type.tiles.push(tile);
+               tiles.push(tile);
+            });
+            // So now we have the mosaics
          });
          // Sort it alphabetically
          this._data.formats.sort((a, b) => a.name > b.name);
@@ -198,14 +259,9 @@
       }])
 
       .filter("someIntersects", [function () {
-         return function (types, formats) {
-            formats = formats ? formats : [];
-            let formatMap = {};
-            formats.forEach(format => {
-               formatMap[format.name] = format.selected;
-            });
+         return function (types) {
             return types ? types.filter(type =>
-               type.tiles.some(tile => tile.intersects && tile.downloadables.some(downloadable => formatMap[downloadable.format]))
+               type.tiles.some(tile => tile.intersects && tile.downloadables)
             ) : [];
          };
       }]);

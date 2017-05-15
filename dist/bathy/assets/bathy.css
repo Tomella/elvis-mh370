@@ -1,3 +1,112 @@
+.continue-container {
+  padding: 4px;
+  position: fixed;
+  bottom: 8px;
+  right: 16px;
+  width: 30em;
+}
+
+.listItemHeading {
+  font-weight: bold;
+}
+
+.listItemLas,
+.listItemPrj,
+.listItemAsc {
+  padding-left: 10px;
+}
+
+.listEven {
+  background-color: #eee;
+}
+
+.listRow {
+  border-bottom: 1px solid lightgray;
+}
+
+.listRow div {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.listTypeLabel {
+  font-weight: bold;
+}
+
+.listType {
+  padding-left: 7px;
+  display: inline-block;
+}
+
+.listItem {
+  padding-left: 6px;
+  padding-bottom: 6px;
+}
+
+.listTopExpander {
+  float: right;
+  padding-top: 30px;
+  font-size: 80%;
+}
+.dataset-group {
+  padding-left: 5px;
+}
+
+.dataset-list {
+  padding-bottom: 40px;
+}
+
+.dataset-subgroup {
+  padding-left: 5px;
+}
+
+.dataset-item {
+  padding-left: 5px;
+}
+.reviewing-odd {
+  background-color: #eeeeee;
+}
+
+.row.reviewing-divider {
+  border-top: 1px solid lightgray;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.reviewing-datasets {
+  max-height: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reviewing-mosaic {
+  padding-left: 20px;
+}
+
+.reviewing-label {
+  width: 15em;
+}
+
+.reviewing-select {
+  width: 35em;
+}
+
+@media (max-height: 750px) {
+  .reviewing-datasets {
+    max-height: 350px;
+  }
+}
+
+@media (max-height: 650px) {
+  .reviewing-datasets {
+    max-height: 250px;
+  }
+}
+
+.exclude {
+  color: #777777;
+  text-decoration: line-through;
+}
 body {
   overflow-y: hidden;
 }
@@ -378,6 +487,21 @@ input.ng-valid.ng-touched {
     display: none !important;
   }
 }
+.selectContainer {
+  width: 100%;
+}
+
+.selectAbstractTooltip {
+  /* width:450px; */
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 /* Side Panel */
 
 /* General styles for all menus */
@@ -470,21 +594,6 @@ input.ng-valid.ng-touched {
 .cbp-spmenu-open .right-side-menu-container {
   overflow-y: auto;
 }
-.selectContainer {
-  width: 100%;
-}
-
-.selectAbstractTooltip {
-  /* width:450px; */
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
-}
 .bathy-toolbar {
   position: fixed;
   top: 82px;
@@ -543,6 +652,21 @@ i.fa.active {
   height: 30px;
   font-size: 13px;
 }
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 .wizardPopup {
   position: fixed;
   top: 20px;
@@ -591,128 +715,4 @@ i.fa.active {
   .downloadInner {
     max-height: 350px;
   }
-}
-.searchContainer {
-  width: 100%;
-}
-
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
-}
-.continue-container {
-  padding: 4px;
-  position: fixed;
-  bottom: 8px;
-  right: 16px;
-  width: 30em;
-}
-
-.listItemHeading {
-  font-weight: bold;
-}
-
-.listItemLas,
-.listItemPrj,
-.listItemAsc {
-  padding-left: 10px;
-}
-
-.listEven {
-  background-color: #eee;
-}
-
-.listRow {
-  border-bottom: 1px solid lightgray;
-}
-
-.listRow div {
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
-
-.listTypeLabel {
-  font-weight: bold;
-}
-
-.listType {
-  padding-left: 7px;
-  display: inline-block;
-}
-
-.listItem {
-  padding-left: 6px;
-  padding-bottom: 6px;
-}
-
-.listTopExpander {
-  float: right;
-  padding-top: 30px;
-  font-size: 80%;
-}
-.dataset-group {
-  padding-left: 5px;
-}
-
-.dataset-list {
-  padding-bottom: 40px;
-}
-
-.dataset-subgroup {
-  padding-left: 5px;
-}
-
-.dataset-item {
-  padding-left: 5px;
-}
-.reviewing-odd {
-  background-color: #eeeeee;
-}
-
-.row.reviewing-divider {
-  border-top: 1px solid lightgray;
-  padding-top: 5px;
-  margin-top: 5px;
-}
-
-.reviewing-datasets {
-  max-height: 450px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.reviewing-mosaic {
-  padding-left: 20px;
-}
-
-.reviewing-label {
-  width: 15em;
-}
-
-.reviewing-select {
-  width: 35em;
-}
-
-@media (max-height: 750px) {
-  .reviewing-datasets {
-    max-height: 350px;
-  }
-}
-
-@media (max-height: 650px) {
-  .reviewing-datasets {
-    max-height: 250px;
-  }
-}
-
-.exclude {
-  color: #777777;
-  text-decoration: line-through;
 }
