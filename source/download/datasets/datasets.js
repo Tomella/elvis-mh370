@@ -26,11 +26,28 @@
          let minY = clip[1];
          let x = 1; // Set the indices once
          let y = 0; // Set the indices once
+         let bbox = [minX, minY, maxX, maxY];
 
          this._data.tiles.forEach(tile => {
-            let min = tile.bbox[0];
-            let max = tile.bbox[1];
-            let intersects = (min[x] < maxX && max[x] > minX) && (min[y] < maxY && max[y] > minY);
+            let intersects;
+
+            if (tile.type === "mosaic") {
+               var poly = {
+                  type: "Feature",
+                  properties: {},
+                  geometry: {
+                     type: "Polygon",
+                     coordinates: tile.polygon
+                  }
+               };
+               let clipped = turf.bboxClip(poly, bbox);
+               intersects = !!clipped.geometry.coordinates.length;
+               tile.clipped = intersects ? clipped.geometry.coordinates[0].map(point => [point[1], point[0]]) : null;
+            } else {
+               let min = tile.bbox[0];
+               let max = tile.bbox[1];
+               intersects = (min[x] < maxX && max[x] > minX) && (min[y] < maxY && max[y] > minY);
+            }
 
             tile.intersects = intersects;
             tile.downloadables.forEach(downloadable => {
@@ -88,7 +105,7 @@
 
             if (dataset) {
                if (dataset.type === "mosaic") {
-                  this._showDataset = L.rectangle(this.bounds, { color: "#f00", weight: 2 });
+                  this._showDataset = L.polygon(dataset.clipped, { color: "#f00", weight: 2 });
                } else {
                   this._showDataset = L.polygon(dataset.polygon, { color: "#f00" });
                }
