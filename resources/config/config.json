@@ -79,10 +79,8 @@
       	 "edit" : false
       }
    },
-	"datasets": {
-		"datasetsUrl": "bathy/resources/config/datasets.json"
-   },
-
+	"datasetsUrl": "bathy/resources/config/datasets.json",
+   "metadataTemplate": "http://www.ga.gov.au/metadata-gateway/metadata/record/{id}",
 	"processing": {
 
       "processingUrl": "https://elvis20161a-ga.fmecloud.com/fmejobsubmitter/dev_space/MH370ClipZipShip.fmw?opt_showresult=false&opt_servicemode=async",

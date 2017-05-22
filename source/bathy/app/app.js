@@ -48,6 +48,7 @@
       'bathy.maps',
       'bathy.panes',
       'bathy.plot',
+      'bathy.popover',
       'bathy.reset',
       'bathy.restrict.pan',
       'bathy.select',

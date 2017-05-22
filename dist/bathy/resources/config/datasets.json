@@ -2,8 +2,14 @@
    "available_data" : [
       {
          "data_type" : "150m Bathymetry Grids",
+         "metadata": {
+			   "id": 100315,
+            "title": "MH370 Phase 1 150m Bathymetry datasets (GA-4421,GA-4422 & GA-4430)",
+            "description": "On behalf of Australia, the Australian Transport Safety Bureau (ATSB) is leading search operations for missing Malaysian airlines flight MH370 in the Southern Indian Ocean. Geoscience Australia provided advice, expertise and support to the ATSB to facilitate bathymetric surveys, which were undertaken to provide a detailed map of the sea floor topography to aid navigation during the underwater search.\nBathymetric data was acquired by multibeam sonar mounted on the hull of multiple vessels (GA survey reference: GA-4421, GA-4422 & GA-4430). Bathymetric surveys were conducted from June 2014 to February 2017, collecting over 710,000 square kilometres of data in the search area and along transit lines (to and from the search area).\nThis dataset allows exploration of the seafloor topography of bathymetry data at a resolution of 150 m across the search and transit areas of the Southern Indian Ocean.  The dataset is overlain on a hillshade created from the 150m resolution bathymetry data. The hillshade was created with the parameters of point illumination azimuth at 45 degrees and altitude of 45 degrees."
+         },
          "mosaics" : [
             {
+               "label" : "150m bathymetry",
                "format" : "GEOTIFF",
                "file_name" : "mh370_bathy_150m.tif",
                "geometry" : {
@@ -150,8 +156,14 @@
       },
       {
          "data_type" : "30m Backscatter Grids",
+         "metadata": {
+			   "id": 110643,
+            "title": "Backscatter dataset",
+            "description": "The multibeam backscatter data was acquired from Fugro Equator between June 2014 and February 2017 were processed by Geoscience Australia to 30 m resolution. This backscatter data was processed for the search area only, excluding all transit data and vessel turns. The data is presented as a yellow to bronze colour ramp, with high backscatter values in darker shades and overlain on a hillshade created from the 150 m bathymetry data. The hillshade was created with the parameters of point illumination azimuth at 45 degrees and altitude of 45 degrees."
+         },
          "mosaics" : [
             {
+               "label" : "30m backscatter",
                "format" : "GEOTIFF",
                "file_name" : "30m_bs_all.tif",
                "geometry" : {
@@ -242,9 +254,15 @@
       },
       {
          "data_type" : "Optimal Resolution Bathymetry Grids",
+         "metadata": {
+			   "id": 82625,
+            "title": "MH370 Phase 1 Optimal Bathymetry datasets (GA-4421, GA-4422 and GA-4430)",
+            "description": "This dataset allows exploration of the seafloor topography through an optimal resolution compilation of tiles across the search and transit areas of the Southern Indian Ocean.  Due to the size of the bathymetry dataset, the data was split into tiles, aligning with Geoscience Australias bathymetry data delivery mechanism. Each tile has a variable resolution, due to the depth of the ocean at that tile location. The dataset is overlain on a hillshade created from the Optimal resolution bathymetry data. The hillshade was created with the parameters of point illumination azimuth at 45 degrees and altitude of 45 degrees."
+         },
          "tiles" : [
             {
                "tile_id" : "sc48",
+               "label": "sc48 - 76m resolution",
                "bbox" : "102,-12,108,-8",
                "centre_pt" : "105,-10",
                "downloadables" : [
@@ -259,6 +277,7 @@
             },
             {
                "tile_id" : "sd48",
+               "label": "sd48 - 47m resolution",
                "bbox" : "102,-16,108,-12",
                "centre_pt" : "105,-14",
                "downloadables" : [
@@ -273,6 +292,7 @@
             },
             {
                "tile_id" : "sd49",
+               "label": "sd49 - 40m resolution",
                "bbox" : "108,-16,114,-12",
                "centre_pt" : "111,-14",
                "downloadables" : [
@@ -287,6 +307,7 @@
             },
             {
                "tile_id" : "se48",
+               "label": "se48 - 83m resolution",
                "bbox" : "102,-20,108,-16",
                "centre_pt" : "105,-18",
                "downloadables" : [
@@ -301,6 +322,7 @@
             },
             {
                "tile_id" : "se49",
+               "label": "se49 - 73m resolution",
                "bbox" : "108,-20,114,-16",
                "centre_pt" : "111,-18",
                "downloadables" : [
@@ -315,6 +337,7 @@
             },
             {
                "tile_id" : "sf48",
+               "label": "sf48 - 40m resolution",
                "bbox" : "102,-24,108,-20",
                "centre_pt" : "105,-22",
                "downloadables" : [
@@ -329,6 +352,7 @@
             },
             {
                "tile_id" : "sf49",
+               "label": "sf49 - 47m resolution",
                "bbox" : "108,-24,114,-20",
                "centre_pt" : "111,-22",
                "downloadables" : [
@@ -343,6 +367,7 @@
             },
             {
                "tile_id" : "sg47",
+               "label": "sg47 - 57m resolution",
                "bbox" : "96,-28,102,-24",
                "centre_pt" : "99,-26",
                "downloadables" : [
@@ -357,6 +382,7 @@
             },
             {
                "tile_id" : "sg48",
+               "label": "sg48 - 82m resolution",
                "bbox" : "102,-28,108,-24",
                "centre_pt" : "105,-26",
                "downloadables" : [
@@ -371,6 +397,7 @@
             },
             {
                "tile_id" : "sg49",
+               "label": "sg49 - 25m resolution",
                "bbox" : "108,-28,114,-24",
                "centre_pt" : "111,-26",
                "downloadables" : [
@@ -385,6 +412,7 @@
             },
             {
                "tile_id" : "sh47",
+               "label": "sh47 - 50m resolution",
                "bbox" : "96,-32,102,-28",
                "centre_pt" : "99,-30",
                "downloadables" : [
@@ -399,6 +427,7 @@
             },
             {
                "tile_id" : "sh48",
+               "label": "sh48 - 45m resolution",
                "bbox" : "102,-32,108,-28",
                "centre_pt" : "105,-30",
                "downloadables" : [
@@ -413,6 +442,7 @@
             },
             {
                "tile_id" : "sh49",
+               "label": "sh49 - 40m resolution",
                "bbox" : "108,-32,114,-28",
                "centre_pt" : "111,-30",
                "downloadables" : [
@@ -427,6 +457,7 @@
             },
             {
                "tile_id" : "sh50",
+               "label": "sh50 - 40m resolution",
                "bbox" : "114,-32,120,-28",
                "centre_pt" : "117,-30",
                "downloadables" : [
@@ -441,6 +472,7 @@
             },
             {
                "tile_id" : "si46",
+               "label": "si46 - 45m resolution",
                "bbox" : "90,-36,96,-32",
                "centre_pt" : "93,-34",
                "downloadables" : [
@@ -455,6 +487,7 @@
             },
             {
                "tile_id" : "si47",
+               "label": "si47 - 45m resolution",
                "bbox" : "96,-36,102,-32",
                "centre_pt" : "99,-34",
                "downloadables" : [
@@ -469,6 +502,7 @@
             },
             {
                "tile_id" : "si48",
+               "label": "si48 - 40m resolution",
                "bbox" : "102,-36,108,-32",
                "centre_pt" : "105,-34",
                "downloadables" : [
@@ -483,6 +517,7 @@
             },
             {
                "tile_id" : "si49",
+               "label": "si49 - 40m resolution",
                "bbox" : "108,-36,114,-32",
                "centre_pt" : "111,-34",
                "downloadables" : [
@@ -497,6 +532,7 @@
             },
             {
                "tile_id" : "si50",
+               "label": "si50 - 40m resolution",
                "bbox" : "114,-36,120,-32",
                "centre_pt" : "117,-34",
                "downloadables" : [
@@ -511,6 +547,7 @@
             },
             {
                "tile_id" : "sj44",
+               "label": "sj44 - 55m resolution",
                "bbox" : "78,-40,84,-36",
                "centre_pt" : "81,-38",
                "downloadables" : [
@@ -525,6 +562,7 @@
             },
             {
                "tile_id" : "sj45",
+               "label": "sj45 - 40m resolution",
                "bbox" : "84,-40,90,-36",
                "centre_pt" : "87,-38",
                "downloadables" : [
@@ -539,6 +577,7 @@
             },
             {
                "tile_id" : "sj46",
+               "label": "sj46 - 46m resolution",
                "bbox" : "90,-40,96,-36",
                "centre_pt" : "93,-38",
                "downloadables" : [
@@ -553,6 +592,7 @@
             },
             {
                "tile_id" : "sj47",
+               "label": "sj47 - 50m resolution",
                "bbox" : "96,-40,102,-36",
                "centre_pt" : "99,-38",
                "downloadables" : [
@@ -567,6 +607,7 @@
             },
             {
                "tile_id" : "sk44",
+               "label": "sk44 - 42m resolution",
                "bbox" : "78,-44,84,-40",
                "centre_pt" : "81,-42",
                "downloadables" : [

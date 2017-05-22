@@ -22,6 +22,19 @@
          };
       }])
 
+      .directive("typeMetadata", [function() {
+         return {
+            templateUrl: "download/datasets/metadata.html",
+            restrict: "AE",
+            scope: {
+               name: "=",
+               metadata: "="
+            },
+            link: function(scope) {
+            }
+         };
+      }])
+
       .filter("selectedFormat", [function () {
          return function (downloadables, formats) {
             return (downloadables ? downloadables : []).filter(downloadable => {

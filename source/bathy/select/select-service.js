@@ -5,8 +5,6 @@
          WMS: "OGC:WMS"
       };
 
-      return new Services(uris);
-
       function Services(uris) {
          this.uris = uris;
          this.container = {
@@ -50,15 +48,15 @@
          this.handlers = [];
 
          this.isWfs = function () {
-            return this.protocol == protocols.WFS;
+            return this.protocol === protocols.WFS;
          };
 
          this.isWms = function () {
-            return this.protocol == protocols.WMS;
+            return this.protocol === protocols.WMS;
          };
 
          this.isSupported = function () {
-            return typeof protocols[this.protocol] == "undefined";
+            return typeof protocols[this.protocol] === "undefined";
          };
 
          this.addHandler = function (callback) {
@@ -92,6 +90,8 @@
             return null;
          }
       };
+
+      return new Services(uris);
    };
 
    let SelectService = function($http, $q, $rootScope, $timeout, mapService, configService) {
@@ -163,7 +163,7 @@
 
                   data.response.docs.forEach(function (dataset) {
                      service._decorateDataset(dataset);
-                     if (dataset.type == "group") {
+                     if (dataset.type === "group") {
                         dataset.docs.forEach(function (data) {
                            service._decorateDataset(data);
                         });
@@ -188,7 +188,7 @@
                   }
 
                   parts = bbox.split(" ");
-                  if (parts.length != 4) {
+                  if (parts.length !== 4) {
                      return null;
                   }
 
@@ -250,7 +250,7 @@
                      service.removeLayer(dataset);
                   } else {
                      coords = box.split(" ");
-                     if (coords.length == 4 && within(+coords[0], +coords[1], +coords[2], +coords[3])) {
+                     if (coords.length === 4 && within(+coords[0], +coords[1], +coords[2], +coords[3])) {
                         // show
                         service.createLayer(dataset);
                      } else {

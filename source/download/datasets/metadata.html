@@ -1,0 +1,9 @@
+<h4>
+   <a href="{{metadata.url}}" target="_blank" ng-mouseenter="metadata.show = true" ng-mouseleave="metadata.show = false">{{name}}</a>
+   <div bathy-popover show="metadata.show" direction="custom-{{metadata.id}}">
+      <h4>{{metadata.title}}</h4>
+      <div ng-repeat="line in (metadata.description | split)">
+         <p>{{line}}</p>
+      </div>
+   </div>
+</h4>

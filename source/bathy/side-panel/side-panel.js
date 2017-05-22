@@ -1,7 +1,7 @@
 {
    angular.module("bathy.side-panel", [])
 
-      .factory('panelSideFactory', ['$rootScope', ($rootScope) => {
+      .factory('panelSideFactory', ['$rootScope', '$timeout', ($rootScope, $timeout) => {
          let state = {
             left: {
                active: null,
@@ -21,7 +21,7 @@
                state.active = null;
                state.width = 0;
             } else {
-               state.active = value;
+              state.active = value;
             }
             return !response;
          }
@@ -41,7 +41,8 @@
                let response = setSide(state.right, data.name);
                $rootScope.$broadcast('side.panel.change', {
                   side: "right",
-                  data: state.right
+                  data: state.right,
+                  width: data.width
                });
                return response;
             }

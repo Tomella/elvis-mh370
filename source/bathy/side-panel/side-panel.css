@@ -73,6 +73,12 @@
   transition: all 0.3s ease;
 }
 
+
+/* Transitions */
+.contentContainer {
+  transition: all 0.3s ease;
+}
+
 .left-side-menu-container, .right-side-menu-container  {
    position: absolute;
    top: 15px;

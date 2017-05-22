@@ -20,11 +20,13 @@
                });
 
                $scope.setView = function (what) {
-                  var oldView = $scope.view;
+                  let oldView = $scope.view;
+                  let delay = 0;
 
                   if ($scope.view === what) {
                      if (what) {
                         changeSize = true;
+                        delay = 1000;
                      }
                      $scope.view = "";
                   } else {

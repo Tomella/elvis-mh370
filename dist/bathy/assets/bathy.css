@@ -347,6 +347,44 @@ input.ng-valid.ng-touched {
   overflow-y: auto;
   overflow-x: hidden;
 }
+.bathy-popover {
+  z-index: 1060;
+  max-width: 600px;
+  padding: 5px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.42857143;
+  text-align: left;
+  text-align: start;
+  text-decoration: none;
+  text-shadow: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-break: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: normal;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: 6px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+  line-break: auto;
+}
+
+.bathy-popover.bottom > .arrow {
+  top: -11px;
+  left: 50%;
+  margin-left: -11px;
+  border-top-width: 0;
+  border-bottom-color: #999;
+  border-bottom-color: rgba(0, 0, 0, .25);
+}
 @media print {
 @page {
     size: landscape;
@@ -473,6 +511,12 @@ i.fa.active {
   transition: all 0.3s ease;
 }
 
+/* Transitions */
+
+.contentContainer {
+  transition: all 0.3s ease;
+}
+
 .left-side-menu-container,
 .right-side-menu-container {
   position: absolute;
@@ -543,6 +587,50 @@ i.fa.active {
   height: 30px;
   font-size: 13px;
 }
+.reviewing-odd {
+  background-color: #eeeeee;
+}
+
+.row.reviewing-divider {
+  border-top: 1px solid lightgray;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.reviewing-datasets {
+  max-height: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reviewing-mosaic {
+  padding-left: 20px;
+}
+
+.reviewing-label {
+  width: 15em;
+}
+
+.reviewing-select {
+  width: 35em;
+}
+
+@media (max-height: 750px) {
+  .reviewing-datasets {
+    max-height: 350px;
+  }
+}
+
+@media (max-height: 650px) {
+  .reviewing-datasets {
+    max-height: 250px;
+  }
+}
+
+.exclude {
+  color: #777777;
+  text-decoration: line-through;
+}
 .continue-container {
   padding: 4px;
   position: fixed;
@@ -608,64 +696,26 @@ i.fa.active {
 .dataset-item {
   padding-left: 5px;
 }
-.reviewing-odd {
-  background-color: #eeeeee;
+
+.custom-100315 {
+  position: fixed;
+  top: 130px;
+  right: 543px;
+  max-width: 650px;
 }
 
-.row.reviewing-divider {
-  border-top: 1px solid lightgray;
-  padding-top: 5px;
-  margin-top: 5px;
+.custom-110643 {
+  position: fixed;
+  top: 190px;
+  right: 543px;
+  max-width: 440px;
 }
 
-.reviewing-datasets {
-  max-height: 450px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.reviewing-mosaic {
-  padding-left: 20px;
-}
-
-.reviewing-label {
-  width: 15em;
-}
-
-.reviewing-select {
-  width: 35em;
-}
-
-@media (max-height: 750px) {
-  .reviewing-datasets {
-    max-height: 350px;
-  }
-}
-
-@media (max-height: 650px) {
-  .reviewing-datasets {
-    max-height: 250px;
-  }
-}
-
-.exclude {
-  color: #777777;
-  text-decoration: line-through;
-}
-.searchContainer {
-  width: 100%;
-}
-
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
+.custom-82625 {
+  position: fixed;
+  top: 240px;
+  right: 543px;
+  max-width: 680px;
 }
 .wizardPopup {
   position: fixed;
@@ -715,4 +765,19 @@ i.fa.active {
   .downloadInner {
     max-height: 350px;
   }
+}
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
 }

@@ -2,15 +2,17 @@
    class DatasetsService {
       constructor($http, $rootScope, configService, mapService) {
          this.$http = $http;
-         this.configService = configService;
          this.mapService = mapService;
          this._data = {
             active: "groups"
          };
-         this.getDatasets().then(response => {
-            this._data.types = response.data.available_data;
-            this.makeList();
-            this.showTiles();
+         configService.getConfig().then(config => {
+            this.config = config;
+            this.getDatasets().then(response => {
+               this._data.types = response.data.available_data;
+               this.makeList();
+               this.showTiles();
+            });
          });
       }
 
@@ -124,6 +126,7 @@
             let dataType = type.data_type;
 
             type.tiles = type.tiles || []; // Make sure we have a container.
+            type.metadata.url = this.config.metadataTemplate.replace("{id}", type.metadata.id);
             type.tiles.forEach(tile => {
                tiles.push(tile);
                tile.type = "dataset";
@@ -162,7 +165,7 @@
             // Turn a mosaic into our canonical form as used throughout the app.
             (type.mosaics || []).forEach(mosaic => {
                let tile = {
-                  tile_id: "clipped mosaic",
+                  label: mosaic.label,
                   bbox : [],
                   type: "mosaic",
                   downloadables : [{
@@ -214,7 +217,11 @@
       showTiles() {
          let latlngs = [];
          this._data.tiles.forEach(item => {
-            latlngs.push(item.polygon);
+            if (item.type === "mosaic") {
+               latlngs.push(item.polygon[0].map(point => [point[1], point[0]]));
+            } else {
+               latlngs.push(item.polygon);
+            }
          });
          this.polys = L.multiPolygon(latlngs, { color: '#dddddd', fill: false, weight: 1 });
          this.mapService.getMap().then(map => {
@@ -223,9 +230,7 @@
       }
 
       getDatasets() {
-         return this.configService.getConfig("datasets").then(config => {
-            return this.$http.get(config.datasetsUrl);
-         });
+         return this.$http.get(this.config.datasetsUrl);
       }
    }
    DatasetsService.$inject = ["$http", "$rootScope", "configService", "mapService"];
@@ -280,6 +285,12 @@
             return types ? types.filter(type =>
                type.tiles.some(tile => tile.intersects && tile.downloadables)
             ) : [];
+         };
+      }])
+
+      .filter("split", [function () {
+         return function (text) {
+            return text.split(/\n/g);
          };
       }]);
 }

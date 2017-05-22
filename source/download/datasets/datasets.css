@@ -13,3 +13,24 @@
 .dataset-item {
    padding-left: 5px;
 }
+
+.custom-100315 {
+   position: fixed;
+   top: 130px;
+   right: 543px;
+   max-width: 650px;
+}
+
+.custom-110643 {
+   position: fixed;
+   top: 190px;
+   right: 543px;
+   max-width: 440px;
+}
+
+.custom-82625 {
+   position: fixed;
+   top: 240px;
+   right: 543px;
+   max-width: 680px;
+}

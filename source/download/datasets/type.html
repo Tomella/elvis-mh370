@@ -1,13 +1,11 @@
 <div class="dataset-group">
-   <h4>{{name}}</h4>
+   <type-metadata metadata="type.metadata" name="name"></type-metadata>
    <div class="dataset-subgroup" ng-repeat="tile in type.tiles | withinBounds" ng-mouseenter="show(tile)" ng-mouseleave="hide()">
       <h5>
          <input type="checkbox" ng-model="tile.downloadables[0].selected">
          <a href="javascript:void(0)" ng-click="zoom(tile)">
-            GeoTIFF {{tile.tile_id}}
+            {{tile.label || tile.tile_id}}
             <span ng-if="tile.downloadables[0].file_size">({{tile.downloadables[0].file_size | bytes}})</span>
-            <span ng-if="!tile.downloadables[0].file_size"
-               uib-tooltip="File size unknown until extract is complete. The email will tell you the size of the extract. You can elect not to download it if it is too large.">(-)</span>
          </a>
       </h5>
    </div>
