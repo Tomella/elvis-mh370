@@ -9,145 +9,46 @@
          },
          "mosaics" : [
             {
-               "label" : "150m bathymetry",
                "format" : "GEOTIFF",
+               "label" : "150m bathymetry",
                "file_name" : "mh370_bathy_150m.tif",
                "geometry" : {
                   "type" : "Polygon",
                   "coordinates" : [
                      [
-                        [
-                           102,
-                           -12
-                        ],
-                        [
-                           102,
-                           -8
-                        ],
-                        [
-                           108,
-                           -8
-                        ],
-                        [
-                           114,
-                           -8
-                        ],
-                        [
-                           114,
-                           -12
-                        ],
-                        [
-                           114,
-                           -16
-                        ],
-                        [
-                           114,
-                           -20
-                        ],
-                        [
-                           114,
-                           -24
-                        ],
-                        [
-                           114,
-                           -28
-                        ],
-                        [
-                           120,
-                           -28
-                        ],
-                        [
-                           120,
-                           -32
-                        ],
-                        [
-                           120,
-                           -36
-                        ],
-                        [
-                           114,
-                           -36
-                        ],
-                        [
-                           108,
-                           -36
-                        ],
-                        [
-                           108,
-                           -40
-                        ],
-                        [
-                           102,
-                           -40
-                        ],
-                        [
-                           96,
-                           -40
-                        ],
-                        [
-                           90,
-                           -40
-                        ],
-                        [
-                           90,
-                           -44
-                        ],
-                        [
-                           84,
-                           -44
-                        ],
-                        [
-                           78,
-                           -44
-                        ],
-                        [
-                           78,
-                           -40
-                        ],
-                        [
-                           78,
-                           -36
-                        ],
-                        [
-                           84,
-                           -36
-                        ],
-                        [
-                           84,
-                           -32
-                        ],
-                        [
-                           90,
-                           -32
-                        ],
-                        [
-                           90,
-                           -28
-                        ],
-                        [
-                           96,
-                           -28
-                        ],
-                        [
-                           96,
-                           -24
-                        ],
-                        [
-                           102,
-                           -24
-                        ],
-                        [
-                           102,
-                           -20
-                        ],
-                        [
-                           102,
-                           -16
-                        ],
-                        [
-                           102,
-                           -12
-                        ]
+                        [ 102, -12 ],
+                        [ 102, -8 ],
+                        [ 108, -8 ],
+                        [ 114, -8 ],
+                        [ 114, -12 ],
+                        [ 114, -16 ],
+                        [ 114, -20 ],
+                        [ 114, -24 ],
+                        [ 114, -28 ],
+                        [ 120, -28 ],
+                        [ 120, -32 ],
+                        [ 120, -36 ],
+                        [ 114, -36 ],
+                        [ 108, -36 ],
+                        [ 108, -40 ],
+                        [ 102, -40 ],
+                        [ 96, -40 ],
+                        [ 90, -40 ],
+                        [ 90, -44 ],
+                        [ 84, -44 ],
+                        [ 78, -44 ],
+                        [ 78, -40 ],
+                        [ 78, -36 ],
+                        [ 84, -36 ],
+                        [ 84, -32 ],
+                        [ 90, -32 ],
+                        [ 90, -28 ],
+                        [ 96, -28 ],
+                        [ 96, -24 ],
+                        [ 102, -24 ],
+                        [ 102, -20 ],
+                        [ 102, -16 ],
+                        [ 102, -12 ]
                      ]
                   ]
                }
@@ -163,89 +64,32 @@
          },
          "mosaics" : [
             {
-               "label" : "30m backscatter",
                "format" : "GEOTIFF",
+               "label" : "30m backscatter",
                "file_name" : "30m_bs_all.tif",
                "geometry" : {
                   "type" : "Polygon",
                   "coordinates" : [
                      [
-                        [
-                           96,
-                           -28
-                        ],
-                        [
-                           96,
-                           -24
-                        ],
-                        [
-                           102,
-                           -24
-                        ],
-                        [
-                           108,
-                           -24
-                        ],
-                        [
-                           108,
-                           -28
-                        ],
-                        [
-                           102,
-                           -28
-                        ],
-                        [
-                           102,
-                           -32
-                        ],
-                        [
-                           102,
-                           -36
-                        ],
-                        [
-                           96,
-                           -36
-                        ],
-                        [
-                           96,
-                           -40
-                        ],
-                        [
-                           90,
-                           -40
-                        ],
-                        [
-                           90,
-                           -44
-                        ],
-                        [
-                           84,
-                           -44
-                        ],
-                        [
-                           84,
-                           -40
-                        ],
-                        [
-                           84,
-                           -36
-                        ],
-                        [
-                           90,
-                           -36
-                        ],
-                        [
-                           90,
-                           -32
-                        ],
-                        [
-                           90,
-                           -28
-                        ],
-                        [
-                           96,
-                           -28
-                        ]
+                        [ 96, -28 ],
+                        [ 96, -24 ],
+                        [ 102, -24 ],
+                        [ 108, -24 ],
+                        [ 108, -28 ],
+                        [ 102, -28 ],
+                        [ 102, -32 ],
+                        [ 102, -36 ],
+                        [ 96, -36 ],
+                        [ 96, -40 ],
+                        [ 90, -40 ],
+                        [ 90, -44 ],
+                        [ 84, -44 ],
+                        [ 84, -40 ],
+                        [ 84, -36 ],
+                        [ 90, -36 ],
+                        [ 90, -32 ],
+                        [ 90, -28 ],
+                        [ 96, -28 ]
                      ]
                   ]
                }
@@ -262,361 +106,337 @@
          "tiles" : [
             {
                "tile_id" : "sc48",
-               "label": "sc48 - 76m resolution",
                "bbox" : "102,-12,108,-8",
                "centre_pt" : "105,-10",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sc48_76m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sc48_76m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sc48_76m.tif",
                      "file_size" : "593250",
-                     "file_last_modified" : "2017-05-07T23:21:06"
+                     "file_last_modified" : "2017-05-16T22:09:40"
                   }
                ]
             },
             {
                "tile_id" : "sd48",
-               "label": "sd48 - 47m resolution",
                "bbox" : "102,-16,108,-12",
                "centre_pt" : "105,-14",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sd48_47m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sd48_47m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sd48_47m.tif",
                      "file_size" : "3495233",
-                     "file_last_modified" : "2017-05-07T23:21:07"
+                     "file_last_modified" : "2017-05-16T22:10:23"
                   }
                ]
             },
             {
                "tile_id" : "sd49",
-               "label": "sd49 - 40m resolution",
                "bbox" : "108,-16,114,-12",
                "centre_pt" : "111,-14",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sd49_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sd49_40m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sd49_40m.tif",
                      "file_size" : "11123199",
-                     "file_last_modified" : "2017-05-07T23:21:07"
+                     "file_last_modified" : "2017-04-05T06:47:24"
                   }
                ]
             },
             {
                "tile_id" : "se48",
-               "label": "se48 - 83m resolution",
                "bbox" : "102,-20,108,-16",
                "centre_pt" : "105,-18",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "se48_83m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/se48_83m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/se48_83m.tif",
                      "file_size" : "2364064",
-                     "file_last_modified" : "2017-05-07T23:21:06"
+                     "file_last_modified" : "2017-05-16T22:14:13"
                   }
                ]
             },
             {
                "tile_id" : "se49",
-               "label": "se49 - 73m resolution",
                "bbox" : "108,-20,114,-16",
                "centre_pt" : "111,-18",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "se49_73m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/se49_73m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/se49_73m.tif",
                      "file_size" : "2394419",
-                     "file_last_modified" : "2017-05-07T23:21:06"
+                     "file_last_modified" : "2017-05-16T22:14:59"
                   }
                ]
             },
             {
                "tile_id" : "sf48",
-               "label": "sf48 - 40m resolution",
                "bbox" : "102,-24,108,-20",
                "centre_pt" : "105,-22",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sf48_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sf48_40m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sf48_40m.tif",
                      "file_size" : "16954044",
-                     "file_last_modified" : "2017-05-07T23:21:07"
+                     "file_last_modified" : "2017-04-05T06:47:24"
                   }
                ]
             },
             {
                "tile_id" : "sf49",
-               "label": "sf49 - 47m resolution",
                "bbox" : "108,-24,114,-20",
                "centre_pt" : "111,-22",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sf49_47m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sf49_47m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sf49_47m.tif",
                      "file_size" : "3258617",
-                     "file_last_modified" : "2017-05-07T23:21:08"
+                     "file_last_modified" : "2017-05-16T22:15:28"
                   }
                ]
             },
             {
                "tile_id" : "sg47",
-               "label": "sg47 - 57m resolution",
                "bbox" : "96,-28,102,-24",
                "centre_pt" : "99,-26",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sg47_57m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sg47_57m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sg47_57m.tif",
                      "file_size" : "10269399",
-                     "file_last_modified" : "2017-05-07T23:21:09"
+                     "file_last_modified" : "2017-04-05T06:47:24"
                   }
                ]
             },
             {
                "tile_id" : "sg48",
-               "label": "sg48 - 82m resolution",
                "bbox" : "102,-28,108,-24",
                "centre_pt" : "105,-26",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sg48_82m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sg48_82m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sg48_82m.tif",
                      "file_size" : "1001170",
-                     "file_last_modified" : "2017-05-07T23:21:09"
+                     "file_last_modified" : "2017-04-05T06:47:24"
                   }
                ]
             },
             {
                "tile_id" : "sg49",
-               "label": "sg49 - 25m resolution",
                "bbox" : "108,-28,114,-24",
                "centre_pt" : "111,-26",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sg49_25m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sg49_25m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sg49_25m.tif",
                      "file_size" : "9969948",
-                     "file_last_modified" : "2017-05-07T23:21:07"
+                     "file_last_modified" : "2017-05-16T22:16:00"
                   }
                ]
             },
             {
                "tile_id" : "sh47",
-               "label": "sh47 - 50m resolution",
                "bbox" : "96,-32,102,-28",
                "centre_pt" : "99,-30",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sh47_50m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sh47_50m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sh47_50m.tif",
                      "file_size" : "35096799",
-                     "file_last_modified" : "2017-05-07T23:21:07"
+                     "file_last_modified" : "2017-04-05T06:47:24"
                   }
                ]
             },
             {
                "tile_id" : "sh48",
-               "label": "sh48 - 45m resolution",
                "bbox" : "102,-32,108,-28",
                "centre_pt" : "105,-30",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sh48_45m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sh48_45m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sh48_45m.tif",
                      "file_size" : "14087473",
-                     "file_last_modified" : "2017-05-07T23:21:08"
+                     "file_last_modified" : "2017-04-05T06:47:25"
                   }
                ]
             },
             {
                "tile_id" : "sh49",
-               "label": "sh49 - 40m resolution",
                "bbox" : "108,-32,114,-28",
                "centre_pt" : "111,-30",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
-                     "file_name" : "sh49_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sh49_40m.tif",
-                     "file_size" : "16833181",
-                     "file_last_modified" : "2017-05-07T23:21:00"
+                     "file_name" : "sh49_45m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sh49_45m.tif",
+                     "file_size" : "10406313",
+                     "file_last_modified" : "2017-04-05T06:47:25"
                   }
                ]
             },
             {
                "tile_id" : "sh50",
-               "label": "sh50 - 40m resolution",
                "bbox" : "114,-32,120,-28",
                "centre_pt" : "117,-30",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
-                     "file_name" : "sh50_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sh50_40m.tif",
-                     "file_size" : "5386343",
-                     "file_last_modified" : "2017-05-07T23:21:00"
+                     "file_name" : "sh50_45m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sh50_45m.tif",
+                     "file_size" : "2904054",
+                     "file_last_modified" : "2017-04-05T06:47:25"
                   }
                ]
             },
             {
                "tile_id" : "si46",
-               "label": "si46 - 45m resolution",
                "bbox" : "90,-36,96,-32",
                "centre_pt" : "93,-34",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "si46_45m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/si46_45m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/si46_45m.tif",
                      "file_size" : "68720358",
-                     "file_last_modified" : "2017-05-07T23:21:00"
+                     "file_last_modified" : "2017-05-16T22:17:44"
                   }
                ]
             },
             {
                "tile_id" : "si47",
-               "label": "si47 - 45m resolution",
                "bbox" : "96,-36,102,-32",
                "centre_pt" : "99,-34",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "si47_45m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/si47_45m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/si47_45m.tif",
                      "file_size" : "84668569",
-                     "file_last_modified" : "2017-05-07T23:21:00"
+                     "file_last_modified" : "2017-05-16T22:18:31"
                   }
                ]
             },
             {
                "tile_id" : "si48",
-               "label": "si48 - 40m resolution",
                "bbox" : "102,-36,108,-32",
                "centre_pt" : "105,-34",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "si48_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/si48_40m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/si48_40m.tif",
                      "file_size" : "91337504",
-                     "file_last_modified" : "2017-05-07T23:21:00"
+                     "file_last_modified" : "2017-05-16T22:19:02"
                   }
                ]
             },
             {
                "tile_id" : "si49",
-               "label": "si49 - 40m resolution",
                "bbox" : "108,-36,114,-32",
                "centre_pt" : "111,-34",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "si49_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/si49_40m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/si49_40m.tif",
                      "file_size" : "50338364",
-                     "file_last_modified" : "2017-05-07T23:21:00"
+                     "file_last_modified" : "2017-05-16T22:19:32"
                   }
                ]
             },
             {
                "tile_id" : "si50",
-               "label": "si50 - 40m resolution",
                "bbox" : "114,-36,120,-32",
                "centre_pt" : "117,-34",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "si50_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/si50_40m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/si50_40m.tif",
                      "file_size" : "4532948",
-                     "file_last_modified" : "2017-05-07T23:21:05"
+                     "file_last_modified" : "2017-05-16T06:14:21"
                   }
                ]
             },
             {
                "tile_id" : "sj44",
-               "label": "sj44 - 55m resolution",
                "bbox" : "78,-40,84,-36",
                "centre_pt" : "81,-38",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sj44_55m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sj44_55m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sj44_55m.tif",
                      "file_size" : "895249",
-                     "file_last_modified" : "2017-05-07T23:21:06"
+                     "file_last_modified" : "2017-04-05T06:47:27"
                   }
                ]
             },
             {
                "tile_id" : "sj45",
-               "label": "sj45 - 40m resolution",
                "bbox" : "84,-40,90,-36",
                "centre_pt" : "87,-38",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sj45_40m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sj45_40m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sj45_40m.tif",
                      "file_size" : "166979747",
-                     "file_last_modified" : "2017-05-07T23:21:06"
+                     "file_last_modified" : "2017-04-05T06:47:27"
                   }
                ]
             },
             {
                "tile_id" : "sj46",
-               "label": "sj46 - 46m resolution",
                "bbox" : "90,-40,96,-36",
                "centre_pt" : "93,-38",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sj46_46m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sj46_46m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sj46_46m.tif",
                      "file_size" : "47500607",
-                     "file_last_modified" : "2017-05-07T23:21:01"
+                     "file_last_modified" : "2017-05-16T22:20:04"
                   }
                ]
             },
             {
                "tile_id" : "sj47",
-               "label": "sj47 - 50m resolution",
                "bbox" : "96,-40,102,-36",
                "centre_pt" : "99,-38",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sj47_50m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sj47_50m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sj47_50m.tif",
                      "file_size" : "15548775",
-                     "file_last_modified" : "2017-05-07T23:21:04"
+                     "file_last_modified" : "2017-05-16T22:20:31"
                   }
                ]
             },
             {
                "tile_id" : "sk44",
-               "label": "sk44 - 42m resolution",
                "bbox" : "78,-44,84,-40",
                "centre_pt" : "81,-42",
                "downloadables" : [
                   {
                      "format" : "GEOTIFF",
                      "file_name" : "sk44_42m.tif",
-                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/mh370-test/optimal/geotiff/sk44_42m.tif",
+                     "file_url" : "https://s3-ap-southeast-2.amazonaws.com/marine-s3-storage/phase1/optimal/geotiff/sk44_42m.tif",
                      "file_size" : "7896796",
-                     "file_last_modified" : "2017-05-07T23:21:05"
+                     "file_last_modified" : "2017-04-05T06:47:28"
                   }
                ]
             }

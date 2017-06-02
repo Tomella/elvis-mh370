@@ -416,21 +416,6 @@ input.ng-valid.ng-touched {
     display: none !important;
   }
 }
-.selectContainer {
-  width: 100%;
-}
-
-.selectAbstractTooltip {
-  /* width:450px; */
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
-}
 /* Side Panel */
 
 /* General styles for all menus */
@@ -587,49 +572,20 @@ i.fa.active {
   height: 30px;
   font-size: 13px;
 }
-.reviewing-odd {
-  background-color: #eeeeee;
+.selectContainer {
+  width: 100%;
 }
 
-.row.reviewing-divider {
-  border-top: 1px solid lightgray;
-  padding-top: 5px;
-  margin-top: 5px;
+.selectAbstractTooltip {
+  /* width:450px; */
 }
 
-.reviewing-datasets {
-  max-height: 450px;
-  overflow-y: auto;
-  overflow-x: hidden;
+.orange {
+  color: orange;
 }
 
-.reviewing-mosaic {
-  padding-left: 20px;
-}
-
-.reviewing-label {
-  width: 15em;
-}
-
-.reviewing-select {
-  width: 35em;
-}
-
-@media (max-height: 750px) {
-  .reviewing-datasets {
-    max-height: 350px;
-  }
-}
-
-@media (max-height: 650px) {
-  .reviewing-datasets {
-    max-height: 250px;
-  }
-}
-
-.exclude {
-  color: #777777;
-  text-decoration: line-through;
+i.fa.active {
+  color: red;
 }
 .continue-container {
   padding: 4px;
@@ -716,6 +672,50 @@ i.fa.active {
   top: 240px;
   right: 543px;
   max-width: 680px;
+}
+.reviewing-odd {
+  background-color: #eeeeee;
+}
+
+.row.reviewing-divider {
+  border-top: 1px solid lightgray;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.reviewing-datasets {
+  max-height: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reviewing-mosaic {
+  padding-left: 20px;
+}
+
+.reviewing-label {
+  width: 15em;
+}
+
+.reviewing-select {
+  width: 35em;
+}
+
+@media (max-height: 750px) {
+  .reviewing-datasets {
+    max-height: 350px;
+  }
+}
+
+@media (max-height: 650px) {
+  .reviewing-datasets {
+    max-height: 250px;
+  }
+}
+
+.exclude {
+  color: #777777;
+  text-decoration: line-through;
 }
 .wizardPopup {
   position: fixed;

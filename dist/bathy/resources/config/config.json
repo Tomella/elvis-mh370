@@ -83,7 +83,7 @@
    "metadataTemplate": "http://www.ga.gov.au/metadata-gateway/metadata/record/{id}",
 	"processing": {
 
-      "processingUrl": "https://elvis20161a-ga.fmecloud.com/fmejobsubmitter/dev_space/MH370ClipZipShip.fmw?opt_showresult=false&opt_servicemode=async",
+      "processingUrl": "https://mh370-17a-ga.fmecloud.com/fmejobsubmitter/mh370_prod/MH370ClipZipShip.fmw?opt_showresult=false&opt_servicemode=async",
 		"outFormat" : [
 			{
 				"code":"ESRIASCIIGRID",
