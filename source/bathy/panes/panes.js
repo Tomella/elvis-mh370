@@ -14,9 +14,16 @@
                $scope.view = $scope.defaultItem;
 
                $rootScope.$on('side.panel.change', (event) => {
-                  let evt = document.createEvent("HTMLEvents");
-                  evt.initEvent("resize", false, true);
-                  window.dispatchEvent(evt);
+                  emitter();
+                  $timeout(emitter, 100);
+                  $timeout(emitter, 200);
+                  $timeout(emitter, 300);
+                  $timeout(emitter, 500);
+                  function emitter() {
+                     let evt = document.createEvent("HTMLEvents");
+                     evt.initEvent("resize", false, true);
+                     window.dispatchEvent(evt);
+                  }
                });
 
                $scope.setView = function (what) {

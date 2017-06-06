@@ -2,15 +2,14 @@
    "map":{
    	  "name" : "main",
       "options":{
-      	 "maxBounds" : [[-46, 90],[-5, 145]],
          "center": [-24, 110],
          "minZoom": 3,
          "zoom": 4
       },
       "position": {
          "bounds": [
-            [-46, 70],
-            [-5, 130]
+            [-66, 33],
+            [15, 179]
          ],
          "minZoom": 13
       },
