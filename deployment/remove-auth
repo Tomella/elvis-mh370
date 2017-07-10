@@ -1,0 +1,5 @@
+#!/bin/bash
+if [ -f /etc/httpd/conf.d/bathy.conf ]; then
+  sudo rm /etc/httpd/conf.d/bathy.conf
+  sudo service httpd restart
+fi
