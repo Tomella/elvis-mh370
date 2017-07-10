@@ -42,3 +42,11 @@
    color: #777777;
    text-decoration: line-through;
 }
+
+.marsMessages {
+   max-width: 600px;
+}
+
+.marsMessages a {
+   display: none;
+}

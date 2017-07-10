@@ -347,37 +347,6 @@ input.ng-valid.ng-touched {
   overflow-y: auto;
   overflow-x: hidden;
 }
-@media print {
-@page {
-    size: landscape;
-}
-
-  .noPrint {
-    display: none;
-  }
-
-  .printOnly {
-    display: inline !important;
-  }
-
-  .contentContainer {
-    max-width: 100% !important;
-    overflow: hidden !important;
-    left: 0px !important;
-  }
-
-  .panel-inner-container {
-    display: none !important;
-  }
-
-  .leaflet-control-mouseposition {
-    display: none !important;
-  }
-
-  .leaflet-control-attribution {
-    display: none !important;
-  }
-}
 .bathy-popover {
   z-index: 1060;
   max-width: 600px;
@@ -415,6 +384,52 @@ input.ng-valid.ng-touched {
   border-top-width: 0;
   border-bottom-color: #999;
   border-bottom-color: rgba(0, 0, 0, .25);
+}
+@media print {
+@page {
+    size: landscape;
+}
+
+  .noPrint {
+    display: none;
+  }
+
+  .printOnly {
+    display: inline !important;
+  }
+
+  .contentContainer {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    left: 0px !important;
+  }
+
+  .panel-inner-container {
+    display: none !important;
+  }
+
+  .leaflet-control-mouseposition {
+    display: none !important;
+  }
+
+  .leaflet-control-attribution {
+    display: none !important;
+  }
+}
+.selectContainer {
+  width: 100%;
+}
+
+.selectAbstractTooltip {
+  /* width:450px; */
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
 }
 /* Side Panel */
 
@@ -513,21 +528,6 @@ input.ng-valid.ng-touched {
 .cbp-spmenu-open .left-side-menu-container,
 .cbp-spmenu-open .right-side-menu-container {
   overflow-y: auto;
-}
-.selectContainer {
-  width: 100%;
-}
-
-.selectAbstractTooltip {
-  /* width:450px; */
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
 }
 .bathy-toolbar {
   position: fixed;
@@ -717,20 +717,13 @@ i.fa.active {
   color: #777777;
   text-decoration: line-through;
 }
-.searchContainer {
-  width: 100%;
+
+.marsMessages {
+  max-width: 600px;
 }
 
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
+.marsMessages a {
+  display: none;
 }
 .wizardPopup {
   position: fixed;
@@ -780,4 +773,19 @@ i.fa.active {
   .downloadInner {
     max-height: 350px;
   }
+}
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
 }

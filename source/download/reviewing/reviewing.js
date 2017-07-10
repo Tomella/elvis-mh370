@@ -200,7 +200,8 @@
                }).then(function(response) {
                   return {
                      status: "success",
-                     message: "Your job has been submitted. An email will be sent on job completion."
+                     message: "Your job has been submitted. Note that you will receive an email once the " +
+                        "job is complete and that it may take a few hours depending on the size of the dataset."
                   };
                }, function(d) {
                   return {

@@ -297,7 +297,8 @@
 
                   scope.startExtract = function () {
                      if (scope.allDataSet()) {
-                        messageService.info("Your request has been sent for processing. You will be notified by email on completion of the job.");
+                        messageService.info("Your job has been submitted. Note that you will receive an email once the " +
+                                 "job is complete and that it may take a few hours depending on the size of the dataset.");
                         flashService.add("You can select another area for processing.", 10000);
                         geoprocessService.initiateJob(scope.data, scope.email);
                         scope.data.download = false;
