@@ -4,6 +4,7 @@
       "options":{
          "center": [-24, 110],
          "minZoom": 3,
+         "maxZoom": 7,
          "zoom": 4
       },
       "position": {
@@ -11,7 +12,7 @@
             [-66, 33],
             [15, 179]
          ],
-         "minZoom": 13
+         "maxZoom": 12
       },
       "layers": [
          {
@@ -20,6 +21,7 @@
             "parameters":[
                "HYBRID",
                {
+                  "maxZoom": 12,
                   "opacity": 0.5
                }
             ],
@@ -38,6 +40,7 @@
                    "layers" : "Image",
                    "format" : "image/png",
                    "transparent" : true,
+                   "maxZoom": 12,
                    "opacity" : 0.7
                 }
             ],
@@ -55,6 +58,7 @@
                    "layers" : "Image",
                    "format" : "image/png",
                    "transparent" : true,
+                   "maxZoom": 12,
                    "opacity" : 0.7
                 }
             ],
@@ -98,12 +102,7 @@
 				"code":"NGRID",
 				"value" : "MapInfo Vertical Mapper Grid (NGrid)",
 				"description" : "NGrid is a binary raster format with header information. For each raster, there is only a single feature returned, since this feature will contain the entire raster. A single feature is stored in a single file, with header information in an associated MapInfo TAB file."
-			},
-         {
-            "code": "OGCKML",
-            "value": "Google KML",
-            "description": "KML is a file format used to display geographic data in an Earth browser such as Google Earth."
-         }
+			}
 		],
 		"outCoordSys" : [
 			{"code":"AUS-LM-CONIC", "value" : "Lambert Conformal Conic for Australia, WGS84"},
