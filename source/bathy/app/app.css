@@ -151,6 +151,9 @@ body {
 	border: 3px solid white;
 }
 
+.leaflet-draw {
+   display: none;
+}
 
 @media only screen and (max-height:786px) {
 	.leaflet-legend {

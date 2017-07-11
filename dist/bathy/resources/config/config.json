@@ -41,25 +41,7 @@
                    "format" : "image/png",
                    "transparent" : true,
                    "maxZoom": 12,
-                   "opacity" : 0.7
-                }
-            ],
-            "addLayerControl":false,
-            "visible":true
-         },
-         {
-            "name":"Backscatter",
-            "pseudoBaseLayer" : true,
-            "type":["TileLayer"],
-            "key":"backscatter",
-            "parameters":[
-                "http://s3-ap-southeast-2.amazonaws.com/mh370-cache/Backscatter/L{z}R{y}C{x}.png",
-                {
-                   "layers" : "Image",
-                   "format" : "image/png",
-                   "transparent" : true,
-                   "maxZoom": 12,
-                   "opacity" : 0.7
+                   "opacity" : 1
                 }
             ],
             "addLayerControl":false,
