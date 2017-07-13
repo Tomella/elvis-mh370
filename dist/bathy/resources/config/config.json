@@ -284,5 +284,15 @@
 				}
 			}
 		]
-	}
+   },
+   "about": [
+      {
+         "heading": "Frequently asked questions",
+         "link": "http://www.ga.gov.au/about/projects/marine/mh370-phase-one-data-release/faqs"
+      },
+      {
+         "heading": "MH370 Phase One Data Release",
+         "link": "http://www.ga.gov.au/about/projects/marine/mh370-phase-one-data-release"
+      }
+   ]
 }

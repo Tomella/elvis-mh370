@@ -40,6 +40,7 @@
       'geo.measure',
 
       'bathy.autoscroll',
+      'bathy.about',
       'bathy.bounds',
       'bathy.clip',
       'bathy.datasets',

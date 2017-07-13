@@ -1,0 +1,10 @@
+<span class="about" ng-mouseenter="over()" ng-mouseleave="out()"
+      ng-class="(about.show || about.ingroup || about.stick) ? 'transitioned-down' : 'transitioned-up'">
+   <button class="undecorated about-unstick" ng-click="unstick()" style="float:right">X</button>
+   <div class="aboutHeading">About MH370 Bathymetry</div>
+   <div ng-repeat="item in about.items">
+      <a ng-href="{{item.link}}" name="about{{$index}}" title="{{item.heading}}" target="_blank">
+         {{item.heading}}
+      </a>
+   </div>
+</span>

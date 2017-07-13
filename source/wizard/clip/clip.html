@@ -6,8 +6,12 @@
 					<button ng-click="initiateDraw()" ng-disable="client.drawing"
                       tooltip-append-to-body="true" tooltip-placement="bottom" uib-tooltip="Enable drawing of a bounding box. On enabling, click on the map and drag diagonally"
 						class="btn btn-primary btn-default">Select an area...</button>
-					<button ng-click="showInfo = !showInfo" tooltip-placement="bottom" uib-tooltip="Information." style="float:right" class="btn btn-primary btn-default"><i class="fa fa-info"></i></button>
-				</div>
+               <span style="float:right">
+					   <button ng-click="showInfo = !showInfo" tooltip-placement="left" uib-tooltip="Information." class="btn btn-primary btn-default"><i class="fa fa-info"></i></button>
+					   <bathy-about-link></bathy-about-link>
+               </span>
+            </div>
+            <bathy-about></bathy-about>
 				<exp-info title="Selecting an area" show-close="true" style="width:450px;position:fixed;top:200px;right:40px" is-open="showInfo">
 					<clip-info-bbox></clip-info-bbox>
 				</exp-info>
