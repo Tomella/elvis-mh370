@@ -63,7 +63,7 @@
       // Set up all the service providers here.
       .config(['configServiceProvider', 'persistServiceProvider', 'projectsServiceProvider', 'versionServiceProvider',
          function (configServiceProvider, persistServiceProvider, projectsServiceProvider, versionServiceProvider) {
-            configServiceProvider.location("bathy/resources/config/config.json?v=2");
+            configServiceProvider.location("bathy/resources/config/config.json?v=3");
             configServiceProvider.dynamicLocation("bathy/resources/config/configclient.json?");
             versionServiceProvider.url("bathy/assets/package.json");
             persistServiceProvider.handler("local");
