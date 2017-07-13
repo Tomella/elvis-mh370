@@ -12,7 +12,7 @@
             [-66, 33],
             [15, 179]
          ],
-         "maxZoom": 12
+         "maxZoom": 10
       },
       "layers": [
          {
@@ -21,7 +21,7 @@
             "parameters":[
                "HYBRID",
                {
-                  "maxZoom": 12,
+                  "maxZoom": 10,
                   "opacity": 0.5
                }
             ],
@@ -40,7 +40,7 @@
                    "layers" : "Image",
                    "format" : "image/png",
                    "transparent" : true,
-                   "maxZoom": 12,
+                   "maxZoom": 10,
                    "opacity" : 1
                 }
             ],
