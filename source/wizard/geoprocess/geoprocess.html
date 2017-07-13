@@ -1,34 +1,34 @@
 <div class="container-fluid fred" ng-form>
-	<div ng-show="stage=='bbox'">	
+	<div ng-show="stage=='bbox'">
 		<div class="row">
 			<div class="col-md-12">
-				<wizard-clip trigger="stage == 'bbox'" drawn="drawn()" clip="data.processing.clip" bounds="data.bounds"></wizard-clip> 
+				<wizard-clip trigger="stage == 'bbox'" drawn="drawn()" clip="data.processing.clip" bounds="data.bounds"></wizard-clip>
 			</div>
 		</div>
 		<div class="row" style="height:55px">
  			<div class="col-md-12">
 				<button class="btn btn-primary pull-right" ng-disabled="!validClip(data) || checkingOrFailed" ng-click="stage='formats'">Next</button>
-			</div>	
+			</div>
 		</div>
 		<div class="well">
 			<strong style="font-size:120%">Select an area of interest.</strong> There are two ways to select your area of interest:
 			<ol>
-				<li>Draw an area on the map with the mouse by clicking a corner and while holding the left mouse button 
+				<li>Draw an area on the map with the mouse by clicking a corner and while holding the left mouse button
 					down drag diagonally across the map to the opposite corner or</li>
 				<li>Type your co-ordinates into the areas above.</li>
-			</ol> 
-			Once drawn the points can be modified by the overwriting the values above or drawing another area by clicking the draw button again. 
+			</ol>
+			Once drawn the points can be modified by the overwriting the values above or drawing another area by clicking the draw button again.
 			Ensure you select from the highlighted areas as the data can be quite sparse for some data.<br/>
 			<p style="padding-top:5px">
-			<strong>Warning:</strong> Some extracts can be huge. It is best if you start with a small area to experiment with first. An email will be sent 
-			with the size of the extract. Download judiciously. 
+			<strong>Warning:</strong> Some extracts can be huge. It is best if you start with a small area to experiment with first. An email will be sent
+			with the size of the extract. Download judiciously.
 			</p>
-			<p style="padding-top"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map. 
-				You can zoom in and out using the mouse wheel or the "+" and "-" map control on the top left of the map. If you
-				don't like the position of your drawn area, hit the "Draw" button and draw a new bounding box.
+			<p style="padding-top"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.
+            You can zoom in and out using the mouse wheel or the "+" and "-" map control on the top left of the map. If you have made an error in the
+            position of your area of interest, hit the "Select an area..." button and draw a new bounding box.
 			</p>
-		</div>				
-	</div>    		
+		</div>
+	</div>
 
 	<div ng-show="stage=='formats'">
 		<div class="well">
@@ -39,40 +39,40 @@
 				</label>
 			</div>
 			<div class="col-md-9">
-				<select id="geoprocessOutputFormat" style="width:95%" ng-model="data.processing.outFormat" ng-options="opt.value for opt in config.outFormat"></select>  				
+				<select id="geoprocessOutputFormat" style="width:95%" ng-model="data.processing.outFormat" ng-options="opt.value for opt in config.outFormat"></select>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-3">
 				<label for="geoprocessOutCoordSys">
-					Coordinate System					
+					Coordinate System
 				</label>
 			</div>
 			<div class="col-md-9">
-				<select id="geoprocessOutCoordSys" style="width:95%" ng-model="data.processing.outCoordSys" ng-options="opt.value for opt in config.outCoordSys | sysIntersect : data.processing.clip"></select>  				
+				<select id="geoprocessOutCoordSys" style="width:95%" ng-model="data.processing.outCoordSys" ng-options="opt.value for opt in config.outCoordSys | sysIntersect : data.processing.clip"></select>
 			</div>
 		</div>
 		</div>
 		<div class="row" style="height:55px">
 			<div class="col-md-6">
 				<button class="btn btn-primary" ng-click="stage='bbox'">Previous</button>
-			</div>	
+			</div>
 			<div class="col-md-6">
 				<button class="btn btn-primary pull-right" ng-disabled="!validSansEmail(data)" ng-click="stage='email'">Next</button>
    			</div>
 		</div>
-		
+
 		<div class="well">
 			<strong style="font-size:120%">Data representation.</strong> Select how you want your data presented.<br/>
 			Output format is the structure of the data and you should choose a format compatible with the tools that you will use to manipulate the data.
 			<ul>
 				<li ng-repeat="format in outFormats"><strong>{{format.value}}</strong> - {{format.description}}</li>
-			</ul> 
+			</ul>
 			Select what <i>coordinate system</i> or projection you would like. If in doubt select WGS84.<br/>
 			Not all projections cover all of Australia. If the area you select is not covered by a particular projection then the option to download in that projection will not be available.
-		</div>	
+		</div>
 	</div>
-	
+
 	<div ng-show="stage=='email'">
 		<div class="well" exp-enter="stage='confirm'">
 			<div download-email></div>
@@ -82,13 +82,13 @@
 		<div class="row" style="height:55px">
 			<div class="col-md-6">
 				<button class="btn btn-primary" ng-click="stage='formats'">Previous</button>
-			</div>	
+			</div>
 			<div class="col-md-6">
 				<button class="btn btn-primary pull-right" ng-disabled="!allDataSet(data)" ng-click="stage='confirm'">Submit</button>
    			</div>
 		</div>
 		<div class="well">
-			<strong style="font-size:120%">Email notification</strong> The extract of data can take some time. By providing an email address we will be able to notify you when the job is complete. The email will provide a link to the extracted 
+			<strong style="font-size:120%">Email notification</strong> The extract of data can take some time. By providing an email address we will be able to notify you when the job is complete. The email will provide a link to the extracted
 			data which will be packaged up as a single file. To be able to proceed you need to have provided:
 			<ul>
 				<li>An area of interest to extract the data (referred to as a bounding box).</li>
@@ -105,7 +105,7 @@
 			</ul>
 		</div>
 	</div>
-	
+
 	<div ng-show="stage=='confirm'">
 		<div class="row">
 			<div class="col-md-12 abstractContainer">
@@ -143,7 +143,7 @@
 		<div class="row" style="height:55px">
 			<div class="col-md-6">
 				<button class="btn btn-primary" style="width:6em" ng-click="stage='email'">Back</button>
-			</div>	
+			</div>
 			<div class="col-md-6">
 				<button class="btn btn-primary pull-right" ng-click="startExtract()">Confirm</button>
    			</div>

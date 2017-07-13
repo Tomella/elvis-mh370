@@ -119,7 +119,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
    // Set up all the service providers here.
    .config(['configServiceProvider', 'persistServiceProvider', 'projectsServiceProvider', 'versionServiceProvider', function (configServiceProvider, persistServiceProvider, projectsServiceProvider, versionServiceProvider) {
-      configServiceProvider.location("bathy/resources/config/config.json?v=3");
+      configServiceProvider.location("bathy/resources/config/config.json?v=4");
       configServiceProvider.dynamicLocation("bathy/resources/config/configclient.json?");
       versionServiceProvider.url("bathy/assets/package.json");
       persistServiceProvider.handler("local");
@@ -284,6 +284,67 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          }
       };
    }]);
+}
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+{
+   var ExtentService = function ExtentService(mapService, searchService) {
+      _classCallCheck(this, ExtentService);
+
+      var bbox = searchService.getSearchCriteria().bbox;
+
+      if (bbox.fromMap) {
+         enableMapListeners();
+      }
+
+      return {
+         getParameters: function getParameters() {
+            return bbox;
+         }
+      };
+
+      function enableMapListeners() {
+         mapService.getMap().then(function (map) {
+            map.on("moveend", execute);
+            map.on("zoomend", execute);
+            execute();
+         });
+      }
+
+      function disableMapListeners() {
+         return mapService.getMap().then(function (map) {
+            map.off("moveend", execute);
+            map.off("zoomend", execute);
+            return map;
+         });
+      }
+
+      function execute() {
+         mapService.getMap().then(function (map) {
+            var bounds = map.getBounds();
+            bbox.yMin = bounds.getSouth();
+            bbox.xMin = bounds.getWest();
+            bbox.yMax = bounds.getNorth();
+            bbox.xMax = bounds.getEast();
+            searchService.refresh();
+         });
+      }
+   };
+
+   ExtentService.$inject = ['mapService', 'searchService'];
+
+   angular.module("bathy.extent", ["explorer.switch"]).directive("bathyExtent", ['extentService', function (extentService) {
+      return {
+         restrict: "AE",
+         templateUrl: "bathy/extent/extent.html",
+         controller: ['$scope', function ($scope) {
+            $scope.parameters = extentService.getParameters();
+         }],
+         link: function link(scope, element, attrs) {}
+      };
+   }]).factory("extentService", ExtentService);
 }
 'use strict';
 
@@ -452,67 +513,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	}]);
 }
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-{
-   var ExtentService = function ExtentService(mapService, searchService) {
-      _classCallCheck(this, ExtentService);
-
-      var bbox = searchService.getSearchCriteria().bbox;
-
-      if (bbox.fromMap) {
-         enableMapListeners();
-      }
-
-      return {
-         getParameters: function getParameters() {
-            return bbox;
-         }
-      };
-
-      function enableMapListeners() {
-         mapService.getMap().then(function (map) {
-            map.on("moveend", execute);
-            map.on("zoomend", execute);
-            execute();
-         });
-      }
-
-      function disableMapListeners() {
-         return mapService.getMap().then(function (map) {
-            map.off("moveend", execute);
-            map.off("zoomend", execute);
-            return map;
-         });
-      }
-
-      function execute() {
-         mapService.getMap().then(function (map) {
-            var bounds = map.getBounds();
-            bbox.yMin = bounds.getSouth();
-            bbox.xMin = bounds.getWest();
-            bbox.yMax = bounds.getNorth();
-            bbox.xMax = bounds.getEast();
-            searchService.refresh();
-         });
-      }
-   };
-
-   ExtentService.$inject = ['mapService', 'searchService'];
-
-   angular.module("bathy.extent", ["explorer.switch"]).directive("bathyExtent", ['extentService', function (extentService) {
-      return {
-         restrict: "AE",
-         templateUrl: "bathy/extent/extent.html",
-         controller: ['$scope', function ($scope) {
-            $scope.parameters = extentService.getParameters();
-         }],
-         link: function link(scope, element, attrs) {}
-      };
-   }]).factory("extentService", ExtentService);
-}
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -532,6 +532,55 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    MapsCtrl.$inject = ['$rootScope', 'mapService', 'selectService', 'downloadService'];
 
    angular.module("bathy.groups", []).factory("GroupsCtrl", MapsCtrl);
+}
+'use strict';
+
+{
+	angular.module('bathy.header', []).controller('headerController', ['$scope', '$q', '$timeout', function ($scope, $q, $timeout) {
+
+		var modifyConfigSource = function modifyConfigSource(headerConfig) {
+			return headerConfig;
+		};
+
+		$scope.$on('headerUpdated', function (event, args) {
+			$scope.headerConfig = modifyConfigSource(args);
+		});
+	}]).directive('bathyHeader', [function () {
+		var defaults = {
+			heading: "ICSM",
+			headingtitle: "ICSM",
+			helpurl: "help.html",
+			helptitle: "Get help about ICSM",
+			helpalttext: "Get help about ICSM",
+			skiptocontenttitle: "Skip to content",
+			skiptocontent: "Skip to content",
+			quicklinksurl: "/search/api/quickLinks/json?lang=en-US"
+		};
+		return {
+			transclude: true,
+			restrict: 'EA',
+			templateUrl: "bathy/header/header.html",
+			scope: {
+				breadcrumbs: "=",
+				heading: "=",
+				headingtitle: "=",
+				helpurl: "=",
+				helptitle: "=",
+				helpalttext: "=",
+				skiptocontenttitle: "=",
+				skiptocontent: "=",
+				quicklinksurl: "="
+			},
+			link: function link(scope, element, attrs) {
+				var data = angular.copy(defaults);
+				angular.forEach(defaults, function (value, key) {
+					if (!(key in scope)) {
+						scope[key] = value;
+					}
+				});
+			}
+		};
+	}]).factory('headerService', ['$http', function () {}]);
 }
 'use strict';
 
@@ -606,55 +655,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          }
       };
    }]).controller("MapsCtrl", MapsCtrl).service("mapsService", MapsService);
-}
-'use strict';
-
-{
-	angular.module('bathy.header', []).controller('headerController', ['$scope', '$q', '$timeout', function ($scope, $q, $timeout) {
-
-		var modifyConfigSource = function modifyConfigSource(headerConfig) {
-			return headerConfig;
-		};
-
-		$scope.$on('headerUpdated', function (event, args) {
-			$scope.headerConfig = modifyConfigSource(args);
-		});
-	}]).directive('bathyHeader', [function () {
-		var defaults = {
-			heading: "ICSM",
-			headingtitle: "ICSM",
-			helpurl: "help.html",
-			helptitle: "Get help about ICSM",
-			helpalttext: "Get help about ICSM",
-			skiptocontenttitle: "Skip to content",
-			skiptocontent: "Skip to content",
-			quicklinksurl: "/search/api/quickLinks/json?lang=en-US"
-		};
-		return {
-			transclude: true,
-			restrict: 'EA',
-			templateUrl: "bathy/header/header.html",
-			scope: {
-				breadcrumbs: "=",
-				heading: "=",
-				headingtitle: "=",
-				helpurl: "=",
-				helptitle: "=",
-				helpalttext: "=",
-				skiptocontenttitle: "=",
-				skiptocontent: "=",
-				quicklinksurl: "="
-			},
-			link: function link(scope, element, attrs) {
-				var data = angular.copy(defaults);
-				angular.forEach(defaults, function (value, key) {
-					if (!(key in scope)) {
-						scope[key] = value;
-					}
-				});
-			}
-		};
-	}]).factory('headerService', ['$http', function () {}]);
 }
 "use strict";
 
@@ -2253,18 +2253,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 "use strict";
 
 {
-   angular.module("bathy.start", ["bathy.datasets"]).directive("bathyDownload", [function () {
-      return {
-         templateUrl: "download/start/start.html",
-         link: function link(scope, element, attrs) {
-            console.log("Hello select!");
-         }
-      };
-   }]);
-}
-"use strict";
-
-{
 
 	angular.module("bathy.bbox", ['geo.draw']).directive("bathyBboxShowAll", ['$rootScope', '$timeout', function ($rootScope, $timeout) {
 		return {
@@ -2365,115 +2353,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		};
 	}]);
 }
-'use strict';
-
-/*!
- * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
- */
+"use strict";
 
 {
-
-	angular.module("bathy.clip", ['geo.draw']).directive('clipInfoBbox', function () {
-		return {
-			restrict: 'AE',
-			templateUrl: 'wizard/clip/infobbox.html'
-		};
-	}).directive("mapClip", ['$rootScope', '$timeout', 'clipService', 'messageService', 'mapService', function ($rootScope, $timeout, clipService, messageService, mapService) {
-		return {
-			templateUrl: "wizard/clip/clip.html",
-			scope: {
-				bounds: "=",
-				trigger: "=",
-				drawn: "&"
-			},
-			link: function link(scope, element) {
-				var timer = void 0;
-
-				scope.clip = {
-					xMax: null,
-					xMin: null,
-					yMax: null,
-					yMin: null
-				};
-				scope.typing = false;
-
-				if (typeof scope.showBounds === "undefined") {
-					scope.showBounds = false;
-				}
-				mapService.getMap().then(function (map) {
-					scope.$watch("bounds", function (bounds) {
-						if (bounds && scope.trigger) {
-							$timeout(function () {
-								scope.initiateDraw();
-							});
-						} else if (!bounds) {
-							clipService.cancelDraw();
-						}
-					});
-				});
-
-				scope.check = function () {
-					$timeout.cancel(timer);
-					timer = $timeout(function () {
-						$rootScope.$broadcast('bathy.clip.drawn', scope.clip);
-					}, 4000);
-				};
-
-				$rootScope.$on('bathy.clip.draw', function (event, data) {
-					if (data && data.message === "oversize") {
-						scope.oversize = true;
-						$timeout(function () {
-							delete scope.oversize;
-						}, 6000);
-					} else {
-						delete scope.oversize;
-					}
-					scope.initiateDraw();
-				});
-
-				scope.initiateDraw = function () {
-					messageService.info("Click on the map and drag to define your area of interest.");
-					clipService.initiateDraw().then(drawComplete);
-				};
-
-				function drawComplete(data) {
-					var c = scope.clip;
-					var response = void 0;
-
-					c.xMax = +data.clip.xMax;
-					c.xMin = +data.clip.xMin;
-					c.yMax = +data.clip.yMax;
-					c.yMin = +data.clip.yMin;
-					$rootScope.$broadcast('bathy.clip.drawn', c);
-				}
-			}
-		};
-	}]).factory("clipService", ['$q', '$rootScope', 'drawService', function ($q, $rootScope, drawService) {
-		var service = {
-			initiateDraw: function initiateDraw() {
-				this.data = null;
-				return drawService.drawRectangle().then(drawComplete);
-			},
-
-			cancelDraw: function cancelDraw() {
-				drawService.cancelDrawRectangle();
-			}
-		};
-
-		return service;
-
-		function drawComplete(data) {
-			service.data = {
-				clip: {
-					xMax: data.bounds.getEast().toFixed(5),
-					xMin: data.bounds.getWest().toFixed(5),
-					yMax: data.bounds.getNorth().toFixed(5),
-					yMin: data.bounds.getSouth().toFixed(5)
-				}
-			};
-			return service.data;
-		}
-	}]);
+   angular.module("bathy.start", ["bathy.datasets"]).directive("bathyDownload", [function () {
+      return {
+         templateUrl: "download/start/start.html",
+         link: function link(scope, element, attrs) {
+            console.log("Hello select!");
+         }
+      };
+   }]);
 }
 "use strict";
 
@@ -2680,6 +2570,116 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          }
       };
    }]).controller("DownloadCtrl", DownloadCtrl).factory("downloadService", DownloadService);
+}
+'use strict';
+
+/*!
+ * Copyright 2015 Geoscience Australia (http://www.ga.gov.au/copyright.html)
+ */
+
+{
+
+	angular.module("bathy.clip", ['geo.draw']).directive('clipInfoBbox', function () {
+		return {
+			restrict: 'AE',
+			templateUrl: 'wizard/clip/infobbox.html'
+		};
+	}).directive("mapClip", ['$rootScope', '$timeout', 'clipService', 'messageService', 'mapService', function ($rootScope, $timeout, clipService, messageService, mapService) {
+		return {
+			templateUrl: "wizard/clip/clip.html",
+			scope: {
+				bounds: "=",
+				trigger: "=",
+				drawn: "&"
+			},
+			link: function link(scope, element) {
+				var timer = void 0;
+
+				scope.clip = {
+					xMax: null,
+					xMin: null,
+					yMax: null,
+					yMin: null
+				};
+				scope.typing = false;
+
+				if (typeof scope.showBounds === "undefined") {
+					scope.showBounds = false;
+				}
+				mapService.getMap().then(function (map) {
+					scope.$watch("bounds", function (bounds) {
+						if (bounds && scope.trigger) {
+							$timeout(function () {
+								scope.initiateDraw();
+							});
+						} else if (!bounds) {
+							clipService.cancelDraw();
+						}
+					});
+				});
+
+				scope.check = function () {
+					$timeout.cancel(timer);
+					timer = $timeout(function () {
+						$rootScope.$broadcast('bathy.clip.drawn', scope.clip);
+					}, 4000);
+				};
+
+				$rootScope.$on('bathy.clip.draw', function (event, data) {
+					if (data && data.message === "oversize") {
+						scope.oversize = true;
+						$timeout(function () {
+							delete scope.oversize;
+						}, 6000);
+					} else {
+						delete scope.oversize;
+					}
+					scope.initiateDraw();
+				});
+
+				scope.initiateDraw = function () {
+					messageService.info("Click on the map and drag to define your area of interest.");
+					clipService.initiateDraw().then(drawComplete);
+				};
+
+				function drawComplete(data) {
+					var c = scope.clip;
+					var response = void 0;
+
+					c.xMax = +data.clip.xMax;
+					c.xMin = +data.clip.xMin;
+					c.yMax = +data.clip.yMax;
+					c.yMin = +data.clip.yMin;
+					$rootScope.$broadcast('bathy.clip.drawn', c);
+				}
+			}
+		};
+	}]).factory("clipService", ['$q', '$rootScope', 'drawService', function ($q, $rootScope, drawService) {
+		var service = {
+			initiateDraw: function initiateDraw() {
+				this.data = null;
+				return drawService.drawRectangle().then(drawComplete);
+			},
+
+			cancelDraw: function cancelDraw() {
+				drawService.cancelDrawRectangle();
+			}
+		};
+
+		return service;
+
+		function drawComplete(data) {
+			service.data = {
+				clip: {
+					xMax: data.bounds.getEast().toFixed(5),
+					xMin: data.bounds.getWest().toFixed(5),
+					yMax: data.bounds.getNorth().toFixed(5),
+					yMin: data.bounds.getSouth().toFixed(5)
+				}
+			};
+			return service.data;
+		}
+	}]);
 }
 "use strict";
 
@@ -3291,8 +3291,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 angular.module("bathy.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("bathy/about/about.html","<span class=\"about\" ng-mouseenter=\"over()\" ng-mouseleave=\"out()\"\r\n      ng-class=\"(about.show || about.ingroup || about.stick) ? \'transitioned-down\' : \'transitioned-up\'\">\r\n   <button class=\"undecorated about-unstick\" ng-click=\"unstick()\" style=\"float:right\">X</button>\r\n   <div class=\"aboutHeading\">About MH370 Bathymetry</div>\r\n   <div ng-repeat=\"item in about.items\">\r\n      <a ng-href=\"{{item.link}}\" name=\"about{{$index}}\" title=\"{{item.heading}}\" target=\"_blank\">\r\n         {{item.heading}}\r\n      </a>\r\n   </div>\r\n</span>");
 $templateCache.put("bathy/about/button.html","<button ng-mouseenter=\"over()\" ng-mouseleave=\"out()\"\r\n      ng-click=\"toggleStick()\" tooltip-placement=\"left\" uib-tooltip=\"About MH370 Bathymetry\"\r\n      class=\"btn btn-primary btn-default\">About</button>");
 $templateCache.put("bathy/extent/extent.html","<div class=\"row\" style=\"border-top: 1px solid gray; padding-top:5px\">\r\n	<div class=\"col-md-5\">\r\n		<div class=\"form-inline\">\r\n			<label>\r\n				<input id=\"extentEnable\" type=\"checkbox\" ng-model=\"parameters.fromMap\" ng-click=\"change()\"></input> \r\n				Restrict area to map\r\n			</label>\r\n		</div>\r\n	</div>\r\n	 \r\n	<div class=\"col-md-7\" ng-show=\"parameters.fromMap\">\r\n		<div class=\"container-fluid\">\r\n			<div class=\"row\">\r\n				<div class=\"col-md-offset-3 col-md-8\">\r\n					<strong>Y Max:</strong> \r\n					<span>{{parameters.yMax | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n			<div class=\"row\">\r\n				<div class=\"col-md-6\">\r\n					<strong>X Min:</strong>\r\n					<span>{{parameters.xMin | number : 4}}</span> \r\n				</div>\r\n				<div class=\"col-md-6\">\r\n					<strong>X Max:</strong>\r\n					<span>{{parameters.xMax | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n			<div class=\"row\">\r\n				<div class=\"col-md-offset-3 col-md-8\">\r\n					<strong>Y Min:</strong>\r\n					<span>{{parameters.yMin | number : 4}}</span> \r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
-$templateCache.put("bathy/maps/maps.html","<div  ng-controller=\"MapsCtrl as maps\">\r\n	<div style=\"position:relative;padding:5px;padding-left:10px;\" >\r\n		<div class=\"panel panel-default\" style=\"padding:5px;\" >\r\n			<div class=\"panel-heading\">\r\n				<h3 class=\"panel-title\">Layers</h3>\r\n			</div>\r\n			<div class=\"panel-body\">\r\n				<div class=\"container-fluid\">\r\n					<div class=\"row\" ng-repeat=\"layer in layersTab.layers\" \r\n							style=\"padding:7px;padding-left:10px;position:relative\" ng-class-even=\"\'even\'\" ng-class-odd=\"\'odd\'\">\r\n						<div style=\"position:relative;left:6px;\">\r\n							<a href=\"{{layer.metadata}}\" target=\"_blank\" \r\n									class=\"featureLink\" title=\'View metadata related to \"{{layer.name}}\". (Opens new window.)\'>\r\n								{{layer.name}}\r\n							</a>\r\n							<div class=\"pull-right\" style=\"width:270px;\" tooltip=\"Show on map. {{layer.help}}\">\r\n								<span style=\"padding-left:10px;width:240px;\" class=\"pull-left\"><explorer-layer-slider layer=\"layer.layer\"></explorer-layer-slider></span>\r\n								<button style=\"padding:2px 8px 2px 2px;\" type=\"button\" class=\"undecorated featureLink pull-right\" href=\"javascript:;\" \r\n										ng-click=\"maps.toggleLayer(layer)\" >\r\n									<i class=\"fa\" ng-class=\"{\'fa-eye-slash\':(!layer.displayed), \'fa-eye active\':layer.displayed}\"></i>\r\n								</button>\r\n							</div>						\r\n						</div>\r\n					</div>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("bathy/header/header.html","<div class=\"container-full common-header\" style=\"padding-right:10px; padding-left:10px\">\r\n    <div class=\"navbar-header\">\r\n\r\n        <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".ga-header-collapse\">\r\n            <span class=\"sr-only\">Toggle navigation</span>\r\n            <span class=\"icon-bar\"></span>\r\n            <span class=\"icon-bar\"></span>\r\n            <span class=\"icon-bar\"></span>\r\n        </button>\r\n\r\n        <a href=\"http://www.ga.gov.au\" class=\"hidden-xs\"><img src=\"data:image/png;base64,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\" alt=\"Australian Government - Geoscience Australia\" class=\"logo\"></img></a>\r\n        <a href=\"http://www.ga.gov.au\" class=\"visible-xs\"><img src=\"data:image/png;base64,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\" alt=\"Australian Government - Geoscience Australia\" class=\"logo-stacked\"></img></a>\r\n        <a href=\"/\" class=\"appTitle visible-xs\">\r\n            <h1 style=\"font-size:120%\">{{heading}}</h1>\r\n        </a>\r\n    </div>\r\n    <div class=\"navbar-collapse collapse ga-header-collapse\">\r\n        <ul class=\"nav navbar-nav\">\r\n            <li class=\"hidden-xs\"><a href=\"/\"><h1 class=\"applicationTitle\">{{heading}}</h1></a></li>\r\n        </ul>\r\n        <ul class=\"nav navbar-nav navbar-right nav-icons\">\r\n			<li mars-version-display role=\"menuitem\" style=\"padding-top: 19px;\"></li>\r\n			<li style=\"width:10px\"></li>\r\n        </ul>\r\n    </div><!--/.nav-collapse -->\r\n</div>\r\n\r\n<!-- Strap -->\r\n<div class=\"row\">\r\n    <div class=\"col-md-12\">\r\n        <div class=\"strap-blue\">\r\n        </div>\r\n        <div class=\"strap-white\">\r\n        </div>\r\n        <div class=\"strap-red\">\r\n        </div>\r\n    </div>\r\n</div>");
+$templateCache.put("bathy/maps/maps.html","<div  ng-controller=\"MapsCtrl as maps\">\r\n	<div style=\"position:relative;padding:5px;padding-left:10px;\" >\r\n		<div class=\"panel panel-default\" style=\"padding:5px;\" >\r\n			<div class=\"panel-heading\">\r\n				<h3 class=\"panel-title\">Layers</h3>\r\n			</div>\r\n			<div class=\"panel-body\">\r\n				<div class=\"container-fluid\">\r\n					<div class=\"row\" ng-repeat=\"layer in layersTab.layers\" \r\n							style=\"padding:7px;padding-left:10px;position:relative\" ng-class-even=\"\'even\'\" ng-class-odd=\"\'odd\'\">\r\n						<div style=\"position:relative;left:6px;\">\r\n							<a href=\"{{layer.metadata}}\" target=\"_blank\" \r\n									class=\"featureLink\" title=\'View metadata related to \"{{layer.name}}\". (Opens new window.)\'>\r\n								{{layer.name}}\r\n							</a>\r\n							<div class=\"pull-right\" style=\"width:270px;\" tooltip=\"Show on map. {{layer.help}}\">\r\n								<span style=\"padding-left:10px;width:240px;\" class=\"pull-left\"><explorer-layer-slider layer=\"layer.layer\"></explorer-layer-slider></span>\r\n								<button style=\"padding:2px 8px 2px 2px;\" type=\"button\" class=\"undecorated featureLink pull-right\" href=\"javascript:;\" \r\n										ng-click=\"maps.toggleLayer(layer)\" >\r\n									<i class=\"fa\" ng-class=\"{\'fa-eye-slash\':(!layer.displayed), \'fa-eye active\':layer.displayed}\"></i>\r\n								</button>\r\n							</div>						\r\n						</div>\r\n					</div>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("bathy/panes/panes.html","<div class=\"mapContainer\" class=\"col-md-12\" style=\"padding-right:0\">\r\n	<div class=\"panesMapContainer\" geo-map configuration=\"data.map\"></div>\r\n   <div class=\"base-layer-controller\">\r\n    	<div geo-draw data=\"data.map.drawOptions\" line-event=\"elevation.plot.data\" rectangle-event=\"bounds.drawn\"></div>\r\n   </div>\r\n   <restrict-pan bounds=\"data.map.position.bounds\"></restrict-pan>\r\n</div>");
 $templateCache.put("bathy/popover/popover.html","<div class=\"bathy-popover {{direction}}\" ng-class=\"containerClass\" ng-show=\"show\">\r\n  <div class=\"arrow\"></div>\r\n  <div class=\"bathy-popover-inner\" ng-transclude></div>\r\n</div>");
 $templateCache.put("bathy/reset/reset.html","<button type=\"button\" class=\"map-tool-toggle-btn\" ng-click=\"reset()\" title=\"Reset page\">\r\n   <span class=\"hidden-sm\">Reset</span>\r\n   <i class=\"fa fa-lg fa-refresh\"></i>\r\n</button>");
@@ -3310,11 +3310,11 @@ $templateCache.put("download/datasets/formatsfilter.html","<div style=\"border-b
 $templateCache.put("download/datasets/metadata.html","<h4>\r\n   <a href=\"{{metadata.url}}\" target=\"_blank\" ng-mouseenter=\"metadata.show = true\" ng-mouseleave=\"metadata.show = false\">{{name}}</a>\r\n   <div bathy-popover show=\"metadata.show\" direction=\"custom-{{metadata.id}}\">\r\n      <h4>{{metadata.title}}</h4>\r\n      <div ng-repeat=\"line in (metadata.description | split)\">\r\n         <p>{{line}}</p>\r\n      </div>\r\n   </div>\r\n</h4>");
 $templateCache.put("download/datasets/type.html","<div class=\"dataset-group\">\r\n   <type-metadata metadata=\"type.metadata\" name=\"name\"></type-metadata>\r\n   <div class=\"dataset-subgroup\" ng-repeat=\"tile in type.tiles | withinBounds\" ng-mouseenter=\"show(tile)\" ng-mouseleave=\"hide()\">\r\n      <h5>\r\n         <input type=\"checkbox\" ng-model=\"tile.downloadables[0].selected\">\r\n         <a href=\"javascript:void(0)\" ng-click=\"zoom(tile)\">\r\n            {{tile.label || tile.tile_id}}\r\n            <span ng-if=\"tile.downloadables[0].file_size\">({{tile.downloadables[0].file_size | bytes}})</span>\r\n         </a>\r\n      </h5>\r\n   </div>\r\n</div>");
 $templateCache.put("download/reviewing/reviewing.html","<div class=\"modal-header\">\r\n   <h3 class=\"modal-title splash\">Review datasets, provide email and continue</h3>\r\n</div>\r\n<div class=\"modal-body\" id=\"accept\" ng-form exp-enter=\"accept()\" icsm-splash-modal style=\"width: 100%; margin-left: auto; margin-right: auto;\">\r\n   <div>\r\n      <div class=\"row\">\r\n         <div class=\"col-md-12\">\r\n            <h4>{{countAccepted()}} Selected Datasets</h4>\r\n            Review and delete unwanted datasets.\r\n         </div>\r\n      </div>\r\n\r\n      <div class=\"reviewing-datasets\">\r\n         <div class=\"row\" ng-repeat=\"product in products\" ng-class-odd=\"\'reviewing-odd\'\">\r\n            <div class=\"col-md-11\">\r\n               <button type=\"button\" class=\"btn btn-default btn-xs\" ng-click=\"product.removed = !product.removed\" role=\"checkbox\">\r\n                  <i class=\"fa fa-2x\" style=\"width:24px;height:20px;color:green\" ng-class=\"{\'fa-check\': !product.removed}\" aria-hidden=\"true\"></i>\r\n               </button>\r\n\r\n               <span style=\"padding-left:7px\" ng-class=\"{\'exclude\': product.removed}\" ng-if=\"product.download.parent.type == \'mosaic\'\">\r\n                  Mosaic {{product.download.parent.dataType}}\r\n                  - bounds:\r\n                     {{clip.yMin|number : 1}}&deg; west,\r\n                     {{clip.xMin|number : 1}}&deg; north,\r\n                     {{clip.yMax|number : 1}}&deg; east,\r\n                     {{clip.xMax|number : 1}}&deg; south\r\n               </span>\r\n\r\n\r\n\r\n               <span style=\"padding-left:7px\" ng-class=\"{\'exclude\': product.removed}\" ng-if=\"product.download.parent.type != \'mosaic\'\">\r\n                  {{product.download.parent.dataType}} <span style=\"font-weight:bold\">{{product.download.parent.tile_id}}</span>               - {{product.download.format}} - bounds: {{product.download.parent.bbox[0][1]|number : 1}}&deg; west, {{product.download.parent.bbox[1][0]|number\r\n               : 1}}&deg; north, {{product.download.parent.bbox[1][1]|number : 1}}&deg; east, {{product.download.parent.bbox[0][0]|number\r\n               : 1}}&deg; south\r\n               </span>\r\n\r\n\r\n            </div>\r\n            <div class=\"col-md-1\" style=\"padding:6px\">\r\n               {{product.download.file_size | bytes}}\r\n            </div>\r\n         </div>\r\n      </div>\r\n\r\n\r\n   </div>\r\n   <div class=\"row reviewing-divider\">\r\n      <div class=\"col-md-3\">\r\n         <label for=\"geoprocessOutputFormat\">\r\n					Output Format\r\n				</label>\r\n      </div>\r\n      <div class=\"col-md-9\">\r\n         <select id=\"geoprocessOutputFormat\" style=\"width:95%\" ng-model=\"data.outFormat\" ng-options=\"opt.value for opt in data.config.outFormat\"></select>\r\n      </div>\r\n   </div>\r\n   <div class=\"row\">\r\n      <div class=\"col-md-12\">\r\n         <p>\r\n            <strong>Email notification</strong> The extract of data can take some time. By providing an email address we\r\n            will be able to notify you when the job is complete. The email will provide a link to the extracted data which\r\n            will be packaged up as a single compressed file.\r\n         </p>\r\n         <div review-email></div>\r\n      </div>\r\n   </div>\r\n   <div class=\"row\">\r\n      <div class=\"col-md-12\">\r\n         <div class=\"pull-right\" style=\"padding:8px;\">\r\n            <button type=\"button\" class=\"btn btn-primary\" ng-click=\"accept()\" ng-disabled=\"!isValid()\">\r\n               Start extract of datasets\r\n             </button>\r\n            <button type=\"button\" class=\"btn btn-primary\" ng-click=\"cancel()\">Cancel</button>\r\n         </div>\r\n      </div>\r\n   </div>\r\n</div>");
-$templateCache.put("download/start/start.html","<div>\r\n   <map-clip></map-clip>\r\n   <datasets-container></datasets-container>\r\n</div>");
 $templateCache.put("wizard/bbox/bbox.html","<button type=\"button\" class=\"undecorated\" ng-click=\"toggle()\" tooltip-placement=\"right\" tooltip=\"Show data extent on the map.\">\r\n	<i class=\"fa pad-right fa-lg\" ng-class=\"{\'fa-eye orange\':data.hasBbox,\'fa-eye-slash\':!data.hasBbox}\"></i>\r\n</button>");
-$templateCache.put("wizard/clip/clip.html","<div class=\"well well-sm\" style=\"margin-bottom:5px\">\r\n	<div class=\"container-fluid\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\" style=\"padding:0\">\r\n				<div class=\"\" role=\"group\" aria-label=\"...\">\r\n					<button ng-click=\"initiateDraw()\" ng-disable=\"client.drawing\"\r\n                      tooltip-append-to-body=\"true\" tooltip-placement=\"bottom\" uib-tooltip=\"Enable drawing of a bounding box. On enabling, click on the map and drag diagonally\"\r\n						class=\"btn btn-primary btn-default\">Select an area...</button>\r\n               <span style=\"float:right\">\r\n					   <button ng-click=\"showInfo = !showInfo\" tooltip-placement=\"left\" uib-tooltip=\"Information.\" class=\"btn btn-primary btn-default\"><i class=\"fa fa-info\"></i></button>\r\n					   <bathy-about-link></bathy-about-link>\r\n               </span>\r\n            </div>\r\n            <bathy-about></bathy-about>\r\n				<exp-info title=\"Selecting an area\" show-close=\"true\" style=\"width:450px;position:fixed;top:200px;right:40px\" is-open=\"showInfo\">\r\n					<clip-info-bbox></clip-info-bbox>\r\n				</exp-info>\r\n			</div>\r\n		</div>\r\n\r\n		<div ng-show=\"oversize\" style=\"margin-top:6px\">\r\n			<div class=\"alert alert-danger\"\r\n            style=\"padding:2px; margin-bottom:0px\" role=\"alert\">Please restrict the size of your selected area to no more than 2000 square degrees.</div>\r\n		</div>\r\n\r\n		<div class=\"row\" ng-hide=\"(!clip.xMin && clip.xMin != 0) || oversize\" style=\"padding-top:7px;\">\r\n			<div class=\"col-md-12\">\r\n				Selected bounds: {{clip.xMin|number : 4}}&deg; west, {{clip.yMax|number : 4}}&deg; north, {{clip.xMax|number : 4}}&deg; east, {{clip.yMin|number\r\n				: 4}}&deg; south\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"container-fluid\" style=\"padding-top:7px\" ng-show=\"typing\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\"> </div>\r\n			<div class=\"col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-offset-3 col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
-$templateCache.put("wizard/clip/infobbox.html","<div class=\"\">\r\n	<strong style=\"font-size:120%\">Select an area of interest.</strong>\r\n   By hitting the \"Select an area...\" button an area on the map can be selected with the mouse by clicking a\r\n   corner and while holding the left mouse button\r\n	down drag diagonally across the map to the opposite corner.\r\n	<br/>\r\n	Clicking the \"Select an area...\" button again allows replacing a previous area selection. <br/>\r\n	<strong>Notes:</strong>\r\n   <ul>\r\n      <li>Data is only available in the gridded area to the west of Australia.</li>\r\n      <li>Can\'t move the map? The shown area is restricted to where there is data.</li>\r\n   </ul>\r\n	<p style=\"padding-top:5px\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.\r\n		You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you have made an error in the\r\n      position of your area of interest, hit the \"Select an area...\" button and draw a new bounding box.\r\n	</p>\r\n</div>");
+$templateCache.put("download/start/start.html","<div>\r\n   <map-clip></map-clip>\r\n   <datasets-container></datasets-container>\r\n</div>");
 $templateCache.put("wizard/download/download.html","<exp-modal ng-controller=\"DownloadCtrl as dl\" icon-class=\"fa-download\" is-open=\"dl.data.item.download\" title=\"Download data\" on-close=\"dl.remove()\" is-modal=\"true\">\r\n	<div style=\"padding:5px;\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>{{dl.data.item.title}}</h4>\r\n				{{dl.data.item.abstract}}\r\n   			</div>\r\n		</div>\r\n		<bathy-geoprocess data=\"dl.data.item\"></bathy-geoprocess>\r\n	</div>\r\n</exp-modal>");
 $templateCache.put("wizard/download/popup.html","<exp-modal icon-class=\"fa-download\"  is-open=\"data.item.download\" title=\"Download wizard\" on-close=\"dl.remove()\">\r\n	<div class=\"container-fluid downloadInner\" >\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{dl.data.item.sysId}}\" target=\"_blank\"><strong class=\"ng-binding\">{{dl.data.item.title}}</strong></a>\r\n				</h4>\r\n   			</div>\r\n		</div>\r\n		<wizard-geoprocess data=\"dl.data.item\"></wizard-geoprocess>\r\n	</div>\r\n</exp-modal>");
-$templateCache.put("wizard/geoprocess/geoprocess.html","<div class=\"container-fluid fred\" ng-form>\r\n	<div ng-show=\"stage==\'bbox\'\">	\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\">\r\n				<wizard-clip trigger=\"stage == \'bbox\'\" drawn=\"drawn()\" clip=\"data.processing.clip\" bounds=\"data.bounds\"></wizard-clip> \r\n			</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n 			<div class=\"col-md-12\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validClip(data) || checkingOrFailed\" ng-click=\"stage=\'formats\'\">Next</button>\r\n			</div>	\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Select an area of interest.</strong> There are two ways to select your area of interest:\r\n			<ol>\r\n				<li>Draw an area on the map with the mouse by clicking a corner and while holding the left mouse button \r\n					down drag diagonally across the map to the opposite corner or</li>\r\n				<li>Type your co-ordinates into the areas above.</li>\r\n			</ol> \r\n			Once drawn the points can be modified by the overwriting the values above or drawing another area by clicking the draw button again. \r\n			Ensure you select from the highlighted areas as the data can be quite sparse for some data.<br/>\r\n			<p style=\"padding-top:5px\">\r\n			<strong>Warning:</strong> Some extracts can be huge. It is best if you start with a small area to experiment with first. An email will be sent \r\n			with the size of the extract. Download judiciously. \r\n			</p>\r\n			<p style=\"padding-top\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map. \r\n				You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you\r\n				don\'t like the position of your drawn area, hit the \"Draw\" button and draw a new bounding box.\r\n			</p>\r\n		</div>				\r\n	</div>    		\r\n\r\n	<div ng-show=\"stage==\'formats\'\">\r\n		<div class=\"well\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutputFormat\">\r\n					Output Format\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutputFormat\" style=\"width:95%\" ng-model=\"data.processing.outFormat\" ng-options=\"opt.value for opt in config.outFormat\"></select>  				\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutCoordSys\">\r\n					Coordinate System					\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutCoordSys\" style=\"width:95%\" ng-model=\"data.processing.outCoordSys\" ng-options=\"opt.value for opt in config.outCoordSys | sysIntersect : data.processing.clip\"></select>  				\r\n			</div>\r\n		</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'bbox\'\">Previous</button>\r\n			</div>	\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validSansEmail(data)\" ng-click=\"stage=\'email\'\">Next</button>\r\n   			</div>\r\n		</div>\r\n		\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Data representation.</strong> Select how you want your data presented.<br/>\r\n			Output format is the structure of the data and you should choose a format compatible with the tools that you will use to manipulate the data.\r\n			<ul>\r\n				<li ng-repeat=\"format in outFormats\"><strong>{{format.value}}</strong> - {{format.description}}</li>\r\n			</ul> \r\n			Select what <i>coordinate system</i> or projection you would like. If in doubt select WGS84.<br/>\r\n			Not all projections cover all of Australia. If the area you select is not covered by a particular projection then the option to download in that projection will not be available.\r\n		</div>	\r\n	</div>\r\n	\r\n	<div ng-show=\"stage==\'email\'\">\r\n		<div class=\"well\" exp-enter=\"stage=\'confirm\'\">\r\n			<div download-email></div>\r\n			<br/>\r\n			<div download-filename data=\"data.processing\"></div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'formats\'\">Previous</button>\r\n			</div>	\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!allDataSet(data)\" ng-click=\"stage=\'confirm\'\">Submit</button>\r\n   			</div>\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Email notification</strong> The extract of data can take some time. By providing an email address we will be able to notify you when the job is complete. The email will provide a link to the extracted \r\n			data which will be packaged up as a single file. To be able to proceed you need to have provided:\r\n			<ul>\r\n				<li>An area of interest to extract the data (referred to as a bounding box).</li>\r\n				<li>An output format.</li>\r\n				<li>A valid coordinate system or projection.</li>\r\n				<li>An email address to receive the details of the extraction.</li>\r\n				<li><strong>Note:</strong>Email addresses need to be and are stored in the system.</li>\r\n			</ul>\r\n			<strong style=\"font-size:120%\">Optional filename</strong> The extract of data can take some time. By providing an optional filename it will allow you\r\n			to associate extracted data to your purpose for downloading data. For example:\r\n			<ul>\r\n				<li>myHouse will have a file named myHouse.zip</li>\r\n				<li>Sorrento would result in a file named Sorrento.zip</li>\r\n			</ul>\r\n		</div>\r\n	</div>\r\n	\r\n	<div ng-show=\"stage==\'confirm\'\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12 abstractContainer\">\r\n				{{data.abstract}}\r\n			</div>\r\n		</div>\r\n		<h3>You have chosen:</h3>\r\n		<table class=\"table table-striped\">\r\n			<tbody>\r\n				<tr>\r\n					<th>Area</th>\r\n					<td>\r\n						<span style=\"display:inline-block; width: 10em\">Lower left (lat/lng&deg;):</span> {{data.processing.clip.yMin | number : 6}}, {{data.processing.clip.xMin | number : 6}}<br/>\r\n						<span style=\"display:inline-block;width: 10em\">Upper right (lat/lng&deg;):</span> {{data.processing.clip.yMax | number : 6}}, {{data.processing.clip.xMax | number : 6}}\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Output format</th>\r\n					<td>{{data.processing.outFormat.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Coordinate system</th>\r\n					<td>{{data.processing.outCoordSys.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Email address</th>\r\n					<td>{{email}}</td>\r\n				</tr>\r\n				<tr ng-show=\"data.processing.filename\">\r\n					<th>Filename</th>\r\n					<td>{{data.processing.filename}}</td>\r\n				</tr>\r\n			</tbody>\r\n		</table>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" style=\"width:6em\" ng-click=\"stage=\'email\'\">Back</button>\r\n			</div>	\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-click=\"startExtract()\">Confirm</button>\r\n   			</div>\r\n		</div>\r\n	</div>\r\n</div>");
+$templateCache.put("wizard/clip/clip.html","<div class=\"well well-sm\" style=\"margin-bottom:5px\">\r\n	<div class=\"container-fluid\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\" style=\"padding:0\">\r\n				<div class=\"\" role=\"group\" aria-label=\"...\">\r\n					<button ng-click=\"initiateDraw()\" ng-disable=\"client.drawing\"\r\n                      tooltip-append-to-body=\"true\" tooltip-placement=\"bottom\" uib-tooltip=\"Enable drawing of a bounding box. On enabling, click on the map and drag diagonally\"\r\n						class=\"btn btn-primary btn-default\">Select an area...</button>\r\n               <span style=\"float:right\">\r\n					   <button ng-click=\"showInfo = !showInfo\" tooltip-placement=\"left\" uib-tooltip=\"Information.\" class=\"btn btn-primary btn-default\"><i class=\"fa fa-info\"></i></button>\r\n					   <bathy-about-link></bathy-about-link>\r\n               </span>\r\n            </div>\r\n            <bathy-about></bathy-about>\r\n				<exp-info title=\"Selecting an area\" show-close=\"true\" style=\"width:450px;position:fixed;top:200px;right:40px\" is-open=\"showInfo\">\r\n					<clip-info-bbox></clip-info-bbox>\r\n				</exp-info>\r\n			</div>\r\n		</div>\r\n\r\n		<div ng-show=\"oversize\" style=\"margin-top:6px\">\r\n			<div class=\"alert alert-danger\"\r\n            style=\"padding:2px; margin-bottom:0px\" role=\"alert\">Please restrict the size of your selected area to no more than 2000 square degrees.</div>\r\n		</div>\r\n\r\n		<div class=\"row\" ng-hide=\"(!clip.xMin && clip.xMin != 0) || oversize\" style=\"padding-top:7px;\">\r\n			<div class=\"col-md-12\">\r\n				Selected bounds: {{clip.xMin|number : 4}}&deg; west, {{clip.yMax|number : 4}}&deg; north, {{clip.xMax|number : 4}}&deg; east, {{clip.yMin|number\r\n				: 4}}&deg; south\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"container-fluid\" style=\"padding-top:7px\" ng-show=\"typing\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\"> </div>\r\n			<div class=\"col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-offset-3 col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
+$templateCache.put("wizard/clip/infobbox.html","<div class=\"\">\r\n	<strong style=\"font-size:120%\">Select an area of interest.</strong>\r\n   By hitting the \"Select an area...\" button an area on the map can be selected with the mouse by clicking a\r\n   corner and while holding the left mouse button\r\n	down drag diagonally across the map to the opposite corner.\r\n	<br/>\r\n	Clicking the \"Select an area...\" button again allows replacing a previous area selection. <br/>\r\n	<strong>Notes:</strong>\r\n   <ul>\r\n      <li>Data is only available in the gridded area to the west of Australia.</li>\r\n      <li>Can\'t move the map? The shown area is restricted to where there is data.</li>\r\n   </ul>\r\n	<p style=\"padding-top:5px\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.\r\n		You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you have made an error in the\r\n      position of your area of interest, hit the \"Select an area...\" button and draw a new bounding box.\r\n	</p>\r\n</div>");
+$templateCache.put("wizard/geoprocess/geoprocess.html","<div class=\"container-fluid fred\" ng-form>\r\n	<div ng-show=\"stage==\'bbox\'\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\">\r\n				<wizard-clip trigger=\"stage == \'bbox\'\" drawn=\"drawn()\" clip=\"data.processing.clip\" bounds=\"data.bounds\"></wizard-clip>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n 			<div class=\"col-md-12\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validClip(data) || checkingOrFailed\" ng-click=\"stage=\'formats\'\">Next</button>\r\n			</div>\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Select an area of interest.</strong> There are two ways to select your area of interest:\r\n			<ol>\r\n				<li>Draw an area on the map with the mouse by clicking a corner and while holding the left mouse button\r\n					down drag diagonally across the map to the opposite corner or</li>\r\n				<li>Type your co-ordinates into the areas above.</li>\r\n			</ol>\r\n			Once drawn the points can be modified by the overwriting the values above or drawing another area by clicking the draw button again.\r\n			Ensure you select from the highlighted areas as the data can be quite sparse for some data.<br/>\r\n			<p style=\"padding-top:5px\">\r\n			<strong>Warning:</strong> Some extracts can be huge. It is best if you start with a small area to experiment with first. An email will be sent\r\n			with the size of the extract. Download judiciously.\r\n			</p>\r\n			<p style=\"padding-top\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.\r\n            You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you have made an error in the\r\n            position of your area of interest, hit the \"Select an area...\" button and draw a new bounding box.\r\n			</p>\r\n		</div>\r\n	</div>\r\n\r\n	<div ng-show=\"stage==\'formats\'\">\r\n		<div class=\"well\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutputFormat\">\r\n					Output Format\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutputFormat\" style=\"width:95%\" ng-model=\"data.processing.outFormat\" ng-options=\"opt.value for opt in config.outFormat\"></select>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutCoordSys\">\r\n					Coordinate System\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutCoordSys\" style=\"width:95%\" ng-model=\"data.processing.outCoordSys\" ng-options=\"opt.value for opt in config.outCoordSys | sysIntersect : data.processing.clip\"></select>\r\n			</div>\r\n		</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'bbox\'\">Previous</button>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validSansEmail(data)\" ng-click=\"stage=\'email\'\">Next</button>\r\n   			</div>\r\n		</div>\r\n\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Data representation.</strong> Select how you want your data presented.<br/>\r\n			Output format is the structure of the data and you should choose a format compatible with the tools that you will use to manipulate the data.\r\n			<ul>\r\n				<li ng-repeat=\"format in outFormats\"><strong>{{format.value}}</strong> - {{format.description}}</li>\r\n			</ul>\r\n			Select what <i>coordinate system</i> or projection you would like. If in doubt select WGS84.<br/>\r\n			Not all projections cover all of Australia. If the area you select is not covered by a particular projection then the option to download in that projection will not be available.\r\n		</div>\r\n	</div>\r\n\r\n	<div ng-show=\"stage==\'email\'\">\r\n		<div class=\"well\" exp-enter=\"stage=\'confirm\'\">\r\n			<div download-email></div>\r\n			<br/>\r\n			<div download-filename data=\"data.processing\"></div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'formats\'\">Previous</button>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!allDataSet(data)\" ng-click=\"stage=\'confirm\'\">Submit</button>\r\n   			</div>\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Email notification</strong> The extract of data can take some time. By providing an email address we will be able to notify you when the job is complete. The email will provide a link to the extracted\r\n			data which will be packaged up as a single file. To be able to proceed you need to have provided:\r\n			<ul>\r\n				<li>An area of interest to extract the data (referred to as a bounding box).</li>\r\n				<li>An output format.</li>\r\n				<li>A valid coordinate system or projection.</li>\r\n				<li>An email address to receive the details of the extraction.</li>\r\n				<li><strong>Note:</strong>Email addresses need to be and are stored in the system.</li>\r\n			</ul>\r\n			<strong style=\"font-size:120%\">Optional filename</strong> The extract of data can take some time. By providing an optional filename it will allow you\r\n			to associate extracted data to your purpose for downloading data. For example:\r\n			<ul>\r\n				<li>myHouse will have a file named myHouse.zip</li>\r\n				<li>Sorrento would result in a file named Sorrento.zip</li>\r\n			</ul>\r\n		</div>\r\n	</div>\r\n\r\n	<div ng-show=\"stage==\'confirm\'\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12 abstractContainer\">\r\n				{{data.abstract}}\r\n			</div>\r\n		</div>\r\n		<h3>You have chosen:</h3>\r\n		<table class=\"table table-striped\">\r\n			<tbody>\r\n				<tr>\r\n					<th>Area</th>\r\n					<td>\r\n						<span style=\"display:inline-block; width: 10em\">Lower left (lat/lng&deg;):</span> {{data.processing.clip.yMin | number : 6}}, {{data.processing.clip.xMin | number : 6}}<br/>\r\n						<span style=\"display:inline-block;width: 10em\">Upper right (lat/lng&deg;):</span> {{data.processing.clip.yMax | number : 6}}, {{data.processing.clip.xMax | number : 6}}\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Output format</th>\r\n					<td>{{data.processing.outFormat.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Coordinate system</th>\r\n					<td>{{data.processing.outCoordSys.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Email address</th>\r\n					<td>{{email}}</td>\r\n				</tr>\r\n				<tr ng-show=\"data.processing.filename\">\r\n					<th>Filename</th>\r\n					<td>{{data.processing.filename}}</td>\r\n				</tr>\r\n			</tbody>\r\n		</table>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" style=\"width:6em\" ng-click=\"stage=\'email\'\">Back</button>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-click=\"startExtract()\">Confirm</button>\r\n   			</div>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("wizard/search/search.html","<div>\r\n<div style=\"position:relative;padding:5px;padding-left:10px;\" ng-controller=\"SearchCtrl as search\" class=\"scrollPanel\">\r\n	<p style=\"text-align: left; margin: 10px; font-size: 16px;\">\r\n		<strong>Search</strong>\r\n	</p>\r\n	<form class=\"form-horizontal\">\r\n		<div class=\"well\">\r\n			<div class=\"form-group\">\r\n				<label for=\"searchFilter\" class=\"col-sm-1 control-label\">Filter</label>\r\n				<div class=\"col-sm-11\">\r\n					<input placeholder=\'Leave blank to match all, type to filter results\' type=\"text\" class=\"form-control\" ng-keyup=\"search.search()\" ng-model=\"search.filter\" ></input>\r\n				</div>\r\n			</div>\r\n			<div>\r\n				<span ng-show=\"search.data.response.docs\">\r\n					<strong>Showing</strong> {{search.data.response.docs.length}} of {{search.data.response.numFound}} <strong>matches. </strong>\r\n					({{search.data.responseHeader.QTime/ 1000}} seconds)\r\n					<span ng-show=\"search.data.responseHeader\" class=\"pull-right\">\r\n\r\n						<div class=\"btn-group\" dropdown style=\"padding-right:1em\">\r\n							<button type=\"button\" class=\"undecorated\" bathy-bbox-show-all style=\"padding-left:5em\">\r\n								Show all data extents\r\n							</button>\r\n						    <button type=\"button\" class=\"undecorated dropdown-toggle\" dropdown-toggle title=\"Restrict datasets based on area of coverage\">\r\n        						<span class=\"caret\"></span>\r\n        						<span class=\"sr-only\">More options for showing and hiding datasets\' extents based on size and if only some are viewable.</span>\r\n      						</button>\r\n      						<ul class=\"dropdown-menu\" role=\"menu\">\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-show-visible  tooltip=\"Show only those datasets that have all of their data within the current viewable map\">Show fully visible</a></li>\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-hide-all  tooltip=\"Hide all datasets\' bounding area. \">Hide all</a></li>\r\n      						</ul>\r\n    					</div>\r\n					</span>\r\n				</span>\r\n			</div>\r\n			<div>\r\n				<div class=\"container-fluid\">\r\n					<bathy-extent></bathy-extent>\r\n					<bathy-facetenable></bathy-facetenable>\r\n					<bathy-daterange></bathy-daterange>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</form>\r\n\r\n	<div class=\"container\" style=\"width:100%\">\r\n		<div class=\"row\" ng-repeat=\"doc in search.data.response.docs\">\r\n			<div class=\"col-md-12\"  ng-class-odd=\"\'odd\'\" ng-class-even=\"\'even\'\" ng-mouseleave=\"search.lolight(doc)\" ng-mouseenter=\"search.hilight(doc)\">\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;\">\r\n					<button type=\"button\" class=\"undecorated\" ng-click=\"expanded = !expanded\" title=\"Click to see more about this dataset\" tooltip-placement=\"right\" tooltip=\"Show more details.\">\r\n						<i class=\"fa pad-right fa-2x\" ng-class=\"{\'fa-caret-down\':expanded,\'fa-caret-right\':(!expanded)}\"></i>\r\n					</button>\r\n					<download-add item=\"doc\"></download-add>\r\n					<bathy-wms data=\"doc\"></bathy-wms>\r\n					<bathy-bbox data=\"doc\" ng-if=\"doc.showExtent\"></bathy-bbox>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{doc.sysId}}\" target=\"_blank\" ><strong>{{doc.title}}</strong></a>\r\n				</span>\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;padding-right:15px;\"\r\n						tooltip-enable=\"!expanded\" tooltip-class=\"searchAbstractTooltip\" tooltip=\"{{doc.abstract | truncate : 250}}\" >\r\n					<download-actions doc=\"doc\" ng-show=\"expanded\"></download-actions>\r\n					{{doc.abstract}}\r\n				</span>\r\n				<div ng-show=\"expanded\">\r\n					<h6>Authors</h6>\r\n					{{doc.author | authors}}\r\n					<h6>Keywords</h6>\r\n					<div>\r\n						<span class=\"badge\" ng-repeat=\"keyword in doc.keywords track by $index\">{{keyword}}</span>\r\n					</div>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n</div>");}]);
