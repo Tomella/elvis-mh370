@@ -659,6 +659,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 "use strict";
 
 {
+
+   angular.module("bathy.plot", []).directive("bathyPlot", ['$log', function ($log) {
+      return {
+         restrict: "AE",
+         scope: {
+            line: "="
+         },
+         link: function link(scope, element, attrs, ctrl) {
+            scope.$watch("line", function (newValue, oldValue) {
+               $log.info(newValue);
+            });
+         }
+      };
+   }]);
+}
+"use strict";
+
+{
    angular.module("bathy.panes", []).directive("bathyPanes", ['$rootScope', '$timeout', 'mapService', function ($rootScope, $timeout, mapService) {
       return {
          templateUrl: "bathy/panes/panes.html",
@@ -713,24 +731,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                $rootScope.$broadcast("view.changed", $scope.view, null);
             }, 50);
          }]
-      };
-   }]);
-}
-"use strict";
-
-{
-
-   angular.module("bathy.plot", []).directive("bathyPlot", ['$log', function ($log) {
-      return {
-         restrict: "AE",
-         scope: {
-            line: "="
-         },
-         link: function link(scope, element, attrs, ctrl) {
-            scope.$watch("line", function (newValue, oldValue) {
-               $log.info(newValue);
-            });
-         }
       };
    }]);
 }
@@ -2253,6 +2253,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 "use strict";
 
 {
+   angular.module("bathy.start", ["bathy.datasets"]).directive("bathyDownload", [function () {
+      return {
+         templateUrl: "download/start/start.html",
+         link: function link(scope, element, attrs) {
+            console.log("Hello select!");
+         }
+      };
+   }]);
+}
+"use strict";
+
+{
 
 	angular.module("bathy.bbox", ['geo.draw']).directive("bathyBboxShowAll", ['$rootScope', '$timeout', function ($rootScope, $timeout) {
 		return {
@@ -2355,221 +2367,169 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 }
 "use strict";
 
-{
-   angular.module("bathy.start", ["bathy.datasets"]).directive("bathyDownload", [function () {
-      return {
-         templateUrl: "download/start/start.html",
-         link: function link(scope, element, attrs) {
-            console.log("Hello select!");
-         }
-      };
-   }]);
-}
-"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 {
-   var DownloadCtrl = function DownloadCtrl(downloadService) {
-      downloadService.data().then(function (data) {
-         this.data = data;
-      }.bind(this));
+   var SearchCtrl = function () {
+      function SearchCtrl($rootScope, configService, flashService, searchService) {
+         var _this = this;
 
-      this.remove = function () {
-         downloadService.clear();
-      };
+         _classCallCheck(this, SearchCtrl);
 
-      this.changeEmail = function (email) {
-         downloadService.setEmail(email);
-      };
-   };
-   DownloadCtrl.$inject = ["downloadService"];
+         this.configService = configService;
+         this.flashService = flashService;
+         this.searchService = searchService;
 
-   var DownloadService = function DownloadService($http, $q, $rootScope, mapService, persistService) {
-      var key = "download_email",
-          downloadLayerGroup = "Download Layers",
-          mapState = {
-         zoom: null,
-         center: null,
-         layer: null
-      },
-          _data = {
-         email: null,
-         item: null
-      },
-          service = {
-         getLayerGroup: function getLayerGroup() {
-            return mapService.getGroup(downloadLayerGroup);
-         },
+         $rootScope.$on("search.results.received", function (event, data) {
+            //console.log("Received response")
+            flashService.remove(_this.flasher);
+            _this.data = data;
+         });
 
-         setState: function setState(data) {
-            if (data) {
-               prepare();
-            } else {
-               restore(map);
-            }
+         $rootScope.$on("more.search.results", function () {
+            flashService.remove(_this.flasher);
+            _this.flasher = flashService.add("Fetching more results", 1000, true);
+            searchService.more();
+         });
 
-            function prepare() {
-               var bounds = [[data.bounds.yMin, data.bounds.xMin], [data.bounds.yMax, data.bounds.xMax]];
+         configService.getConfig("facets").then(function (config) {
+            _this.hasKeywords = config && config.keywordMapped && config.keywordMapped.length > 0;
+         });
+      }
 
-               if (mapState.layer) {
-                  mapService.getGroup(downloadLayerGroup).removeLayer(mapState.layer);
-               }
-               if (!data.queryLayer) {
-                  mapState.layer = L.rectangle(bounds, { color: "black", fill: false });
-                  mapService.getGroup(downloadLayerGroup).addLayer(mapState.layer);
-               }
-            }
-
-            function restore(map) {
-               mapService.clearGroup(downloadLayerGroup);
-               mapState.layer = null;
-            }
-         },
-
-         add: function add(item) {
-            this.clear();
-            _data.item = item;
-            _data.item.download = true;
-            if (!item.processsing) {
-               item.processing = {
-                  clip: {
-                     xMax: null,
-                     xMin: null,
-                     yMax: null,
-                     yMin: null
-                  }
-               };
-            }
-         },
-
-         clear: function clear() {
-            if (_data.item) {
-               _data.item.download = false;
-               _data.item = null;
-            }
-         },
-
-         setEmail: function setEmail(email) {
-            persistService.setItem(key, email);
-         },
-
-         getEmail: function getEmail() {
-            return persistService.getItem(key).then(function (value) {
-               _data.email = value;
-               return value;
-            });
-         },
-
-         data: function data() {
-            return $q.when(_data);
+      _createClass(SearchCtrl, [{
+         key: "search",
+         value: function search() {
+            this.flashService.remove(this.flasher);
+            this.flasher = this.flashService.add("Searching", 3000, true);
+            this.searchService.setFilter(this.filter);
          }
-      };
-
-      return service;
-   };
-   DownloadService.$inject = ['$http', '$q', '$rootScope', 'mapService', 'persistService'];
-
-   angular.module("bathy.download", ['bathy.geoprocess']).directive("wizardPopup", ["downloadService", function (downloadService) {
-      return {
-         restrict: "AE",
-         templateUrl: "wizard/download/popup.html",
-         link: function link(scope) {
-            downloadService.data().then(function (data) {
-               scope.data = data;
-
-               scope.$watch("data.item", function (newValue, oldValue) {
-                  if (newValue) {
-                     scope.stage = "bbox";
-                  }
-
-                  if (newValue || oldValue) {
-                     downloadService.setState(newValue);
-                  }
-               });
+      }, {
+         key: "toggle",
+         value: function toggle(result) {
+            this.searchService.toggle(result);
+         }
+      }, {
+         key: "toggleAll",
+         value: function toggleAll() {
+            this.searchService.toggleAll(this.data.response.docs);
+         }
+      }, {
+         key: "showWithin",
+         value: function showWithin() {
+            this.searchService.showWithin(this.data.response.docs);
+         }
+      }, {
+         key: "allShowing",
+         value: function allShowing() {
+            if (!this.data || !this.data.response) {
+               return false;
+            }
+            return !this.data.response.docs.some(function (dataset) {
+               return !dataset.showLayer;
             });
          }
-      };
-   }]).directive("wizardDownload", ["downloadService", function (downloadService) {
-      return {
-         restrict: "AE",
-         controller: "DownloadCtrl",
-         templateUrl: "wizard/download/popup.html",
-         link: function link() {
-            console.log("What the download...");
-         }
-      };
-   }]).directive("bathyDownload", ['downloadService', function (downloadService) {
-      return {
-         templateUrl: "bathy/download/download.html",
-         controller: "DownloadCtrl",
-         link: function link(scope, element) {
-            downloadService.data().then(function (data) {
-               scope.data = data;
+      }, {
+         key: "anyShowing",
+         value: function anyShowing() {
+            if (!this.data || !this.data.response) {
+               return false;
+            }
+            return this.data.response.docs.some(function (dataset) {
+               return dataset.showLayer;
             });
+         }
+      }, {
+         key: "hideAll",
+         value: function hideAll() {
+            this.searchService.hideAll(this.data.response.docs);
+         }
+      }, {
+         key: "hilight",
+         value: function hilight(doc) {
+            if (doc.layer) {
+               this.searchService.hilight(doc.layer);
+            }
+         }
+      }, {
+         key: "lolight",
+         value: function lolight(doc) {
+            if (doc.layer) {
+               this.searchService.lolight(doc.layer);
+            }
+         }
+      }]);
 
-            scope.$watch("data.item", function (item, old) {
-               if (item || old) {
-                  downloadService.setState(item);
-               }
-            });
+      return SearchCtrl;
+   }();
+
+   SearchCtrl.$inject = ['$rootScope', 'configService', 'flashService', 'searchService'];
+
+   var SearchCriteriaCtrl = function () {
+      function SearchCriteriaCtrl(searchService) {
+         _classCallCheck(this, SearchCriteriaCtrl);
+
+         this.searchService = searchService;
+         this.criteria = searchService.getSearchCriteria();
+      }
+
+      _createClass(SearchCriteriaCtrl, [{
+         key: "refresh",
+         value: function refresh() {
+            this.searchService.refresh();
          }
-      };
-   }]).directive("downloadAdd", ['$rootScope', 'downloadService', 'flashService', function ($rootScope, downloadService, flashService) {
+      }]);
+
+      return SearchCriteriaCtrl;
+   }();
+
+   SearchCriteriaCtrl.$inject = ["searchService"];
+
+   angular.module("bathy.search", ['bathy.search.service']).controller("SearchCtrl", SearchCtrl).controller("SearchCriteriaCtrl", SearchCriteriaCtrl).directive("bathySearch", [function () {
       return {
-         template: "<button type='button' class='undecorated' ng-click='toggle()'><span class='fa-stack'  tooltip-placement='right' tooltip='Extract data.'>" + "<i class='fa fa-lg fa-download' ng-class='{active:item.download}'></i>" + "</span></button>",
-         restrict: "AE",
-         scope: {
-            item: "=",
-            group: "="
-         },
-         link: function link(scope, element) {
-            scope.toggle = function () {
-               if (scope.item.download) {
-                  downloadService.clear(scope.item);
-               } else {
-                  flashService.add("Select an area of interest that intersects the highlighted areas.");
-                  downloadService.add(scope.item);
-                  if (scope.group && scope.group.sysId) {
-                     $rootScope.$broadcast('hide.wms', scope.group.sysId);
-                  }
-               }
-            };
-         }
+         templateUrl: "wizard/search/search.html"
       };
-   }]).directive("downloadEmail", ['downloadService', function (downloadService) {
-      return {
-         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-email">Email</span>' + '<input required="required" type="email" ng-change="download.changeEmail(email)" ng-model="email" class="form-control" placeholder="Email address to send download link" aria-describedby="bathy-email">' + '</div>',
-         restrict: "AE",
-         link: function link(scope, element) {
-            downloadService.getEmail().then(function (email) {
-               scope.email = email;
-            });
+   }])
+
+   /**
+    * Format the publication date
+    */
+   .filter("pubDate", function () {
+      return function (string) {
+         var date;
+         if (string) {
+            date = new Date(string);
+            return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
          }
+         return "-";
       };
-   }]).directive("downloadFilename", ['flashService', 'downloadService', function (flashService, downloadService) {
-      return {
-         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-filename">Filename</span>' + '<input type="text"' + ' ng-maxlength="30" ng-trim="true" ng-keypress="restrict($event)"' + ' ng-model="data.filename" class="form-control" placeholder="Optional filename" aria-describedby="bathy-filename">' + '<span class="input-group-addon" id="basic-addon2">.zip</span>' + '</div>' + '<div>Only up to 9 characters made up of alphanumeric or "_" allowed for file name</div>',
-         restrict: "AE",
-         scope: {
-            data: "="
-         },
-         link: function link(scope, element) {
-            var flasher;
-            scope.restrict = function (event) {
-               var key = event.keyCode;
-               var char = String.fromCharCode(key).toUpperCase();
-               if (key > 31 && !char.match(/[\_A-Z0-9]/ig)) {
-                  flashService.remove(flasher);
-                  flasher = flashService.add('Only alphanumeric characters or "_" allowed in filename.', 5000);
-                  event.preventDefault();
-               } else if (key > 31 && event.currentTarget.value && event.currentTarget.value.length >= 9) {
-                  flashService.remove(flasher);
-                  flasher = flashService.add('Filename is restricted to 9 characters.', 5000);
-                  event.preventDefault();
-               }
-            };
+   })
+
+   /**
+    * Format the array of authors
+    */
+   .filter("authors", function () {
+      return function (auth) {
+         if (auth) {
+            return auth.join(", ");
          }
+         return "-";
       };
-   }]).controller("DownloadCtrl", DownloadCtrl).factory("downloadService", DownloadService);
+   })
+
+   /**
+    * If the text is larger than a certain size truncate it and add some dots to the end.
+    */
+   .filter("truncate", function () {
+      return function (text, length) {
+         if (text && text.length > length - 3) {
+            return text.substr(0, length - 3) + "...";
+         }
+         return text;
+      };
+   });
 }
 'use strict';
 
@@ -3124,169 +3084,209 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 }
 "use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 {
-   var SearchCtrl = function () {
-      function SearchCtrl($rootScope, configService, flashService, searchService) {
-         var _this = this;
+   var DownloadCtrl = function DownloadCtrl(downloadService) {
+      downloadService.data().then(function (data) {
+         this.data = data;
+      }.bind(this));
 
-         _classCallCheck(this, SearchCtrl);
+      this.remove = function () {
+         downloadService.clear();
+      };
 
-         this.configService = configService;
-         this.flashService = flashService;
-         this.searchService = searchService;
+      this.changeEmail = function (email) {
+         downloadService.setEmail(email);
+      };
+   };
+   DownloadCtrl.$inject = ["downloadService"];
 
-         $rootScope.$on("search.results.received", function (event, data) {
-            //console.log("Received response")
-            flashService.remove(_this.flasher);
-            _this.data = data;
-         });
+   var DownloadService = function DownloadService($http, $q, $rootScope, mapService, persistService) {
+      var key = "download_email",
+          downloadLayerGroup = "Download Layers",
+          mapState = {
+         zoom: null,
+         center: null,
+         layer: null
+      },
+          _data = {
+         email: null,
+         item: null
+      },
+          service = {
+         getLayerGroup: function getLayerGroup() {
+            return mapService.getGroup(downloadLayerGroup);
+         },
 
-         $rootScope.$on("more.search.results", function () {
-            flashService.remove(_this.flasher);
-            _this.flasher = flashService.add("Fetching more results", 1000, true);
-            searchService.more();
-         });
-
-         configService.getConfig("facets").then(function (config) {
-            _this.hasKeywords = config && config.keywordMapped && config.keywordMapped.length > 0;
-         });
-      }
-
-      _createClass(SearchCtrl, [{
-         key: "search",
-         value: function search() {
-            this.flashService.remove(this.flasher);
-            this.flasher = this.flashService.add("Searching", 3000, true);
-            this.searchService.setFilter(this.filter);
-         }
-      }, {
-         key: "toggle",
-         value: function toggle(result) {
-            this.searchService.toggle(result);
-         }
-      }, {
-         key: "toggleAll",
-         value: function toggleAll() {
-            this.searchService.toggleAll(this.data.response.docs);
-         }
-      }, {
-         key: "showWithin",
-         value: function showWithin() {
-            this.searchService.showWithin(this.data.response.docs);
-         }
-      }, {
-         key: "allShowing",
-         value: function allShowing() {
-            if (!this.data || !this.data.response) {
-               return false;
+         setState: function setState(data) {
+            if (data) {
+               prepare();
+            } else {
+               restore(map);
             }
-            return !this.data.response.docs.some(function (dataset) {
-               return !dataset.showLayer;
+
+            function prepare() {
+               var bounds = [[data.bounds.yMin, data.bounds.xMin], [data.bounds.yMax, data.bounds.xMax]];
+
+               if (mapState.layer) {
+                  mapService.getGroup(downloadLayerGroup).removeLayer(mapState.layer);
+               }
+               if (!data.queryLayer) {
+                  mapState.layer = L.rectangle(bounds, { color: "black", fill: false });
+                  mapService.getGroup(downloadLayerGroup).addLayer(mapState.layer);
+               }
+            }
+
+            function restore(map) {
+               mapService.clearGroup(downloadLayerGroup);
+               mapState.layer = null;
+            }
+         },
+
+         add: function add(item) {
+            this.clear();
+            _data.item = item;
+            _data.item.download = true;
+            if (!item.processsing) {
+               item.processing = {
+                  clip: {
+                     xMax: null,
+                     xMin: null,
+                     yMax: null,
+                     yMin: null
+                  }
+               };
+            }
+         },
+
+         clear: function clear() {
+            if (_data.item) {
+               _data.item.download = false;
+               _data.item = null;
+            }
+         },
+
+         setEmail: function setEmail(email) {
+            persistService.setItem(key, email);
+         },
+
+         getEmail: function getEmail() {
+            return persistService.getItem(key).then(function (value) {
+               _data.email = value;
+               return value;
             });
+         },
+
+         data: function data() {
+            return $q.when(_data);
          }
-      }, {
-         key: "anyShowing",
-         value: function anyShowing() {
-            if (!this.data || !this.data.response) {
-               return false;
-            }
-            return this.data.response.docs.some(function (dataset) {
-               return dataset.showLayer;
-            });
-         }
-      }, {
-         key: "hideAll",
-         value: function hideAll() {
-            this.searchService.hideAll(this.data.response.docs);
-         }
-      }, {
-         key: "hilight",
-         value: function hilight(doc) {
-            if (doc.layer) {
-               this.searchService.hilight(doc.layer);
-            }
-         }
-      }, {
-         key: "lolight",
-         value: function lolight(doc) {
-            if (doc.layer) {
-               this.searchService.lolight(doc.layer);
-            }
-         }
-      }]);
+      };
 
-      return SearchCtrl;
-   }();
+      return service;
+   };
+   DownloadService.$inject = ['$http', '$q', '$rootScope', 'mapService', 'persistService'];
 
-   SearchCtrl.$inject = ['$rootScope', 'configService', 'flashService', 'searchService'];
-
-   var SearchCriteriaCtrl = function () {
-      function SearchCriteriaCtrl(searchService) {
-         _classCallCheck(this, SearchCriteriaCtrl);
-
-         this.searchService = searchService;
-         this.criteria = searchService.getSearchCriteria();
-      }
-
-      _createClass(SearchCriteriaCtrl, [{
-         key: "refresh",
-         value: function refresh() {
-            this.searchService.refresh();
-         }
-      }]);
-
-      return SearchCriteriaCtrl;
-   }();
-
-   SearchCriteriaCtrl.$inject = ["searchService"];
-
-   angular.module("bathy.search", ['bathy.search.service']).controller("SearchCtrl", SearchCtrl).controller("SearchCriteriaCtrl", SearchCriteriaCtrl).directive("bathySearch", [function () {
+   angular.module("bathy.download", ['bathy.geoprocess']).directive("wizardPopup", ["downloadService", function (downloadService) {
       return {
-         templateUrl: "wizard/search/search.html"
-      };
-   }])
+         restrict: "AE",
+         templateUrl: "wizard/download/popup.html",
+         link: function link(scope) {
+            downloadService.data().then(function (data) {
+               scope.data = data;
 
-   /**
-    * Format the publication date
-    */
-   .filter("pubDate", function () {
-      return function (string) {
-         var date;
-         if (string) {
-            date = new Date(string);
-            return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
-         }
-         return "-";
-      };
-   })
+               scope.$watch("data.item", function (newValue, oldValue) {
+                  if (newValue) {
+                     scope.stage = "bbox";
+                  }
 
-   /**
-    * Format the array of authors
-    */
-   .filter("authors", function () {
-      return function (auth) {
-         if (auth) {
-            return auth.join(", ");
+                  if (newValue || oldValue) {
+                     downloadService.setState(newValue);
+                  }
+               });
+            });
          }
-         return "-";
       };
-   })
+   }]).directive("wizardDownload", ["downloadService", function (downloadService) {
+      return {
+         restrict: "AE",
+         controller: "DownloadCtrl",
+         templateUrl: "wizard/download/popup.html",
+         link: function link() {
+            console.log("What the download...");
+         }
+      };
+   }]).directive("bathyDownload", ['downloadService', function (downloadService) {
+      return {
+         templateUrl: "bathy/download/download.html",
+         controller: "DownloadCtrl",
+         link: function link(scope, element) {
+            downloadService.data().then(function (data) {
+               scope.data = data;
+            });
 
-   /**
-    * If the text is larger than a certain size truncate it and add some dots to the end.
-    */
-   .filter("truncate", function () {
-      return function (text, length) {
-         if (text && text.length > length - 3) {
-            return text.substr(0, length - 3) + "...";
+            scope.$watch("data.item", function (item, old) {
+               if (item || old) {
+                  downloadService.setState(item);
+               }
+            });
          }
-         return text;
       };
-   });
+   }]).directive("downloadAdd", ['$rootScope', 'downloadService', 'flashService', function ($rootScope, downloadService, flashService) {
+      return {
+         template: "<button type='button' class='undecorated' ng-click='toggle()'><span class='fa-stack'  tooltip-placement='right' tooltip='Extract data.'>" + "<i class='fa fa-lg fa-download' ng-class='{active:item.download}'></i>" + "</span></button>",
+         restrict: "AE",
+         scope: {
+            item: "=",
+            group: "="
+         },
+         link: function link(scope, element) {
+            scope.toggle = function () {
+               if (scope.item.download) {
+                  downloadService.clear(scope.item);
+               } else {
+                  flashService.add("Select an area of interest that intersects the highlighted areas.");
+                  downloadService.add(scope.item);
+                  if (scope.group && scope.group.sysId) {
+                     $rootScope.$broadcast('hide.wms', scope.group.sysId);
+                  }
+               }
+            };
+         }
+      };
+   }]).directive("downloadEmail", ['downloadService', function (downloadService) {
+      return {
+         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-email">Email</span>' + '<input required="required" type="email" ng-change="download.changeEmail(email)" ng-model="email" class="form-control" placeholder="Email address to send download link" aria-describedby="bathy-email">' + '</div>',
+         restrict: "AE",
+         link: function link(scope, element) {
+            downloadService.getEmail().then(function (email) {
+               scope.email = email;
+            });
+         }
+      };
+   }]).directive("downloadFilename", ['flashService', 'downloadService', function (flashService, downloadService) {
+      return {
+         template: '<div class="input-group">' + '<span class="input-group-addon" id="bathy-filename">Filename</span>' + '<input type="text"' + ' ng-maxlength="30" ng-trim="true" ng-keypress="restrict($event)"' + ' ng-model="data.filename" class="form-control" placeholder="Optional filename" aria-describedby="bathy-filename">' + '<span class="input-group-addon" id="basic-addon2">.zip</span>' + '</div>' + '<div>Only up to 9 characters made up of alphanumeric or "_" allowed for file name</div>',
+         restrict: "AE",
+         scope: {
+            data: "="
+         },
+         link: function link(scope, element) {
+            var flasher;
+            scope.restrict = function (event) {
+               var key = event.keyCode;
+               var char = String.fromCharCode(key).toUpperCase();
+               if (key > 31 && !char.match(/[\_A-Z0-9]/ig)) {
+                  flashService.remove(flasher);
+                  flasher = flashService.add('Only alphanumeric characters or "_" allowed in filename.', 5000);
+                  event.preventDefault();
+               } else if (key > 31 && event.currentTarget.value && event.currentTarget.value.length >= 9) {
+                  flashService.remove(flasher);
+                  flasher = flashService.add('Filename is restricted to 9 characters.', 5000);
+                  event.preventDefault();
+               }
+            };
+         }
+      };
+   }]).controller("DownloadCtrl", DownloadCtrl).factory("downloadService", DownloadService);
 }
 angular.module("bathy.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("bathy/about/about.html","<span class=\"about\" ng-mouseenter=\"over()\" ng-mouseleave=\"out()\"\r\n      ng-class=\"(about.show || about.ingroup || about.stick) ? \'transitioned-down\' : \'transitioned-up\'\">\r\n   <button class=\"undecorated about-unstick\" ng-click=\"unstick()\" style=\"float:right\">X</button>\r\n   <div class=\"aboutHeading\">About MH370 Bathymetry</div>\r\n   <div ng-repeat=\"item in about.items\">\r\n      <a ng-href=\"{{item.link}}\" name=\"about{{$index}}\" title=\"{{item.heading}}\" target=\"_blank\">\r\n         {{item.heading}}\r\n      </a>\r\n   </div>\r\n</span>");
 $templateCache.put("bathy/about/button.html","<button ng-mouseenter=\"over()\" ng-mouseleave=\"out()\"\r\n      ng-click=\"toggleStick()\" tooltip-placement=\"left\" uib-tooltip=\"About MH370 Bathymetry\"\r\n      class=\"btn btn-primary btn-default\">About</button>");
@@ -3310,11 +3310,11 @@ $templateCache.put("download/datasets/formatsfilter.html","<div style=\"border-b
 $templateCache.put("download/datasets/metadata.html","<h4>\r\n   <a href=\"{{metadata.url}}\" target=\"_blank\" ng-mouseenter=\"metadata.show = true\" ng-mouseleave=\"metadata.show = false\">{{name}}</a>\r\n   <div bathy-popover show=\"metadata.show\" direction=\"custom-{{metadata.id}}\">\r\n      <h4>{{metadata.title}}</h4>\r\n      <div ng-repeat=\"line in (metadata.description | split)\">\r\n         <p>{{line}}</p>\r\n      </div>\r\n   </div>\r\n</h4>");
 $templateCache.put("download/datasets/type.html","<div class=\"dataset-group\">\r\n   <type-metadata metadata=\"type.metadata\" name=\"name\"></type-metadata>\r\n   <div class=\"dataset-subgroup\" ng-repeat=\"tile in type.tiles | withinBounds\" ng-mouseenter=\"show(tile)\" ng-mouseleave=\"hide()\">\r\n      <h5>\r\n         <input type=\"checkbox\" ng-model=\"tile.downloadables[0].selected\">\r\n         <a href=\"javascript:void(0)\" ng-click=\"zoom(tile)\">\r\n            {{tile.label || tile.tile_id}}\r\n            <span ng-if=\"tile.downloadables[0].file_size\">({{tile.downloadables[0].file_size | bytes}})</span>\r\n         </a>\r\n      </h5>\r\n   </div>\r\n</div>");
 $templateCache.put("download/reviewing/reviewing.html","<div class=\"modal-header\">\r\n   <h3 class=\"modal-title splash\">Review datasets, provide email and continue</h3>\r\n</div>\r\n<div class=\"modal-body\" id=\"accept\" ng-form exp-enter=\"accept()\" icsm-splash-modal style=\"width: 100%; margin-left: auto; margin-right: auto;\">\r\n   <div>\r\n      <div class=\"row\">\r\n         <div class=\"col-md-12\">\r\n            <h4>{{countAccepted()}} Selected Datasets</h4>\r\n            Review and delete unwanted datasets.\r\n         </div>\r\n      </div>\r\n\r\n      <div class=\"reviewing-datasets\">\r\n         <div class=\"row\" ng-repeat=\"product in products\" ng-class-odd=\"\'reviewing-odd\'\">\r\n            <div class=\"col-md-11\">\r\n               <button type=\"button\" class=\"btn btn-default btn-xs\" ng-click=\"product.removed = !product.removed\" role=\"checkbox\">\r\n                  <i class=\"fa fa-2x\" style=\"width:24px;height:20px;color:green\" ng-class=\"{\'fa-check\': !product.removed}\" aria-hidden=\"true\"></i>\r\n               </button>\r\n\r\n               <span style=\"padding-left:7px\" ng-class=\"{\'exclude\': product.removed}\" ng-if=\"product.download.parent.type == \'mosaic\'\">\r\n                  Mosaic {{product.download.parent.dataType}}\r\n                  - bounds:\r\n                     {{clip.yMin|number : 1}}&deg; west,\r\n                     {{clip.xMin|number : 1}}&deg; north,\r\n                     {{clip.yMax|number : 1}}&deg; east,\r\n                     {{clip.xMax|number : 1}}&deg; south\r\n               </span>\r\n\r\n\r\n\r\n               <span style=\"padding-left:7px\" ng-class=\"{\'exclude\': product.removed}\" ng-if=\"product.download.parent.type != \'mosaic\'\">\r\n                  {{product.download.parent.dataType}} <span style=\"font-weight:bold\">{{product.download.parent.tile_id}}</span>               - {{product.download.format}} - bounds: {{product.download.parent.bbox[0][1]|number : 1}}&deg; west, {{product.download.parent.bbox[1][0]|number\r\n               : 1}}&deg; north, {{product.download.parent.bbox[1][1]|number : 1}}&deg; east, {{product.download.parent.bbox[0][0]|number\r\n               : 1}}&deg; south\r\n               </span>\r\n\r\n\r\n            </div>\r\n            <div class=\"col-md-1\" style=\"padding:6px\">\r\n               {{product.download.file_size | bytes}}\r\n            </div>\r\n         </div>\r\n      </div>\r\n\r\n\r\n   </div>\r\n   <div class=\"row reviewing-divider\">\r\n      <div class=\"col-md-3\">\r\n         <label for=\"geoprocessOutputFormat\">\r\n					Output Format\r\n				</label>\r\n      </div>\r\n      <div class=\"col-md-9\">\r\n         <select id=\"geoprocessOutputFormat\" style=\"width:95%\" ng-model=\"data.outFormat\" ng-options=\"opt.value for opt in data.config.outFormat\"></select>\r\n      </div>\r\n   </div>\r\n   <div class=\"row\">\r\n      <div class=\"col-md-12\">\r\n         <p>\r\n            <strong>Email notification</strong> The extract of data can take some time. By providing an email address we\r\n            will be able to notify you when the job is complete. The email will provide a link to the extracted data which\r\n            will be packaged up as a single compressed file.\r\n         </p>\r\n         <div review-email></div>\r\n      </div>\r\n   </div>\r\n   <div class=\"row\">\r\n      <div class=\"col-md-12\">\r\n         <div class=\"pull-right\" style=\"padding:8px;\">\r\n            <button type=\"button\" class=\"btn btn-primary\" ng-click=\"accept()\" ng-disabled=\"!isValid()\">\r\n               Start extract of datasets\r\n             </button>\r\n            <button type=\"button\" class=\"btn btn-primary\" ng-click=\"cancel()\">Cancel</button>\r\n         </div>\r\n      </div>\r\n   </div>\r\n</div>");
-$templateCache.put("wizard/bbox/bbox.html","<button type=\"button\" class=\"undecorated\" ng-click=\"toggle()\" tooltip-placement=\"right\" tooltip=\"Show data extent on the map.\">\r\n	<i class=\"fa pad-right fa-lg\" ng-class=\"{\'fa-eye orange\':data.hasBbox,\'fa-eye-slash\':!data.hasBbox}\"></i>\r\n</button>");
 $templateCache.put("download/start/start.html","<div>\r\n   <map-clip></map-clip>\r\n   <datasets-container></datasets-container>\r\n</div>");
-$templateCache.put("wizard/download/download.html","<exp-modal ng-controller=\"DownloadCtrl as dl\" icon-class=\"fa-download\" is-open=\"dl.data.item.download\" title=\"Download data\" on-close=\"dl.remove()\" is-modal=\"true\">\r\n	<div style=\"padding:5px;\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>{{dl.data.item.title}}</h4>\r\n				{{dl.data.item.abstract}}\r\n   			</div>\r\n		</div>\r\n		<bathy-geoprocess data=\"dl.data.item\"></bathy-geoprocess>\r\n	</div>\r\n</exp-modal>");
-$templateCache.put("wizard/download/popup.html","<exp-modal icon-class=\"fa-download\"  is-open=\"data.item.download\" title=\"Download wizard\" on-close=\"dl.remove()\">\r\n	<div class=\"container-fluid downloadInner\" >\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{dl.data.item.sysId}}\" target=\"_blank\"><strong class=\"ng-binding\">{{dl.data.item.title}}</strong></a>\r\n				</h4>\r\n   			</div>\r\n		</div>\r\n		<wizard-geoprocess data=\"dl.data.item\"></wizard-geoprocess>\r\n	</div>\r\n</exp-modal>");
+$templateCache.put("wizard/bbox/bbox.html","<button type=\"button\" class=\"undecorated\" ng-click=\"toggle()\" tooltip-placement=\"right\" tooltip=\"Show data extent on the map.\">\r\n	<i class=\"fa pad-right fa-lg\" ng-class=\"{\'fa-eye orange\':data.hasBbox,\'fa-eye-slash\':!data.hasBbox}\"></i>\r\n</button>");
+$templateCache.put("wizard/search/search.html","<div>\r\n<div style=\"position:relative;padding:5px;padding-left:10px;\" ng-controller=\"SearchCtrl as search\" class=\"scrollPanel\">\r\n	<p style=\"text-align: left; margin: 10px; font-size: 16px;\">\r\n		<strong>Search</strong>\r\n	</p>\r\n	<form class=\"form-horizontal\">\r\n		<div class=\"well\">\r\n			<div class=\"form-group\">\r\n				<label for=\"searchFilter\" class=\"col-sm-1 control-label\">Filter</label>\r\n				<div class=\"col-sm-11\">\r\n					<input placeholder=\'Leave blank to match all, type to filter results\' type=\"text\" class=\"form-control\" ng-keyup=\"search.search()\" ng-model=\"search.filter\" ></input>\r\n				</div>\r\n			</div>\r\n			<div>\r\n				<span ng-show=\"search.data.response.docs\">\r\n					<strong>Showing</strong> {{search.data.response.docs.length}} of {{search.data.response.numFound}} <strong>matches. </strong>\r\n					({{search.data.responseHeader.QTime/ 1000}} seconds)\r\n					<span ng-show=\"search.data.responseHeader\" class=\"pull-right\">\r\n\r\n						<div class=\"btn-group\" dropdown style=\"padding-right:1em\">\r\n							<button type=\"button\" class=\"undecorated\" bathy-bbox-show-all style=\"padding-left:5em\">\r\n								Show all data extents\r\n							</button>\r\n						    <button type=\"button\" class=\"undecorated dropdown-toggle\" dropdown-toggle title=\"Restrict datasets based on area of coverage\">\r\n        						<span class=\"caret\"></span>\r\n        						<span class=\"sr-only\">More options for showing and hiding datasets\' extents based on size and if only some are viewable.</span>\r\n      						</button>\r\n      						<ul class=\"dropdown-menu\" role=\"menu\">\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-show-visible  tooltip=\"Show only those datasets that have all of their data within the current viewable map\">Show fully visible</a></li>\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-hide-all  tooltip=\"Hide all datasets\' bounding area. \">Hide all</a></li>\r\n      						</ul>\r\n    					</div>\r\n					</span>\r\n				</span>\r\n			</div>\r\n			<div>\r\n				<div class=\"container-fluid\">\r\n					<bathy-extent></bathy-extent>\r\n					<bathy-facetenable></bathy-facetenable>\r\n					<bathy-daterange></bathy-daterange>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</form>\r\n\r\n	<div class=\"container\" style=\"width:100%\">\r\n		<div class=\"row\" ng-repeat=\"doc in search.data.response.docs\">\r\n			<div class=\"col-md-12\"  ng-class-odd=\"\'odd\'\" ng-class-even=\"\'even\'\" ng-mouseleave=\"search.lolight(doc)\" ng-mouseenter=\"search.hilight(doc)\">\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;\">\r\n					<button type=\"button\" class=\"undecorated\" ng-click=\"expanded = !expanded\" title=\"Click to see more about this dataset\" tooltip-placement=\"right\" tooltip=\"Show more details.\">\r\n						<i class=\"fa pad-right fa-2x\" ng-class=\"{\'fa-caret-down\':expanded,\'fa-caret-right\':(!expanded)}\"></i>\r\n					</button>\r\n					<download-add item=\"doc\"></download-add>\r\n					<bathy-wms data=\"doc\"></bathy-wms>\r\n					<bathy-bbox data=\"doc\" ng-if=\"doc.showExtent\"></bathy-bbox>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{doc.sysId}}\" target=\"_blank\" ><strong>{{doc.title}}</strong></a>\r\n				</span>\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;padding-right:15px;\"\r\n						tooltip-enable=\"!expanded\" tooltip-class=\"searchAbstractTooltip\" tooltip=\"{{doc.abstract | truncate : 250}}\" >\r\n					<download-actions doc=\"doc\" ng-show=\"expanded\"></download-actions>\r\n					{{doc.abstract}}\r\n				</span>\r\n				<div ng-show=\"expanded\">\r\n					<h6>Authors</h6>\r\n					{{doc.author | authors}}\r\n					<h6>Keywords</h6>\r\n					<div>\r\n						<span class=\"badge\" ng-repeat=\"keyword in doc.keywords track by $index\">{{keyword}}</span>\r\n					</div>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n</div>");
 $templateCache.put("wizard/clip/clip.html","<div class=\"well well-sm\" style=\"margin-bottom:5px\">\r\n	<div class=\"container-fluid\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\" style=\"padding:0\">\r\n				<div class=\"\" role=\"group\" aria-label=\"...\">\r\n					<button ng-click=\"initiateDraw()\" ng-disable=\"client.drawing\"\r\n                      tooltip-append-to-body=\"true\" tooltip-placement=\"bottom\" uib-tooltip=\"Enable drawing of a bounding box. On enabling, click on the map and drag diagonally\"\r\n						class=\"btn btn-primary btn-default\">Select an area...</button>\r\n               <span style=\"float:right\">\r\n					   <button ng-click=\"showInfo = !showInfo\" tooltip-placement=\"left\" uib-tooltip=\"Information.\" class=\"btn btn-primary btn-default\"><i class=\"fa fa-info\"></i></button>\r\n					   <bathy-about-link></bathy-about-link>\r\n               </span>\r\n            </div>\r\n            <bathy-about></bathy-about>\r\n				<exp-info title=\"Selecting an area\" show-close=\"true\" style=\"width:450px;position:fixed;top:200px;right:40px\" is-open=\"showInfo\">\r\n					<clip-info-bbox></clip-info-bbox>\r\n				</exp-info>\r\n			</div>\r\n		</div>\r\n\r\n		<div ng-show=\"oversize\" style=\"margin-top:6px\">\r\n			<div class=\"alert alert-danger\"\r\n            style=\"padding:2px; margin-bottom:0px\" role=\"alert\">Please restrict the size of your selected area to no more than 2000 square degrees.</div>\r\n		</div>\r\n\r\n		<div class=\"row\" ng-hide=\"(!clip.xMin && clip.xMin != 0) || oversize\" style=\"padding-top:7px;\">\r\n			<div class=\"col-md-12\">\r\n				Selected bounds: {{clip.xMin|number : 4}}&deg; west, {{clip.yMax|number : 4}}&deg; north, {{clip.xMax|number : 4}}&deg; east, {{clip.yMin|number\r\n				: 4}}&deg; south\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"container-fluid\" style=\"padding-top:7px\" ng-show=\"typing\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\"> </div>\r\n			<div class=\"col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">X Max:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.xMax\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.xMax|number : 4}} max)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-offset-3 col-md-8\">\r\n				<div style=\"font-weight:bold;width:3.5em;display:inline-block\">Y Min:</div>\r\n				<span>\r\n               <input type=\"text\" style=\"width:6em\" ng-model=\"clip.yMin\" ng-change=\"check()\"></input>\r\n               <span ng-show=\"showBounds && bounds\">({{bounds.yMin|number : 4}} min)</span>\r\n				</span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("wizard/clip/infobbox.html","<div class=\"\">\r\n	<strong style=\"font-size:120%\">Select an area of interest.</strong>\r\n   By hitting the \"Select an area...\" button an area on the map can be selected with the mouse by clicking a\r\n   corner and while holding the left mouse button\r\n	down drag diagonally across the map to the opposite corner.\r\n	<br/>\r\n	Clicking the \"Select an area...\" button again allows replacing a previous area selection. <br/>\r\n	<strong>Notes:</strong>\r\n   <ul>\r\n      <li>Data is only available in the gridded area to the west of Australia.</li>\r\n      <li>Can\'t move the map? The shown area is restricted to where there is data.</li>\r\n   </ul>\r\n	<p style=\"padding-top:5px\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.\r\n		You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you have made an error in the\r\n      position of your area of interest, hit the \"Select an area...\" button and draw a new bounding box.\r\n	</p>\r\n</div>");
 $templateCache.put("wizard/geoprocess/geoprocess.html","<div class=\"container-fluid fred\" ng-form>\r\n	<div ng-show=\"stage==\'bbox\'\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\">\r\n				<wizard-clip trigger=\"stage == \'bbox\'\" drawn=\"drawn()\" clip=\"data.processing.clip\" bounds=\"data.bounds\"></wizard-clip>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n 			<div class=\"col-md-12\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validClip(data) || checkingOrFailed\" ng-click=\"stage=\'formats\'\">Next</button>\r\n			</div>\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Select an area of interest.</strong> There are two ways to select your area of interest:\r\n			<ol>\r\n				<li>Draw an area on the map with the mouse by clicking a corner and while holding the left mouse button\r\n					down drag diagonally across the map to the opposite corner or</li>\r\n				<li>Type your co-ordinates into the areas above.</li>\r\n			</ol>\r\n			Once drawn the points can be modified by the overwriting the values above or drawing another area by clicking the draw button again.\r\n			Ensure you select from the highlighted areas as the data can be quite sparse for some data.<br/>\r\n			<p style=\"padding-top:5px\">\r\n			<strong>Warning:</strong> Some extracts can be huge. It is best if you start with a small area to experiment with first. An email will be sent\r\n			with the size of the extract. Download judiciously.\r\n			</p>\r\n			<p style=\"padding-top\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.\r\n            You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you have made an error in the\r\n            position of your area of interest, hit the \"Select an area...\" button and draw a new bounding box.\r\n			</p>\r\n		</div>\r\n	</div>\r\n\r\n	<div ng-show=\"stage==\'formats\'\">\r\n		<div class=\"well\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutputFormat\">\r\n					Output Format\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutputFormat\" style=\"width:95%\" ng-model=\"data.processing.outFormat\" ng-options=\"opt.value for opt in config.outFormat\"></select>\r\n			</div>\r\n		</div>\r\n		<div class=\"row\">\r\n			<div class=\"col-md-3\">\r\n				<label for=\"geoprocessOutCoordSys\">\r\n					Coordinate System\r\n				</label>\r\n			</div>\r\n			<div class=\"col-md-9\">\r\n				<select id=\"geoprocessOutCoordSys\" style=\"width:95%\" ng-model=\"data.processing.outCoordSys\" ng-options=\"opt.value for opt in config.outCoordSys | sysIntersect : data.processing.clip\"></select>\r\n			</div>\r\n		</div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'bbox\'\">Previous</button>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!validSansEmail(data)\" ng-click=\"stage=\'email\'\">Next</button>\r\n   			</div>\r\n		</div>\r\n\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Data representation.</strong> Select how you want your data presented.<br/>\r\n			Output format is the structure of the data and you should choose a format compatible with the tools that you will use to manipulate the data.\r\n			<ul>\r\n				<li ng-repeat=\"format in outFormats\"><strong>{{format.value}}</strong> - {{format.description}}</li>\r\n			</ul>\r\n			Select what <i>coordinate system</i> or projection you would like. If in doubt select WGS84.<br/>\r\n			Not all projections cover all of Australia. If the area you select is not covered by a particular projection then the option to download in that projection will not be available.\r\n		</div>\r\n	</div>\r\n\r\n	<div ng-show=\"stage==\'email\'\">\r\n		<div class=\"well\" exp-enter=\"stage=\'confirm\'\">\r\n			<div download-email></div>\r\n			<br/>\r\n			<div download-filename data=\"data.processing\"></div>\r\n		</div>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" ng-click=\"stage=\'formats\'\">Previous</button>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-disabled=\"!allDataSet(data)\" ng-click=\"stage=\'confirm\'\">Submit</button>\r\n   			</div>\r\n		</div>\r\n		<div class=\"well\">\r\n			<strong style=\"font-size:120%\">Email notification</strong> The extract of data can take some time. By providing an email address we will be able to notify you when the job is complete. The email will provide a link to the extracted\r\n			data which will be packaged up as a single file. To be able to proceed you need to have provided:\r\n			<ul>\r\n				<li>An area of interest to extract the data (referred to as a bounding box).</li>\r\n				<li>An output format.</li>\r\n				<li>A valid coordinate system or projection.</li>\r\n				<li>An email address to receive the details of the extraction.</li>\r\n				<li><strong>Note:</strong>Email addresses need to be and are stored in the system.</li>\r\n			</ul>\r\n			<strong style=\"font-size:120%\">Optional filename</strong> The extract of data can take some time. By providing an optional filename it will allow you\r\n			to associate extracted data to your purpose for downloading data. For example:\r\n			<ul>\r\n				<li>myHouse will have a file named myHouse.zip</li>\r\n				<li>Sorrento would result in a file named Sorrento.zip</li>\r\n			</ul>\r\n		</div>\r\n	</div>\r\n\r\n	<div ng-show=\"stage==\'confirm\'\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12 abstractContainer\">\r\n				{{data.abstract}}\r\n			</div>\r\n		</div>\r\n		<h3>You have chosen:</h3>\r\n		<table class=\"table table-striped\">\r\n			<tbody>\r\n				<tr>\r\n					<th>Area</th>\r\n					<td>\r\n						<span style=\"display:inline-block; width: 10em\">Lower left (lat/lng&deg;):</span> {{data.processing.clip.yMin | number : 6}}, {{data.processing.clip.xMin | number : 6}}<br/>\r\n						<span style=\"display:inline-block;width: 10em\">Upper right (lat/lng&deg;):</span> {{data.processing.clip.yMax | number : 6}}, {{data.processing.clip.xMax | number : 6}}\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Output format</th>\r\n					<td>{{data.processing.outFormat.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Coordinate system</th>\r\n					<td>{{data.processing.outCoordSys.value}}</td>\r\n				</tr>\r\n				<tr>\r\n					<th>Email address</th>\r\n					<td>{{email}}</td>\r\n				</tr>\r\n				<tr ng-show=\"data.processing.filename\">\r\n					<th>Filename</th>\r\n					<td>{{data.processing.filename}}</td>\r\n				</tr>\r\n			</tbody>\r\n		</table>\r\n		<div class=\"row\" style=\"height:55px\">\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary\" style=\"width:6em\" ng-click=\"stage=\'email\'\">Back</button>\r\n			</div>\r\n			<div class=\"col-md-6\">\r\n				<button class=\"btn btn-primary pull-right\" ng-click=\"startExtract()\">Confirm</button>\r\n   			</div>\r\n		</div>\r\n	</div>\r\n</div>");
-$templateCache.put("wizard/search/search.html","<div>\r\n<div style=\"position:relative;padding:5px;padding-left:10px;\" ng-controller=\"SearchCtrl as search\" class=\"scrollPanel\">\r\n	<p style=\"text-align: left; margin: 10px; font-size: 16px;\">\r\n		<strong>Search</strong>\r\n	</p>\r\n	<form class=\"form-horizontal\">\r\n		<div class=\"well\">\r\n			<div class=\"form-group\">\r\n				<label for=\"searchFilter\" class=\"col-sm-1 control-label\">Filter</label>\r\n				<div class=\"col-sm-11\">\r\n					<input placeholder=\'Leave blank to match all, type to filter results\' type=\"text\" class=\"form-control\" ng-keyup=\"search.search()\" ng-model=\"search.filter\" ></input>\r\n				</div>\r\n			</div>\r\n			<div>\r\n				<span ng-show=\"search.data.response.docs\">\r\n					<strong>Showing</strong> {{search.data.response.docs.length}} of {{search.data.response.numFound}} <strong>matches. </strong>\r\n					({{search.data.responseHeader.QTime/ 1000}} seconds)\r\n					<span ng-show=\"search.data.responseHeader\" class=\"pull-right\">\r\n\r\n						<div class=\"btn-group\" dropdown style=\"padding-right:1em\">\r\n							<button type=\"button\" class=\"undecorated\" bathy-bbox-show-all style=\"padding-left:5em\">\r\n								Show all data extents\r\n							</button>\r\n						    <button type=\"button\" class=\"undecorated dropdown-toggle\" dropdown-toggle title=\"Restrict datasets based on area of coverage\">\r\n        						<span class=\"caret\"></span>\r\n        						<span class=\"sr-only\">More options for showing and hiding datasets\' extents based on size and if only some are viewable.</span>\r\n      						</button>\r\n      						<ul class=\"dropdown-menu\" role=\"menu\">\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-show-visible  tooltip=\"Show only those datasets that have all of their data within the current viewable map\">Show fully visible</a></li>\r\n        						<li><a role=\"button\" href=\"javascript:;\" bathy-bbox-hide-all  tooltip=\"Hide all datasets\' bounding area. \">Hide all</a></li>\r\n      						</ul>\r\n    					</div>\r\n					</span>\r\n				</span>\r\n			</div>\r\n			<div>\r\n				<div class=\"container-fluid\">\r\n					<bathy-extent></bathy-extent>\r\n					<bathy-facetenable></bathy-facetenable>\r\n					<bathy-daterange></bathy-daterange>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</form>\r\n\r\n	<div class=\"container\" style=\"width:100%\">\r\n		<div class=\"row\" ng-repeat=\"doc in search.data.response.docs\">\r\n			<div class=\"col-md-12\"  ng-class-odd=\"\'odd\'\" ng-class-even=\"\'even\'\" ng-mouseleave=\"search.lolight(doc)\" ng-mouseenter=\"search.hilight(doc)\">\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;\">\r\n					<button type=\"button\" class=\"undecorated\" ng-click=\"expanded = !expanded\" title=\"Click to see more about this dataset\" tooltip-placement=\"right\" tooltip=\"Show more details.\">\r\n						<i class=\"fa pad-right fa-2x\" ng-class=\"{\'fa-caret-down\':expanded,\'fa-caret-right\':(!expanded)}\"></i>\r\n					</button>\r\n					<download-add item=\"doc\"></download-add>\r\n					<bathy-wms data=\"doc\"></bathy-wms>\r\n					<bathy-bbox data=\"doc\" ng-if=\"doc.showExtent\"></bathy-bbox>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{doc.sysId}}\" target=\"_blank\" ><strong>{{doc.title}}</strong></a>\r\n				</span>\r\n				<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;padding-right:15px;\"\r\n						tooltip-enable=\"!expanded\" tooltip-class=\"searchAbstractTooltip\" tooltip=\"{{doc.abstract | truncate : 250}}\" >\r\n					<download-actions doc=\"doc\" ng-show=\"expanded\"></download-actions>\r\n					{{doc.abstract}}\r\n				</span>\r\n				<div ng-show=\"expanded\">\r\n					<h6>Authors</h6>\r\n					{{doc.author | authors}}\r\n					<h6>Keywords</h6>\r\n					<div>\r\n						<span class=\"badge\" ng-repeat=\"keyword in doc.keywords track by $index\">{{keyword}}</span>\r\n					</div>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n</div>");}]);
+$templateCache.put("wizard/download/download.html","<exp-modal ng-controller=\"DownloadCtrl as dl\" icon-class=\"fa-download\" is-open=\"dl.data.item.download\" title=\"Download data\" on-close=\"dl.remove()\" is-modal=\"true\">\r\n	<div style=\"padding:5px;\">\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>{{dl.data.item.title}}</h4>\r\n				{{dl.data.item.abstract}}\r\n   			</div>\r\n		</div>\r\n		<bathy-geoprocess data=\"dl.data.item\"></bathy-geoprocess>\r\n	</div>\r\n</exp-modal>");
+$templateCache.put("wizard/download/popup.html","<exp-modal icon-class=\"fa-download\"  is-open=\"data.item.download\" title=\"Download wizard\" on-close=\"dl.remove()\">\r\n	<div class=\"container-fluid downloadInner\" >\r\n		<div class=\"row\">\r\n  			<div class=\"col-md-12\">\r\n				<h4><bathy-wms data=\"dl.data.item\"></bathy-wms>\r\n					<a href=\"http://www.ga.gov.au/metadata-gateway/metadata/record/{{dl.data.item.sysId}}\" target=\"_blank\"><strong class=\"ng-binding\">{{dl.data.item.title}}</strong></a>\r\n				</h4>\r\n   			</div>\r\n		</div>\r\n		<wizard-geoprocess data=\"dl.data.item\"></wizard-geoprocess>\r\n	</div>\r\n</exp-modal>");}]);

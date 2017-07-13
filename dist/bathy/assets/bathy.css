@@ -788,6 +788,21 @@ i.fa.active {
 .marsMessages a {
   display: none;
 }
+.searchContainer {
+  width: 100%;
+}
+
+.searchAbstractTooltip {
+  width: 250px;
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 .wizardPopup {
   position: fixed;
   top: 20px;
@@ -836,19 +851,4 @@ i.fa.active {
   .downloadInner {
     max-height: 350px;
   }
-}
-.searchContainer {
-  width: 100%;
-}
-
-.searchAbstractTooltip {
-  width: 250px;
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
 }
