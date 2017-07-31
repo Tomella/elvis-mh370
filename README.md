@@ -36,14 +36,15 @@ First thing is get yourself a Linux AMI virtual machine. This thing takes hardly
 have a small footprint and minimal resource usage. I didn't create the instances but this is what I would think needs doing:
 
 * Create a `t2.micro` instance
-* Allocate a public IP to it
-* Point a DNS entry at the public IP
+* Allocate a public IP to it: [Elastic IP](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html?icmpid=docs_ec2_console)
+* Point a DNS entry at the public IP, this is done through your local domain manager.
 * Create a security group that has inbound connections for: HTTP (80), SSH (22) and maybe HTTPS (443) and
-* Outbound connections on `all`
+* Outbound connections on `all` [](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html?icmpid=docs_ec2_console)
 * Get yourself some [PEM's](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
+* [Add the PEM to Putty](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html)
 * With the PEMs set up you should be able to SSH into your instance using your public IP
 
-Once logged in you are now ready to setup for your software. All the support software is listed in `deployment/load_app_dependencies`
+Once logged in you are now ready to setup the software dependencies. All the support software is [listed in here] (../deployment/load_app_dependencies)
 
 Seeing as you do not have git installed yet it is pretty simple to
 * `sudo bash`
