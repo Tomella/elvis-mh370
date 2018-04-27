@@ -5,7 +5,7 @@ Exposing bathymetry data gathered from the Bathy search.
 ### What is this repository for? ###
 
 * Client side code to collect user input to farm off to the FME or other bespoke services/
-* Version 0.0.4
+* Version 0.0.5
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
