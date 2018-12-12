@@ -285,52 +285,6 @@ input.ng-valid.ng-touched {
 .lgaContainer .row {
   font-size: 110%;
 }
-.nav-icons {
-  margin-top: 7px !important;
-}
-
-@media only screen and (max-width:1200px) {
-  .nav-icons {
-    margin-top: 30px;
-  }
-}
-
-.breadcrumbsContainer {
-  margin-left: 245px;
-}
-
-.header-logo img {
-  padding-top: 3px;
-}
-
-.header-logo {
-  padding-right: 20px;
-}
-
-.applicationTitle {
-  padding-left: 20px;
-  font-size: 200%;
-}
-
-.common-header {
-  background-color: white;
-}
-
-.searchBar {
-  position: fixed;
-  top: 18px;
-  right: 118px;
-  width: 35em;
-  z-index: 2000;
-  width: 27em;
-  opacity: 0.9;
-}
-
-@media only screen and (max-width:1100px) {
-  .searchBar {
-    width: 23em;
-  }
-}
 .bathyTabs {
   position: absolute;
   top: 60px;
@@ -410,6 +364,52 @@ input.ng-valid.ng-touched {
   overflow-y: auto;
   overflow-x: hidden;
 }
+.nav-icons {
+  margin-top: 7px !important;
+}
+
+@media only screen and (max-width:1200px) {
+  .nav-icons {
+    margin-top: 30px;
+  }
+}
+
+.breadcrumbsContainer {
+  margin-left: 245px;
+}
+
+.header-logo img {
+  padding-top: 3px;
+}
+
+.header-logo {
+  padding-right: 20px;
+}
+
+.applicationTitle {
+  padding-left: 20px;
+  font-size: 200%;
+}
+
+.common-header {
+  background-color: white;
+}
+
+.searchBar {
+  position: fixed;
+  top: 18px;
+  right: 118px;
+  width: 35em;
+  z-index: 2000;
+  width: 27em;
+  opacity: 0.9;
+}
+
+@media only screen and (max-width:1100px) {
+  .searchBar {
+    width: 23em;
+  }
+}
 .bathy-popover {
   z-index: 1060;
   max-width: 600px;
@@ -478,21 +478,6 @@ input.ng-valid.ng-touched {
   .leaflet-control-attribution {
     display: none !important;
   }
-}
-.selectContainer {
-  width: 100%;
-}
-
-.selectAbstractTooltip {
-  /* width:450px; */
-}
-
-.orange {
-  color: orange;
-}
-
-i.fa.active {
-  color: red;
 }
 /* Side Panel */
 
@@ -592,6 +577,21 @@ i.fa.active {
 .cbp-spmenu-open .right-side-menu-container {
   overflow-y: auto;
 }
+.selectContainer {
+  width: 100%;
+}
+
+.selectAbstractTooltip {
+  /* width:450px; */
+}
+
+.orange {
+  color: orange;
+}
+
+i.fa.active {
+  color: red;
+}
 .bathy-toolbar {
   position: fixed;
   top: 82px;
@@ -649,6 +649,58 @@ i.fa.active {
   border: none;
   height: 30px;
   font-size: 13px;
+}
+.reviewing-odd {
+  background-color: #eeeeee;
+}
+
+.row.reviewing-divider {
+  border-top: 1px solid lightgray;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.reviewing-datasets {
+  max-height: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reviewing-mosaic {
+  padding-left: 20px;
+}
+
+.reviewing-label {
+  width: 15em;
+}
+
+.reviewing-select {
+  width: 35em;
+}
+
+@media (max-height: 750px) {
+  .reviewing-datasets {
+    max-height: 350px;
+  }
+}
+
+@media (max-height: 650px) {
+  .reviewing-datasets {
+    max-height: 250px;
+  }
+}
+
+.exclude {
+  color: #777777;
+  text-decoration: line-through;
+}
+
+.marsMessages {
+  max-width: 600px;
+}
+
+.marsMessages a {
+  display: none;
 }
 .continue-container {
   padding: 4px;
@@ -735,58 +787,6 @@ i.fa.active {
   top: 240px;
   right: 543px;
   max-width: 680px;
-}
-.reviewing-odd {
-  background-color: #eeeeee;
-}
-
-.row.reviewing-divider {
-  border-top: 1px solid lightgray;
-  padding-top: 5px;
-  margin-top: 5px;
-}
-
-.reviewing-datasets {
-  max-height: 450px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.reviewing-mosaic {
-  padding-left: 20px;
-}
-
-.reviewing-label {
-  width: 15em;
-}
-
-.reviewing-select {
-  width: 35em;
-}
-
-@media (max-height: 750px) {
-  .reviewing-datasets {
-    max-height: 350px;
-  }
-}
-
-@media (max-height: 650px) {
-  .reviewing-datasets {
-    max-height: 250px;
-  }
-}
-
-.exclude {
-  color: #777777;
-  text-decoration: line-through;
-}
-
-.marsMessages {
-  max-width: 600px;
-}
-
-.marsMessages a {
-  display: none;
 }
 .wizardPopup {
   position: fixed;
