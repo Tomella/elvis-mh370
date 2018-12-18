@@ -1,141 +1,3 @@
-.continue-container {
-  padding: 4px;
-  position: fixed;
-  bottom: 8px;
-  right: 16px;
-  width: 30em;
-}
-
-.listItemHeading {
-  font-weight: bold;
-}
-
-.listItemLas,
-.listItemPrj,
-.listItemAsc {
-  padding-left: 10px;
-}
-
-.listEven {
-  background-color: #eee;
-}
-
-.listRow {
-  border-bottom: 1px solid lightgray;
-}
-
-.listRow div {
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
-
-.listTypeLabel {
-  font-weight: bold;
-}
-
-.listType {
-  padding-left: 7px;
-  display: inline-block;
-}
-
-.listItem {
-  padding-left: 6px;
-  padding-bottom: 6px;
-}
-
-.listTopExpander {
-  float: right;
-  padding-top: 30px;
-  font-size: 80%;
-}
-.dataset-group {
-  padding-left: 5px;
-}
-
-.dataset-list {
-  padding-bottom: 40px;
-}
-
-.dataset-subgroup {
-  padding-left: 5px;
-}
-
-.dataset-item {
-  padding-left: 5px;
-}
-
-.custom-100315 {
-  position: fixed;
-  top: 130px;
-  right: 543px;
-  max-width: 650px;
-}
-
-.custom-110643 {
-  position: fixed;
-  top: 190px;
-  right: 543px;
-  max-width: 440px;
-}
-
-.custom-82625 {
-  position: fixed;
-  top: 240px;
-  right: 543px;
-  max-width: 680px;
-}
-.reviewing-odd {
-  background-color: #eeeeee;
-}
-
-.row.reviewing-divider {
-  border-top: 1px solid lightgray;
-  padding-top: 5px;
-  margin-top: 5px;
-}
-
-.reviewing-datasets {
-  max-height: 450px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.reviewing-mosaic {
-  padding-left: 20px;
-}
-
-.reviewing-label {
-  width: 15em;
-}
-
-.reviewing-select {
-  width: 35em;
-}
-
-@media (max-height: 750px) {
-  .reviewing-datasets {
-    max-height: 350px;
-  }
-}
-
-@media (max-height: 650px) {
-  .reviewing-datasets {
-    max-height: 250px;
-  }
-}
-
-.exclude {
-  color: #777777;
-  text-decoration: line-through;
-}
-
-.marsMessages {
-  max-width: 600px;
-}
-
-.marsMessages a {
-  display: none;
-}
 .about {
   margin: 2px;
   padding: 10px;
@@ -787,6 +649,144 @@ i.fa.active {
   border: none;
   height: 30px;
   font-size: 13px;
+}
+.reviewing-odd {
+  background-color: #eeeeee;
+}
+
+.row.reviewing-divider {
+  border-top: 1px solid lightgray;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.reviewing-datasets {
+  max-height: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reviewing-mosaic {
+  padding-left: 20px;
+}
+
+.reviewing-label {
+  width: 15em;
+}
+
+.reviewing-select {
+  width: 35em;
+}
+
+@media (max-height: 750px) {
+  .reviewing-datasets {
+    max-height: 350px;
+  }
+}
+
+@media (max-height: 650px) {
+  .reviewing-datasets {
+    max-height: 250px;
+  }
+}
+
+.exclude {
+  color: #777777;
+  text-decoration: line-through;
+}
+
+.marsMessages {
+  max-width: 600px;
+}
+
+.marsMessages a {
+  display: none;
+}
+.continue-container {
+  padding: 4px;
+  position: fixed;
+  bottom: 8px;
+  right: 16px;
+  width: 30em;
+}
+
+.listItemHeading {
+  font-weight: bold;
+}
+
+.listItemLas,
+.listItemPrj,
+.listItemAsc {
+  padding-left: 10px;
+}
+
+.listEven {
+  background-color: #eee;
+}
+
+.listRow {
+  border-bottom: 1px solid lightgray;
+}
+
+.listRow div {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.listTypeLabel {
+  font-weight: bold;
+}
+
+.listType {
+  padding-left: 7px;
+  display: inline-block;
+}
+
+.listItem {
+  padding-left: 6px;
+  padding-bottom: 6px;
+}
+
+.listTopExpander {
+  float: right;
+  padding-top: 30px;
+  font-size: 80%;
+}
+.dataset-group {
+  padding-left: 5px;
+}
+
+.dataset-list {
+  padding-bottom: 40px;
+}
+
+.dataset-subgroup {
+  padding-left: 5px;
+}
+
+.dataset-item {
+  padding-left: 5px;
+}
+
+.custom-100315 {
+  position: fixed;
+  top: 130px;
+  right: 543px;
+  max-width: 650px;
+}
+
+.custom-110643 {
+  position: fixed;
+  top: 190px;
+  right: 543px;
+  max-width: 440px;
+}
+
+.custom-82625 {
+  position: fixed;
+  top: 240px;
+  right: 543px;
+  max-width: 680px;
 }
 .wizardPopup {
   position: fixed;
